@@ -1,0 +1,77 @@
+# All of these fields are optional, as is this file itself,
+#   in which case these values can be managed in the UI.
+
+# The name of the stage.
+# project_name: "Stage Template"
+
+# A short tagline to show in search.
+# tagline: "A base template for all stages."
+
+# 'PUBLIC', 'PRIVATE', or 'UNLISTED'.
+# visibility: 'PUBLIC'
+
+# 'ADJACENT' | 'NONE' | 'COVER' | 'FULLSCREEN'
+# 'ADJACENT' is default. The frame will display on the side of the
+#   chat on desktop and above/in the top half of the chat on mobile.
+# 'NONE' will not display, only run.
+# 'COVER' will, indeed, cover the chat history completely,
+#   but leave the text input box.
+# 'FULLSCREEN' will make nothing below the header bar
+#   show except for your stage.
+# position: 'ADJACENT'
+
+# Self-explanatory.
+# tags:
+#  - 'Stage'
+#  - 'Admin'
+#  - 'Template'
+#  - 'Base'
+
+# The schema of any user-supplied config.
+# If your stage requires a configuration but has no
+#   defined schema, it won't work.
+config_schema:
+  type: object
+  properties:
+    health:
+      type: integer
+      default: 100
+
+# The schema of the state that you store.
+# This isn't needed even if you do store state,
+#   and is here more for future use cases to
+#   optimize storage.
+state_schema:
+  init:
+    type: object
+    properties:
+      grid:
+        type: string
+  message:
+    type: object
+    properties:
+      angry:
+        type: boolean
+        default: true
+  chat:
+    type: object
+    properties:
+      visited:
+        type: array
+        items:
+          type: integer
+
+# Whether to publish as 'Anonymous' instead of under your username.
+# is_anonymous: false
+
+# Self-explanatory.
+# ratings_disabled: false
+
+# This is here for future cases where ex. you need user secrets,
+#    but currently does nothing.
+# permissions:
+
+# extension_id is automatically generated on push with a new project;
+#    you should not make or set this value.
+# github_path will be added if it does not exist. It is the URL of the repo.
+
