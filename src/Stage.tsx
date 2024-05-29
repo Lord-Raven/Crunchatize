@@ -264,26 +264,13 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     }
     
     render(): ReactElement {
-        /***
-         There should be no "work" done here. Just returning the React element to display.
-         If you're unfamiliar with React and prefer video, I've heard good things about
-         @link https://scrimba.com/learn/learnreact but haven't personally watched/used it.
 
-         For creating 3D and game components, react-three-fiber
-           @link https://docs.pmnd.rs/react-three-fiber/getting-started/introduction
-           and the associated ecosystem of libraries are quite good and intuitive.
-
-         Cuberun is a good example of a game built with them.
-           @link https://github.com/akarlsten/cuberun (Source)
-           @link https://cuberun.adamkarlsten.com/ (Demo)
-         ***/
         return <div style={{
             width: '100vw',
             height: '100vh',
             display: 'grid',
             alignItems: 'stretch'
         }}>
-            <div>{this.lastOutcome ? (this.lastOutcome as Outcome).render() : ''}</div>
             <div>{this.currentMessage}</div>
             <div>{this.actionPrompt}</div>
             <div>
