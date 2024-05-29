@@ -1,6 +1,7 @@
 import {ReactElement} from "react";
 import {StageBase, StageResponse, InitialData, Message} from "@chub-ai/stages-ts";
 import {LoadResponse} from "@chub-ai/stages-ts/dist/types/load";
+import {Action} from "./Action";
 
 /***
  The type that this stage persists message-level state in.
@@ -46,12 +47,16 @@ type ChatStateType = any;
  ***/
 export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateType, ConfigType> {
 
-    /***
-     A very simple example internal state. Can be anything.
-     This is ephemeral in the sense that it isn't persisted to a database,
-     but exists as long as the instance does, i.e., the chat page is open.
-     ***/
-    myInternalState: {[key: string]: any};
+    readonly defaultStat: number = 0;
+    readonly actionPrompt: string = '[End each response with three to six varied actions the user may take, formatted specifically as such:\n' +
+        '"(Stat+Modifier) Action description"\n' +
+        'Where "Stat" is one of eight core stats, using these descriptions and sample actions as inspiration:\n' +
+        '{Object.keys(Stat).map(key => `${key}: ${StatDescription[key as any]}`)\n' +
+        'And "Modifier" is a relative difficulty between -5 and 5.]';
+
+    stats: {[key: string]: number} = {};
+    currentMessage: string = '';
+    options: {[key: string]: Action} = {};
 
     constructor(data: InitialData<InitStateType, ChatStateType, MessageStateType, ConfigType>) {
         /***
@@ -71,9 +76,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             initState,                             // @type: null | InitStateType
             chatState                              // @type: null | ChatStateType
         } = data;
-        this.myInternalState = messageState != null ? messageState : {'someKey': 'someValue'};
-        this.myInternalState['numUsers'] = Object.keys(users).length;
-        this.myInternalState['numChars'] = Object.keys(characters).length;
+        this.setStateFromMessageState(messageState);
     }
 
     async load(): Promise<Partial<LoadResponse<InitStateType, ChatStateType, MessageStateType>>> {
@@ -103,7 +106,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
          state that is affected by swiping.
          ***/
         if (state != null) {
-            this.myInternalState = {...this.myInternalState, ...state};
+            this.setStateFromMessageState(state);
         }
     }
 
@@ -124,9 +127,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             /*** @type null | string @description A string to add to the
              end of the final prompt sent to the LLM,
              but that isn't persisted. ***/
-            stageDirections: null,
+            stageDirections: this.actionPrompt,
             /*** @type MessageStateType | null @description the new state after the userMessage. ***/
-            messageState: {'someKey': this.myInternalState['someKey']},
+            messageState: this.buildMessageState(),
             /*** @type null | string @description If not null, the user's message itself is replaced
              with this value, both in what's sent to the LLM and in the database. ***/
             modifiedMessage: null,
@@ -156,13 +159,15 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             isBot             /*** @type: boolean
              @description Whether this is from a bot, conceivably always true. ***/
         } = botMessage;
+        this.currentMessage = content;
+
         return {
             /*** @type null | string @description A string to add to the
              end of the final prompt sent to the LLM,
              but that isn't persisted. ***/
             stageDirections: null,
             /*** @type MessageStateType | null @description the new state after the botMessage. ***/
-            messageState: {'someKey': this.myInternalState['someKey']},
+            messageState: this.buildMessageState(),
             /*** @type null | string @description If not null, the bot's response itself is replaced
              with this value, both in what's sent to the LLM subsequently and in the database. ***/
             modifiedMessage: null,
@@ -195,11 +200,25 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             display: 'grid',
             alignItems: 'stretch'
         }}>
-            <div>Hello World! I'm an empty stage! With {this.myInternalState['someKey']}!</div>
-            <div>There is/are/were {this.myInternalState['numChars']} character(s)
-                and {this.myInternalState['numUsers']} human(s) here.
-            </div>
+            <div>{this.currentMessage}</div>
+            <div>{this.actionPrompt}</div>
         </div>;
     }
 
+    setStateFromMessageState(messageState: MessageStateType) {
+        this.stats = {};
+        for (let stat in Stat) {
+            this.stats[stat] = messageState[stat] ?? this.defaultStat;
+        }
+        this.currentMessage= messageState['currentMessage'] ?? '';
+    }
+
+    buildMessageState(): any {
+        let messageState: {[key: string]: any} = {};
+        for (let stat in Stat) {
+            messageState[stat] = this.stats[stat] ?? this.defaultStat;
+        }
+        messageState['currentMessage'] = this.currentMessage ?? '';
+        return messageState;
+    }
 }
