@@ -49,8 +49,8 @@ type ChatStateType = any;
 export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateType, ConfigType> {
 
     readonly defaultStat: number = 0;
-    readonly actionPrompt: string = '[End each response with three to six varied follow-up actions for the user to choose from, formatted specifically as such:\n' +
-        '"(Stat +Modifier) Brief action description"\n' +
+    readonly actionPrompt: string = '[Following your narration, end this response with three to six varied follow-up actions for the user to choose from, formatted as such:\n' +
+        '"(Stat +Modifier) Brief description"\n' +
         'Where "Stat Name" is one of these eight core stats:\n' +
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') +
         'And "Modifier" is a relative difficulty modifier between -5 and 5 which will be added to the skill check result--a lower number reflects a more difficult task.\n' +
