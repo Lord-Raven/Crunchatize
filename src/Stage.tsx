@@ -202,7 +202,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             /*** @type null | string @description A string to add to the
              end of the final prompt sent to the LLM,
              but that isn't persisted. ***/
-            stageDirections: null,
+            stageDirections: `\n[${this.actionPrompt}]`,
             /*** @type MessageStateType | null @description the new state after the botMessage. ***/
             messageState: this.buildMessageState(),
             /*** @type null | string @description If not null, the bot's response itself is replaced
@@ -246,7 +246,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         this.lastOutcome = action.determineSuccess(this.stats[action.stat]);
         this.buildOutcomePrompt();
         this.messenger.nudge({
-            stage_directions: `[${this.lastOutcomePrompt}\n\n${this.actionPrompt}]`,
+            stage_directions: `\n[${this.lastOutcomePrompt}]`,
             parent_id: this.currentMessageId
         });
     }
