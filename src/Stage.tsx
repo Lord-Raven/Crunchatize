@@ -279,7 +279,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             <div>{this.actionPrompt}</div>
             <div>
                 Select an action:<br/>
-                {this.actions.map((action: Action) => action.render(stage))}
+                {this.actions.map((action: Action) => action.render())}
             </div>
 
         </div>;

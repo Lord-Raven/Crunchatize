@@ -25,10 +25,10 @@ export class Action {
         return new Outcome(dieResult1, dieResult2, this);
     }
 
-    render(stage: Stage) {
+    render() {
         return (
             <div>
-                <button onClick={() => stage.chooseAction(this)}>
+                <button onClick={() => this.determineSuccess(0)}>
                     ({this.stat} {this.modifier > 0 ? ('+' + this.modifier) : (this.modifier < 0 ? this.modifier : '')}) {this.description}
                 </button>
             </div>
