@@ -1,4 +1,4 @@
-enum Stat {
+export enum Stat {
     Might = 'Might',
     Grace = 'Grace',
     Skill = 'Skill',
@@ -9,7 +9,7 @@ enum Stat {
     Luck = 'Luck'
 }
 
-const StatDescription: {[stat in Stat]: string} = {
+export const StatDescription: {[stat in Stat]: string} = {
     [Stat.Might]: 'Physical power and resilience. Smash, drag, lift, weather.',
     [Stat.Grace]: 'Agility and composure. Dodge, balance, dance.',
     [Stat.Skill]: 'Sleight and craftmanship. Picklock, craft, shoot, paint.',

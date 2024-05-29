@@ -2,6 +2,7 @@ import {ReactElement} from "react";
 import {StageBase, StageResponse, InitialData, Message} from "@chub-ai/stages-ts";
 import {LoadResponse} from "@chub-ai/stages-ts/dist/types/load";
 import {Action} from "./Action";
+import {Stat, StatDescription} from "./Stat"
 
 /***
  The type that this stage persists message-level state in.

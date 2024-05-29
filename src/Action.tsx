@@ -1,4 +1,5 @@
 import {Outcome} from "./Outcome";
+import {Stat} from "./Stat";
 
 export class Action {
     description: string;
