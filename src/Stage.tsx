@@ -3,6 +3,7 @@ import {StageBase, StageResponse, InitialData, Message} from "@chub-ai/stages-ts
 import {LoadResponse} from "@chub-ai/stages-ts/dist/types/load";
 import {Action} from "./Action";
 import {Stat, StatDescription} from "./Stat"
+import {Outcome, ResultDescription} from "./Outcome";
 
 /***
  The type that this stage persists message-level state in.
@@ -49,23 +50,26 @@ type ChatStateType = any;
 export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateType, ConfigType> {
 
     readonly defaultStat: number = 0;
-    readonly actionPrompt: string = '[Following your narration, end this message with three or four varied follow-up actions that the user can choose to take, formatted as such:\n' +
+    readonly actionPrompt: string = 'Develop an excerpt of organic narration. At the end of the message, append three or four varied follow-up stat-oriented action suggestions that {{user}} could choose to take, formatted as such:\n' +
         '"(Stat +Modifier) Brief summary of action"\n' +
         '"Stat" is one of these eight core stats:\n' +
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') +
         'And "Modifier" is a relative difficulty modifier between -5 and 5 which will be added to the skill check result; a lower number reflects a more difficult task.\n' +
-        'Place each option on a separate line and use the descriptions above as inspiration. Here are sample options:\n' +
+        'Place each option on a separate line and study the stat descriptions for inspiration. Here are sample options:\n' +
         '"(Might +1) Force the lock"\n' +
         '"(Skill -1) Pick the lock (it looks difficult)"\n' +
         '"(Grace +3) Scale the wall"\n' +
-        '"(Charm -2) Convince someone to give you the key"]';
+        '"(Charm -2) Convince someone to give you the key"';
 
-    // Regular expression to match the pattern "(Color +amount) description"
-    readonly regex = /\((\w+)\s+\+(\d+)\)\s+(.+)/;
+    // Regular expression to match the pattern "(Stat +modifier) description"
+    readonly regex = /\((\w+)\s+([\+\-]\d+)\)\s+(.+)/;
     
     stats: {[key: string]: number} = {};
     currentMessage: string = '';
-    options: Action[] = [];
+    actions: Action[] = [];
+    currentMessageId: string = '';
+    lastOutcome: Outcome|null = null;
+    lastOutcomePrompt: string = '';
 
     constructor(data: InitialData<InitStateType, ChatStateType, MessageStateType, ConfigType>) {
         /***
@@ -86,6 +90,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             chatState                              // @type: null | ChatStateType
         } = data;
         this.setStateFromMessageState(messageState);
+        
     }
 
     async load(): Promise<Partial<LoadResponse<InitStateType, ChatStateType, MessageStateType>>> {
@@ -136,7 +141,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             /*** @type null | string @description A string to add to the
              end of the final prompt sent to the LLM,
              but that isn't persisted. ***/
-            stageDirections: this.actionPrompt,
+            stageDirections: null,
             /*** @type MessageStateType | null @description the new state after the userMessage. ***/
             messageState: this.buildMessageState(),
             /*** @type null | string @description If not null, the user's message itself is replaced
@@ -165,18 +170,20 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             anonymizedId,       /*** @type: string
              @description An anonymized ID that is unique to this individual
               in this chat, but NOT their Chub ID. ***/
-            isBot             /*** @type: boolean
+            isBot,             /*** @type: boolean
              @description Whether this is from a bot, conceivably always true. ***/
+            identity           /*** @type: string
+             @description The unique ID of this chat message. ***/
         } = botMessage;
 
         const lines = content.split('\n');
         let contentLines = [];
-        this.options = [];
+        this.actions = [];
 
         for (const line of lines) {
             const match = line.match(this.regex);
             if (match) {
-                this.options.push(new Action(match[3], match[1] as Stat, Number(match[2])));
+                this.actions.push(new Action(match[3], match[1] as Stat, Number(match[2]), this));
             } else {
                 // If the line does not match the pattern, it's a content line
                 contentLines.push(line);
@@ -186,8 +193,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         // Join the content lines back into a single string
         const finalContent = contentLines.join('\n');
 
-
         this.currentMessage = finalContent;
+        this.currentMessageId = identity;
+        console.log(this.currentMessageId);
 
         return {
             /*** @type null | string @description A string to add to the
@@ -208,6 +216,48 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     }
 
 
+    setStateFromMessageState(messageState: MessageStateType) {
+        this.stats = {};
+        if (messageState != null) {
+            for (let stat in Stat) {
+                this.stats[stat] = messageState[stat] ?? this.defaultStat;
+            }
+            this.currentMessage= messageState['currentMessage'] ?? '';
+            this.currentMessageId = messageState['currentMessageId'] ?? '';
+            this.lastOutcome = messageState['lastOutcome'] ?? null;
+            this.lastOutcomePrompt = messageState['lastOutcomePrompt'] ?? '';
+        }
+    }
+
+    buildMessageState(): any {
+        let messageState: {[key: string]: any} = {};
+        for (let stat in Stat) {
+            messageState[stat] = this.stats[stat] ?? this.defaultStat;
+        }
+        messageState['currentMessage'] = this.currentMessage ?? '';
+        messageState['currentMessageId'] = this.currentMessageId ?? '';
+        messageState['lastOutcome'] = this.lastOutcome ?? null;
+        messageState['lastOutcomePrompt'] = this.lastOutcomePrompt ?? '';
+        return messageState;
+    }
+
+    chooseAction(action: Action) {
+        this.lastOutcome = action.determineSuccess(this.stats[action.stat]);
+        this.buildOutcomePrompt();
+        this.messenger.nudge({
+            stage_directions: `[${this.lastOutcomePrompt}\n\n${this.actionPrompt}]`,
+            parent_id: this.currentMessageId
+        });
+    }
+
+    buildOutcomePrompt() {
+        this.lastOutcomePrompt = '';
+        if (this.lastOutcome) {
+            this.lastOutcomePrompt += '{{user}} has chosen the following action: ' + this.lastOutcome.action.description; + '\n';
+            this.lastOutcomePrompt += `${ResultDescription[this.lastOutcome.result]}\n`
+        }
+    }
+    
     render(): ReactElement {
         /***
          There should be no "work" done here. Just returning the React element to display.
@@ -228,33 +278,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             display: 'grid',
             alignItems: 'stretch'
         }}>
+            <div>{this.lastOutcome?.render()}</div>
             <div>{this.currentMessage}</div>
             <div>{this.actionPrompt}</div>
             <div>
-                <ul>
-                    {this.options.map(o => (<li key={o.stat}>{o.render()}</li>))}
-                </ul>
+                {this.actions.map(action => action.render())}
             </div>
 
         </div>;
     }
 
-    setStateFromMessageState(messageState: MessageStateType) {
-        this.stats = {};
-        if (messageState != null) {
-            for (let stat in Stat) {
-                this.stats[stat] = messageState[stat] ?? this.defaultStat;
-            }
-            this.currentMessage= messageState['currentMessage'] ?? '';
-        }
-    }
-
-    buildMessageState(): any {
-        let messageState: {[key: string]: any} = {};
-        for (let stat in Stat) {
-            messageState[stat] = this.stats[stat] ?? this.defaultStat;
-        }
-        messageState['currentMessage'] = this.currentMessage ?? '';
-        return messageState;
-    }
 }
