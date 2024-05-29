@@ -50,10 +50,10 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
     readonly defaultStat: number = 0;
     readonly actionPrompt: string = '[End each response with three to six varied actions the user may take, formatted specifically as such:\n' +
-        '"(Stat+Modifier) Action description"\n' +
-        'Where "Stat" is one of eight core stats, using these descriptions and sample actions as inspiration:\n' +
-        '{Object.keys(Stat).map(key => `${key}: ${StatDescription[key as any]}`)\n' +
-        'And "Modifier" is a relative difficulty between -5 and 5.]';
+        '"(Stat Name +Modifier) Action description"\n' +
+        'Where "Stat Name" is one of eight core stats, using these descriptions and sample actions as inspiration:\n' +
+        Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') +
+        'And "Modifier" is a relative difficulty modifier between -5 and 5 which will be added to the skill check.]';
 
     stats: {[key: string]: number} = {};
     currentMessage: string = '';
@@ -208,10 +208,12 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
     setStateFromMessageState(messageState: MessageStateType) {
         this.stats = {};
-        for (let stat in Stat) {
-            this.stats[stat] = messageState[stat] ?? this.defaultStat;
+        if (messageState != null) {
+            for (let stat in Stat) {
+                this.stats[stat] = messageState[stat] ?? this.defaultStat;
+            }
+            this.currentMessage= messageState['currentMessage'] ?? '';
         }
-        this.currentMessage= messageState['currentMessage'] ?? '';
     }
 
     buildMessageState(): any {
