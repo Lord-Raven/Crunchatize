@@ -211,7 +211,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             /*** @type null | string @description an error message to show
              briefly at the top of the screen, if any. ***/
             error: null,
-            systemMessage: null,
+            systemMessage: 'testing',
             chatState: null
         };
     }
