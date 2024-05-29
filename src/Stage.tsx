@@ -226,12 +226,19 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             }
             this.currentMessage= messageState['currentMessage'] ?? '';
             this.currentMessageId = messageState['currentMessageId'] ?? '';
-            this.lastOutcome = messageState['lastOutcome'] ?? null;
+            this.lastOutcome = messageState['lastOutcome'] ? this.convertOutcome(messageState['lastOutcome']) : null;
             this.lastOutcomePrompt = messageState['lastOutcomePrompt'] ?? '';
             this.actions = messageState['actions'] ? messageState['actions'].map((action: any) => {
-                return action as Action;
+                return this.convertAction(action);
             }) : [];
         }
+    }
+
+    convertOutcome(input: any): Outcome {
+        return new Outcome(input['dieResult1'], input['dieResult2'], this.convertAction(input['action']));
+    }
+    convertAction(input: any): Action {
+        return new Action(input['description'], input['stat'] as Stat, input['modifier'])
     }
 
     buildMessageState(): any {
@@ -274,12 +281,12 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             display: 'grid',
             alignItems: 'stretch'
         }}>
-            
+            <div>{this.lastOutcome? this.lastOutcome.render() : ''}</div>
             <div>{this.currentMessage}</div>
             <div>{this.actionPrompt}</div>
             <div>
                 Select an action:<br/>
-                {this.actions.map((action: Action) => action.render())}
+                {this.actions.map((action: Action) => action.render(stage))}
             </div>
 
         </div>;
