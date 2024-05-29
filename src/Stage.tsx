@@ -185,7 +185,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             const match = line.match(this.regex);
             if (match) {
                 console.log('Have an action: ' + match[3] + ';' + match[1] + ';' + match[2]);
-                this.actions.push(new Action(match[3], match[1] as Stat, Number(match[2]), this));
+                this.actions.push(new Action(match[3], match[1] as Stat, Number(match[2])));
             } else {
                 // If the line does not match the pattern, it's a content line
                 contentLines.push(line);
@@ -288,7 +288,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             <div>{this.actionPrompt}</div>
             <div>
                 Select an action:<br/>
-                {this.actions.map(action => action.render())}
+                {this.actions.map(action => action.render(this))}
             </div>
 
         </div>;

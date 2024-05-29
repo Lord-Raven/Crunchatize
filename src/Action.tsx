@@ -6,13 +6,11 @@ export class Action {
     description: string;
     stat: Stat;
     modifier: number;
-    stage: Stage;
 
-    constructor(description: string, stat: Stat, modifier: number, stage: Stage) {
+    constructor(description: string, stat: Stat, modifier: number) {
         this.description = description;
         this.stat = stat;
         this.modifier = modifier;
-        this.stage = stage;
     }
 
     // Method to simulate a dice roll
@@ -27,10 +25,10 @@ export class Action {
         return new Outcome(dieResult1, dieResult2, this);
     }
 
-    render() {
+    render(stage: Stage) {
         return (
             <div>
-                <button onClick={() => this.stage.chooseAction(this)}>
+                <button onClick={() => stage.chooseAction(this)}>
                     ({this.stat} {this.modifier > 0 ? ('+' + this.modifier) : (this.modifier < 0 ? this.modifier : '')}) {this.description}
                 </button>
             </div>
