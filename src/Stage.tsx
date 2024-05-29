@@ -228,8 +228,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             this.currentMessageId = messageState['currentMessageId'] ?? '';
             this.lastOutcome = messageState['lastOutcome'] ?? null;
             this.lastOutcomePrompt = messageState['lastOutcomePrompt'] ?? '';
-            this.actions = messageState['actions'] ? messageState['actions'].map((action: Action) => {
-                return action;
+            this.actions = messageState['actions'] ? messageState['actions'].map((action: any) => {
+                return action as Action;
             }) : [];
         }
     }
@@ -274,7 +274,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             display: 'grid',
             alignItems: 'stretch'
         }}>
-            <div>{this.lastOutcome ? (this.lastOutcome as Outcome).render() : ''}</div>
+            
             <div>{this.currentMessage}</div>
             <div>{this.actionPrompt}</div>
             <div>
