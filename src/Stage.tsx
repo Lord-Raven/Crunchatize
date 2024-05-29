@@ -283,7 +283,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             display: 'grid',
             alignItems: 'stretch'
         }}>
-            <div>{this.lastOutcome?.render()}</div>
+            <div>{this.lastOutcome ? (this.lastOutcome as Outcome).render() : ''}</div>
             <div>{this.currentMessage}</div>
             <div>{this.actionPrompt}</div>
             <div>
