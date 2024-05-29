@@ -137,6 +137,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             isBot             /*** @type: boolean
              @description Whether this is itself from another bot, ex. in a group chat. ***/
         } = userMessage;
+        console.log('beforePrompt');
         return {
             /*** @type null | string @description A string to add to the
              end of the final prompt sent to the LLM,
@@ -211,7 +212,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             /*** @type null | string @description an error message to show
              briefly at the top of the screen, if any. ***/
             error: null,
-            systemMessage: 'testing',
+            systemMessage: null,
             chatState: null
         };
     }
@@ -227,6 +228,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             this.currentMessageId = messageState['currentMessageId'] ?? '';
             this.lastOutcome = messageState['lastOutcome'] ?? null;
             this.lastOutcomePrompt = messageState['lastOutcomePrompt'] ?? '';
+            this.actions = messageState['actions'] ?? [];
         }
     }
 
@@ -239,10 +241,12 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         messageState['currentMessageId'] = this.currentMessageId ?? '';
         messageState['lastOutcome'] = this.lastOutcome ?? null;
         messageState['lastOutcomePrompt'] = this.lastOutcomePrompt ?? '';
+        messageState['actions'] = this.actions ?? [];
         return messageState;
     }
 
-    chooseAction(action: Action) {
+    async chooseAction(action: Action) {
+        console.log('choose action');
         this.lastOutcome = action.determineSuccess(this.stats[action.stat]);
         this.buildOutcomePrompt();
         this.messenger.nudge({
@@ -283,7 +287,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             <div>{this.currentMessage}</div>
             <div>{this.actionPrompt}</div>
             <div>
-                button? {this.actions.map(action => action.render())}
+                Select an action:<br/>
+                {this.actions.map(action => action.render())}
             </div>
 
         </div>;
