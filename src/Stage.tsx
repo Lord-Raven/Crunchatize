@@ -254,7 +254,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         return messageState;
     }
 
-    async chooseAction(action: Action) {
+    chooseAction(action: Action) {
         console.log('choose action');
         this.lastOutcome = action.determineSuccess(this.stats[action.stat]);
         this.buildOutcomePrompt();
