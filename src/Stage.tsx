@@ -49,20 +49,23 @@ type ChatStateType = any;
 export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateType, ConfigType> {
 
     readonly defaultStat: number = 0;
-    readonly actionPrompt: string = '[Following your narration, end this response with three or four varied follow-up actions that the user can choose to take, formatted as such:\n' +
-        '"(Stat +Modifier) Brief description"\n' +
+    readonly actionPrompt: string = '[Following your narration, end this message with three or four varied follow-up actions that the user can choose to take, formatted as such:\n' +
+        '"(Stat +Modifier) Brief summary of action"\n' +
         '"Stat" is one of these eight core stats:\n' +
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') +
-        'And "Modifier" is a relative difficulty modifier between -5 and 5 which will be added to the skill check result--a lower number reflects a more difficult task.\n' +
-        'Place each option on a separate line and use the descriptions above as inspiration. Here are additional sample options:\n' +
+        'And "Modifier" is a relative difficulty modifier between -5 and 5 which will be added to the skill check result; a lower number reflects a more difficult task.\n' +
+        'Place each option on a separate line and use the descriptions above as inspiration. Here are sample options:\n' +
         '"(Might +1) Force the lock"\n' +
         '"(Skill -1) Pick the lock (it looks difficult)"\n' +
         '"(Grace +3) Scale the wall"\n' +
         '"(Charm -2) Convince someone to give you the key"]';
 
+    // Regular expression to match the pattern "(Color +amount) description"
+    readonly regex = /\((\w+)\s+\+(\d+)\)\s+(.+)/;
+    
     stats: {[key: string]: number} = {};
     currentMessage: string = '';
-    options: {[key: string]: Action} = {};
+    options: Action[] = [];
 
     constructor(data: InitialData<InitStateType, ChatStateType, MessageStateType, ConfigType>) {
         /***
@@ -165,7 +168,26 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             isBot             /*** @type: boolean
              @description Whether this is from a bot, conceivably always true. ***/
         } = botMessage;
-        this.currentMessage = content;
+
+        const lines = content.split('\n');
+        let contentLines = [];
+        this.options = [];
+
+        for (const line of lines) {
+            const match = line.match(this.regex);
+            if (match) {
+                this.options.push(new Action(match[3], match[1] as Stat, Number(match[2])));
+            } else {
+                // If the line does not match the pattern, it's a content line
+                contentLines.push(line);
+            }
+        }
+        
+        // Join the content lines back into a single string
+        const finalContent = contentLines.join('\n');
+
+
+        this.currentMessage = finalContent;
 
         return {
             /*** @type null | string @description A string to add to the
@@ -176,7 +198,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             messageState: this.buildMessageState(),
             /*** @type null | string @description If not null, the bot's response itself is replaced
              with this value, both in what's sent to the LLM subsequently and in the database. ***/
-            modifiedMessage: null,
+            modifiedMessage: finalContent,
             /*** @type null | string @description an error message to show
              briefly at the top of the screen, if any. ***/
             error: null,
@@ -208,6 +230,12 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         }}>
             <div>{this.currentMessage}</div>
             <div>{this.actionPrompt}</div>
+            <div>
+                <ul>
+                    {this.options.map(o => (<li key={o.stat}>{o.render()}</li>))}
+                </ul>
+            </div>
+
         </div>;
     }
 

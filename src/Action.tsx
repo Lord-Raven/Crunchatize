@@ -23,4 +23,12 @@ export class Action {
         const dieResult2: number = this.diceRoll();
         return new Outcome(dieResult1, dieResult2, this.modifier);
     }
+
+    render() {
+        return (
+            <div>
+                ({this.stat} {this.modifier > 0 ? ('+' + this.modifier) : (this.modifier < 0 ? this.modifier : '')}) {this.description}
+            </div>
+        );
+    }
 }
