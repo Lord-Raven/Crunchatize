@@ -49,11 +49,16 @@ type ChatStateType = any;
 export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateType, ConfigType> {
 
     readonly defaultStat: number = 0;
-    readonly actionPrompt: string = '[End each response with three to six varied actions the user may take, formatted specifically as such:\n' +
-        '"(Stat Name +Modifier) Action description"\n' +
-        'Where "Stat Name" is one of eight core stats, using these descriptions and sample actions as inspiration:\n' +
+    readonly actionPrompt: string = '[End each response with three to six varied follow-up actions for the user to choose from, formatted specifically as such:\n' +
+        '"(Stat +Modifier) Brief action description"\n' +
+        'Where "Stat Name" is one of these eight core stats:\n' +
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') +
-        'And "Modifier" is a relative difficulty modifier between -5 and 5 which will be added to the skill check.]';
+        'And "Modifier" is a relative difficulty modifier between -5 and 5 which will be added to the skill check result--a lower number reflects a more difficult task.\n' +
+        'Place each option on a separate line and use the descriptions above as inspiration. Here are additional sample options:\n' +
+        '"(Might +1) Force the lock"\n' +
+        '"(Skill -1) Pick the lock (it looks difficult)"\n' +
+        '"(Grace +3) Scale the wall"\n' +
+        '"(Charm -2) Convince someone to give you the key"]';
 
     stats: {[key: string]: number} = {};
     currentMessage: string = '';
