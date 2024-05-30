@@ -1,5 +1,5 @@
 import {ReactElement} from "react";
-import {StageBase, StageResponse, InitialData, Message, ImpersonateRequest, DEFAULT_IMPERSONATION, MessagingResponse, MessageResponse} from "@chub-ai/stages-ts";
+import {StageBase, StageResponse, InitialData, Message, ImpersonateRequest, DEFAULT_IMPERSONATION, MessagingResponse, MessageResponse, DEFAULT_NUDGE_REQUEST, NudgeRequest} from "@chub-ai/stages-ts";
 import {LoadResponse} from "@chub-ai/stages-ts/dist/types/load";
 import {Action} from "./Action";
 import {Stat, StatDescription} from "./Stat"
@@ -280,7 +280,11 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         this.currentMessageId = impersonateResponse.identity;
         // Nudge bot for narration?
 
+        let nudgeRequest: NudgeRequest = DEFAULT_NUDGE_REQUEST;
+        nudgeRequest.parent_id = this.currentMessageId;
 
+        const nudgeResponse: MessageResponse = await this.messenger.nudge(nudgeRequest);
+        this.currentMessageId = nudgeResponse.identity;
         //this.messenger.updateChatState({});
     }
 
