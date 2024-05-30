@@ -141,7 +141,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
              @description The anonymized ID of the bot or human being prompted, if any.
                             Essentially only relevant to beforePrompt currently. ***/
         } = userMessage;
-        console.log('beforePrompt');
+        console.log('beforePrompt:' + promptForId);
         this.promptForId = promptForId;
         return {
             /*** @type null | string @description A string to add to the
@@ -266,7 +266,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         this.lastOutcome = action.determineSuccess(this.stats[action.stat]);
         this.buildOutcomePrompt();
         this.messenger.nudge({
-            speaker_id: this.promptForId ?? undefined,
+            speaker_id: this.promptForId ?? '1',
             stage_directions: `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`
         });
     }
