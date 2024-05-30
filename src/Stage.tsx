@@ -70,6 +70,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     currentMessageId: string = '';
     lastOutcome: Outcome|null = null;
     lastOutcomePrompt: string = '';
+    promptForId: string|null = null;
 
     constructor(data: InitialData<InitStateType, ChatStateType, MessageStateType, ConfigType>) {
         /***
@@ -134,10 +135,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             anonymizedId,       /*** @type: string
              @description An anonymized ID that is unique to this individual
               in this chat, but NOT their Chub ID. ***/
-            isBot             /*** @type: boolean
+            isBot,             /*** @type: boolean
              @description Whether this is itself from another bot, ex. in a group chat. ***/
+             promptForId       /*** @type: string
+             @description The anonymized ID of the bot or human being prompted, if any.
+                            Essentially only relevant to beforePrompt currently. ***/
         } = userMessage;
         console.log('beforePrompt');
+        this.promptForId = promptForId;
         return {
             /*** @type null | string @description A string to add to the
              end of the final prompt sent to the LLM,
@@ -231,6 +236,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             this.actions = messageState['actions'] ? messageState['actions'].map((action: any) => {
                 return this.convertAction(action);
             }) : [];
+            this.promptForId = messageState['promptForId'];
         }
     }
 
@@ -251,6 +257,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         messageState['lastOutcome'] = this.lastOutcome ?? null;
         messageState['lastOutcomePrompt'] = this.lastOutcomePrompt ?? '';
         messageState['actions'] = this.actions ?? [];
+        messageState['promptForId'] = this.promptForId;
         return messageState;
     }
 
@@ -259,6 +266,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         this.lastOutcome = action.determineSuccess(this.stats[action.stat]);
         this.buildOutcomePrompt();
         this.messenger.nudge({
+            speaker_id: this.promptForId ?? undefined,
             stage_directions: `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`
         });
     }
