@@ -277,16 +277,17 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         impersonateRequest.speaker_id = this.playerId;
         impersonateRequest.parent_id = this.currentMessageId ?? impersonateRequest.parent_id;
         impersonateRequest.message = this.lastOutcome.getDescription();
+        console.log(impersonateRequest);
         const impersonateResponse: MessageResponse = await this.messenger.impersonate(impersonateRequest);
         this.currentMessageId = impersonateResponse.identity;
         // Nudge bot for narration?
 
         let nudgeRequest: NudgeRequest = DEFAULT_NUDGE_REQUEST;
         nudgeRequest.parent_id = this.currentMessageId;
-
+        console.log(nudgeRequest);
         const nudgeResponse: MessageResponse = await this.messenger.nudge(nudgeRequest);
         this.currentMessageId = nudgeResponse.identity;
-        //this.messenger.updateChatState({});
+        this.messenger.updateChatState({});
     }
 
     buildOutcomePrompt() {
