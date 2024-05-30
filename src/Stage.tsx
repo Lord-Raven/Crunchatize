@@ -121,9 +121,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
          or a swipe. Note how neither InitState nor ChatState are given here. They are not for
          state that is affected by swiping.
          ***/
-        if (state != null) {
-            this.setStateFromMessageState(state);
-        }
+        console.log('setState');
+        this.setStateFromMessageState(state);
     }
 
     async beforePrompt(userMessage: Message): Promise<Partial<StageResponse<ChatStateType, MessageStateType>>> {
@@ -266,7 +265,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         return messageState;
     }
 
-    chooseAction(action: Action) {
+    async chooseAction(action: Action) {
         console.log('chose an action: ' + this.promptForId + ":" + this.currentMessageId);
         this.lastOutcome = action.determineSuccess(this.stats[action.stat]);
         this.buildOutcomePrompt();
@@ -277,7 +276,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         //nudgeRequest.parent_id = this.currentMessageId ?? nudgeRequest.parent_id;
         //nudgeRequest.stage_directions = `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`;
         impersonateRequest.message = this.lastOutcome.getDescription();
-        this.messenger.impersonate(impersonateRequest);
+        await this.messenger.impersonate(impersonateRequest);
     }
 
     buildOutcomePrompt() {
