@@ -1,5 +1,5 @@
 import {ReactElement} from "react";
-import {StageBase, StageResponse, InitialData, Message, ImpersonateRequest, DEFAULT_IMPERSONATION, MessagingResponse, MessageResponse, DEFAULT_NUDGE_REQUEST, NudgeRequest} from "@chub-ai/stages-ts";
+import {StageBase, StageResponse, InitialData, Message, ImpersonateRequest, DEFAULT_IMPERSONATION, MessagingResponse, MessageResponse, DEFAULT_NUDGE_REQUEST, NudgeRequest, EnvironmentRequest} from "@chub-ai/stages-ts";
 import {LoadResponse} from "@chub-ai/stages-ts/dist/types/load";
 import {Action} from "./Action";
 import {Stat, StatDescription} from "./Stat"
@@ -269,6 +269,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
     async chooseAction(action: Action) {
         console.log('chose an action: ' + this.promptForId + ":" + this.currentMessageId);
+        this.messenger.updateEnvironment({
+            input_enabled: false
+        });
         this.lastOutcome = action.determineSuccess(this.stats[action.stat]);
         this.buildOutcomePrompt();
 
@@ -289,6 +292,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         const nudgeResponse: MessageResponse = await this.messenger.nudge(nudgeRequest);
         this.currentMessageId = nudgeResponse.identity;
         this.messenger.updateChatState({});
+        this.messenger.updateEnvironment({
+            input_enabled: true
+        });
     }
 
     buildOutcomePrompt() {
