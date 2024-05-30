@@ -137,13 +137,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
               in this chat, but NOT their Chub ID. ***/
             isBot,             /*** @type: boolean
              @description Whether this is itself from another bot, ex. in a group chat. ***/
-             promptForId       /*** @type: string
+            promptForId,       /*** @type: string
              @description The anonymized ID of the bot or human being prompted, if any.
                             Essentially only relevant to beforePrompt currently. ***/
+            identity
         } = userMessage;
-        console.log('beforePrompt:' + promptForId);
+        console.log('beforePrompt:' + promptForId + ';' + identity);
         this.promptForId = promptForId ?? undefined;
-        this.currentMessageId = undefined;
+        this.currentMessageId = identity;
         return {
             /*** @type null | string @description A string to add to the
              end of the final prompt sent to the LLM,
