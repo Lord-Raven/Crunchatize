@@ -291,7 +291,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         console.log(nudgeRequest);
         const nudgeResponse: MessageResponse = await this.messenger.nudge(nudgeRequest);
         this.currentMessageId = nudgeResponse.identity;
-        this.messenger.updateChatState({});
+        console.log('Done with nudge');
         this.messenger.updateEnvironment({
             input_enabled: true
         });
