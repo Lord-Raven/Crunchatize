@@ -255,14 +255,11 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     }
 
     chooseAction(action: Action) {
-        console.log('choose action');
+        console.log('chose an action');
         this.lastOutcome = action.determineSuccess(this.stats[action.stat]);
         this.buildOutcomePrompt();
         this.messenger.nudge({
-            speaker_id: '1',
-            is_main: true,
-            stage_directions: `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`,
-            parent_id: null //this.currentMessageId
+            stage_directions: `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`
         });
     }
 
