@@ -57,6 +57,9 @@ export class Outcome {
     }
 
     getDescription(): string {
-        return `${this.getDieEmoji(this.dieResult1)} ${this.getDieEmoji(this.dieResult2)} ${this.action.modifier >= 0 ? '+' : ''}${this.action.modifier} = ${this.total} (${this.result})`
+        return `<img src="/assets/dice_${this.dieResult1}.png" style="width: '1em', height: 'auto'" alt="D6 showing ${this.dieResult1}"/> ` +
+                `<img src="/assets/dice_${this.dieResult2}.png" style="width: '1em', height: 'auto'" alt="D6 showing ${this.dieResult2}"/> ` +
+                `${this.action.modifier >= 0 ? '+' : ''}${this.action.modifier} = ${this.total} (${this.result})`;
+        //return `${this.getDieEmoji(this.dieResult1)} ${this.getDieEmoji(this.dieResult2)} ${this.action.modifier >= 0 ? '+' : ''}${this.action.modifier} = ${this.total} (${this.result})`
     }
 }

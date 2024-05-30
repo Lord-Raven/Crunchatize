@@ -184,6 +184,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
              @description The unique ID of this chat message. ***/
         } = botMessage;
 
+        console.log('afterResponse()');
         this.lastOutcomePrompt =  '';
         
         const lines = content.split('\n');
@@ -280,8 +281,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         console.log(impersonateRequest);
         const impersonateResponse: MessageResponse = await this.messenger.impersonate(impersonateRequest);
         this.currentMessageId = impersonateResponse.identity;
-        // Nudge bot for narration?
 
+        // Nudge bot for narration?
         let nudgeRequest: NudgeRequest = DEFAULT_NUDGE_REQUEST;
         nudgeRequest.parent_id = this.currentMessageId;
         console.log(nudgeRequest);
