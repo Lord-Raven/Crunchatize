@@ -29,11 +29,15 @@ export class Outcome {
 
     render() {
         const total = this.dieResult1 + this.dieResult2 + this.action.modifier;
+        const style = {
+            width: '1em',
+            height: 'auto'
+        };
         return (
             <div>
                 {this.result} (
-                    <img src={`/assets/dice_${this.dieResult1}.png`} alt={`D6 showing ${this.dieResult1}`} />
-                    <img src={`/assets/dice_${this.dieResult2}.png`} alt={`D6 showing ${this.dieResult2}`} />
+                    <img src={`/assets/dice_${this.dieResult1}.png`} style={style} alt={`D6 showing ${this.dieResult1}`} />
+                    <img src={`/assets/dice_${this.dieResult2}.png`} style={style} alt={`D6 showing ${this.dieResult2}`} />
                     + {this.action.modifier} = {total})
             </div>
         );

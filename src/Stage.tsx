@@ -67,10 +67,10 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     stats: {[key: string]: number} = {};
     currentMessage: string = '';
     actions: Action[] = [];
-    currentMessageId: string = '';
+    currentMessageId: string|undefined = undefined;
     lastOutcome: Outcome|null = null;
     lastOutcomePrompt: string = '';
-    promptForId: string|null = null;
+    promptForId: string|undefined = undefined;
 
     constructor(data: InitialData<InitStateType, ChatStateType, MessageStateType, ConfigType>) {
         /***
@@ -142,7 +142,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                             Essentially only relevant to beforePrompt currently. ***/
         } = userMessage;
         console.log('beforePrompt:' + promptForId);
-        this.promptForId = promptForId;
+        this.promptForId = promptForId ?? undefined;
+        this.currentMessageId = undefined;
         return {
             /*** @type null | string @description A string to add to the
              end of the final prompt sent to the LLM,
@@ -266,7 +267,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         this.lastOutcome = action.determineSuccess(this.stats[action.stat]);
         this.buildOutcomePrompt();
         this.messenger.nudge({
-            speaker_id: this.promptForId ?? '1',
+            speaker_id: this.promptForId,
+            parent_id: this.currentMessageId,
             stage_directions: `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`
         });
     }
