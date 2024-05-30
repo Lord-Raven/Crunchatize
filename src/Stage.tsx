@@ -1,5 +1,5 @@
 import {ReactElement} from "react";
-import {StageBase, StageResponse, InitialData, Message} from "@chub-ai/stages-ts";
+import {StageBase, StageResponse, InitialData, Message, DEFAULT_NUDGE_REQUEST, NudgeRequest} from "@chub-ai/stages-ts";
 import {LoadResponse} from "@chub-ai/stages-ts/dist/types/load";
 import {Action} from "./Action";
 import {Stat, StatDescription} from "./Stat"
@@ -266,11 +266,11 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         console.log('chose an action: ' + this.promptForId);
         this.lastOutcome = action.determineSuccess(this.stats[action.stat]);
         this.buildOutcomePrompt();
-        this.messenger.nudge({
-            speaker_id: this.promptForId,
-            parent_id: this.currentMessageId,
-            stage_directions: `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`
-        });
+        let nudgeRequest: NudgeRequest = DEFAULT_NUDGE_REQUEST;
+        nudgeRequest.speaker_id = this.promptForId ?? nudgeRequest.speaker_id;
+        nudgeRequest.parent_id = this.currentMessageId ?? nudgeRequest.parent_id;
+        nudgeRequest.stage_directions = `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`;
+        this.messenger.nudge(nudgeRequest);
     }
 
     buildOutcomePrompt() {
