@@ -149,7 +149,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             /*** @type null | string @description A string to add to the
              end of the final prompt sent to the LLM,
              but that isn't persisted. ***/
-            stageDirections: `\n[${this.actionPrompt}]`,
+            stageDirections: `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`,
             /*** @type MessageStateType | null @description the new state after the userMessage. ***/
             messageState: this.buildMessageState(),
             /*** @type null | string @description If not null, the user's message itself is replaced
@@ -184,9 +184,12 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
              @description The unique ID of this chat message. ***/
         } = botMessage;
 
+        this.lastOutcomePrompt =  '';
+        
         const lines = content.split('\n');
         let contentLines = [];
         this.actions = [];
+        
 
         for (const line of lines) {
             const match = line.match(this.regex);
@@ -270,7 +273,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
 
         let impersonateRequest: ImpersonateRequest = DEFAULT_IMPERSONATION;
-        impersonateRequest.speaker_id = this.playerId;
+        //impersonateRequest.speaker_id = this.playerId;
         //nudgeRequest.parent_id = this.currentMessageId ?? nudgeRequest.parent_id;
         //nudgeRequest.stage_directions = `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`;
         impersonateRequest.message = this.lastOutcome.getDescription();
