@@ -1,5 +1,5 @@
 import {ReactElement} from "react";
-import {StageBase, StageResponse, InitialData, Message, ImpersonateRequest, DEFAULT_IMPERSONATION} from "@chub-ai/stages-ts";
+import {StageBase, StageResponse, InitialData, Message, ImpersonateRequest, DEFAULT_IMPERSONATION, MessagingResponse, MessageResponse} from "@chub-ai/stages-ts";
 import {LoadResponse} from "@chub-ai/stages-ts/dist/types/load";
 import {Action} from "./Action";
 import {Stat, StatDescription} from "./Stat"
@@ -270,13 +270,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         this.lastOutcome = action.determineSuccess(this.stats[action.stat]);
         this.buildOutcomePrompt();
 
-
+        // Impersonate player with result
         let impersonateRequest: ImpersonateRequest = DEFAULT_IMPERSONATION;
-        //impersonateRequest.speaker_id = this.playerId;
-        //nudgeRequest.parent_id = this.currentMessageId ?? nudgeRequest.parent_id;
-        //nudgeRequest.stage_directions = `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`;
+        impersonateRequest.speaker_id = this.playerId;
+        impersonateRequest.parent_id = this.currentMessageId ?? impersonateRequest.parent_id;
         impersonateRequest.message = this.lastOutcome.getDescription();
-        await this.messenger.impersonate(impersonateRequest);
+        const impersonateResponse: MessageResponse = await this.messenger.impersonate(impersonateRequest);
+        this.currentMessageId = impersonateResponse.identity;
+        // Nudge bot for narration?
     }
 
     buildOutcomePrompt() {
