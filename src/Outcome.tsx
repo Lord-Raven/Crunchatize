@@ -17,6 +17,7 @@ export class Outcome {
     dieResult1: number;
     dieResult2: number;
     action: Action;
+    total: number;
 
     constructor(dieResult1: number, dieResult2: number, action: Action) {
         const total = dieResult1 + dieResult2 + action.modifier;
@@ -25,10 +26,10 @@ export class Outcome {
         this.dieResult1 = dieResult1;
         this.dieResult2 = dieResult2;
         this.action = action;
+        this.total = this.dieResult1 + this.dieResult2 + this.action.modifier;
     }
 
     render() {
-        const total = this.dieResult1 + this.dieResult2 + this.action.modifier;
         const style = {
             width: '1em',
             height: 'auto'
@@ -38,8 +39,16 @@ export class Outcome {
                 {this.result} (
                     <img src={`/assets/dice_${this.dieResult1}.png`} style={style} alt={`D6 showing ${this.dieResult1}`} />
                     <img src={`/assets/dice_${this.dieResult2}.png`} style={style} alt={`D6 showing ${this.dieResult2}`} />
-                    + {this.action.modifier} = {total})
+                    + {this.action.modifier} = {this.total})
             </div>
         );
+    }
+
+    getDieEmoji(side: number): string {
+        return `\\u268${side - 1}`;
+    }
+
+    getDescription(): string {
+        return `${this.getDieEmoji(this.dieResult1)} ${this.getDieEmoji(this.dieResult2)} ${this.action.modifier >= 0 ? '+' : ''}${this.action.modifier} = ${this.total} (${this.result})`
     }
 }
