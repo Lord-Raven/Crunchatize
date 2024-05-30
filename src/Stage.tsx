@@ -272,12 +272,16 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         // Impersonate player with result
         let impersonateRequest: ImpersonateRequest = DEFAULT_IMPERSONATION;
+        impersonateRequest.is_main = true;
         impersonateRequest.speaker_id = this.playerId;
         impersonateRequest.parent_id = this.currentMessageId ?? impersonateRequest.parent_id;
         impersonateRequest.message = this.lastOutcome.getDescription();
         const impersonateResponse: MessageResponse = await this.messenger.impersonate(impersonateRequest);
         this.currentMessageId = impersonateResponse.identity;
         // Nudge bot for narration?
+
+
+        this.messenger.updateChatState({});
     }
 
     buildOutcomePrompt() {
