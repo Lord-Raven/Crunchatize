@@ -4,7 +4,8 @@ import {LoadResponse} from "@chub-ai/stages-ts/dist/types/load";
 import {Action} from "./Action";
 import {Stat, StatDescription} from "./Stat"
 import {Outcome, ResultDescription} from "./Outcome";
-import { ReactRunner, ReactRunnerProps } from "@chub-ai/stages-ts";
+import {sendMessageAndAwait} from "@chub-ai/stages-ts/dist/services/messaging";
+import {ReactRunner} from "@chub-ai/stages-ts/dist/components/ReactRunner";
 
 /***
  The type that this stage persists message-level state in.
@@ -74,6 +75,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     promptForId: string|undefined = undefined;
     playerId: string;
     botId: string;
+    chosenAction: Action|null = null;
 
     constructor(data: InitialData<InitStateType, ChatStateType, MessageStateType, ConfigType>) {
         /***
@@ -275,6 +277,11 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     }
 
     async chooseAction(action: Action) {
+        this.chosenAction = action;
+    }
+
+    async takeAction(action: Action) {
+        this.chosenAction = null;
         console.log('chose an action: ' + this.promptForId + ":" + this.currentMessageId);
         this.messenger.updateEnvironment({
             input_enabled: false
@@ -292,7 +299,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         const impersonateResponse: MessageResponse = await this.messenger.impersonate(impersonateRequest);
         this.currentMessageId = impersonateResponse.identity;
         this.setState(this.buildMessageState());
-        window.postMessage({'messageType': 'BEFORE', 'data': impersonateResponse}, '*');
+        //sendMessageAndAwait<MessageResponse>;
+        //ReactRunner.
+        
 /*
         // Nudge bot for narration?
         let nudgeRequest: NudgeRequest = DEFAULT_NUDGE_REQUEST;
@@ -318,7 +327,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     }
     
     render(): ReactElement {
-
+        if (this.chosenAction) {
+            this.takeAction(this.chosenAction);
+        }
         return <div style={{
             width: '100vw',
             height: '100vh',
