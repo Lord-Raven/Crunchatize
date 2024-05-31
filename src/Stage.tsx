@@ -254,7 +254,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             /*** @type null | string @description an error message to show
              briefly at the top of the screen, if any. ***/
             error: null,
-            systemMessage: this.actions.length > 0 ? this.actions.map(action => action.fullDescription()).join('\n');
+            systemMessage: this.actions.length > 0 ? this.actions.map(action => action.fullDescription()).join('\n') : null,
             chatState: null
         };
     }
