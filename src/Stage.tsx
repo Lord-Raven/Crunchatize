@@ -4,6 +4,7 @@ import {LoadResponse} from "@chub-ai/stages-ts/dist/types/load";
 import {Action} from "./Action";
 import {Stat, StatDescription} from "./Stat"
 import {Outcome, ResultDescription} from "./Outcome";
+import { ReactRunner, ReactRunnerProps } from "@chub-ai/stages-ts";
 
 /***
  The type that this stage persists message-level state in.
@@ -291,6 +292,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         const impersonateResponse: MessageResponse = await this.messenger.impersonate(impersonateRequest);
         this.currentMessageId = impersonateResponse.identity;
         this.setState(this.buildMessageState());
+        window.postMessage({'messageType': 'BEFORE', 'data': impersonateResponse}, '*');
 /*
         // Nudge bot for narration?
         let nudgeRequest: NudgeRequest = DEFAULT_NUDGE_REQUEST;
@@ -301,10 +303,10 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         console.log(nudgeRequest);
         const nudgeResponse: MessageResponse = await this.messenger.nudge(nudgeRequest);
         this.currentMessageId = nudgeResponse.identity;
-        console.log('Done with nudge');
+        console.log('Done with nudge');*/
         this.messenger.updateEnvironment({
             input_enabled: true,
-        });*/
+        });
     }
 
     buildOutcomePrompt() {
