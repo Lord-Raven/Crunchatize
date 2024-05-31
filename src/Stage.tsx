@@ -124,7 +124,10 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
          state that is affected by swiping.
          ***/
         console.log('setState');
+        console.log(state);
+        console.log('pre-state-parent-id:' + this.currentMessageId);
         this.setStateFromMessageState(state);
+        console.log('post-state-parent-id' + this.currentMessageId);
     }
 
     async beforePrompt(userMessage: Message): Promise<Partial<StageResponse<ChatStateType, MessageStateType>>> {
@@ -280,7 +283,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         // Impersonate player with result
         let impersonateRequest: ImpersonateRequest = DEFAULT_IMPERSONATION;
-        impersonateRequest.is_main = true;
+        impersonateRequest.is_main = false;
         impersonateRequest.speaker_id = this.playerId;
         impersonateRequest.parent_id = this.currentMessageId ?? null;
         impersonateRequest.message = this.lastOutcome.getDescription();
@@ -294,7 +297,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         nudgeRequest.parent_id = this.currentMessageId;
         nudgeRequest.stage_directions = `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`;
         nudgeRequest.speaker_id = this.botId;
-        nudgeRequest.is_main = true;
+        nudgeRequest.is_main = false;
         console.log(nudgeRequest);
         const nudgeResponse: MessageResponse = await this.messenger.nudge(nudgeRequest);
         this.currentMessageId = nudgeResponse.identity;
@@ -320,7 +323,6 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             display: 'grid',
             alignItems: 'stretch'
         }}>
-            <div>{this.lastOutcome? this.lastOutcome.render() : ''}</div>
             <div>{this.currentMessage}</div>
             <div>{this.actionPrompt}</div>
             <div>
