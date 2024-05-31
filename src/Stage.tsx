@@ -75,7 +75,6 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     promptForId: string|undefined = undefined;
     playerId: string;
     botId: string;
-    chosenAction: Action|null = null;
 
     constructor(data: InitialData<InitStateType, ChatStateType, MessageStateType, ConfigType>) {
         /***
@@ -276,13 +275,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         return messageState;
     }
 
-    chooseAction(action: Action) {
-        console.log('chooseAction');
-        this.chosenAction = action;
-    }
-
-    async takeAction(action: Action) {
-        this.chosenAction = null;
+    async chooseAction(action: Action) {
         console.log('taking an action: ' + this.promptForId + ":" + this.currentMessageId);
         this.messenger.updateEnvironment({
             input_enabled: false
@@ -300,7 +293,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         const impersonateResponse: MessageResponse = await this.messenger.impersonate(impersonateRequest);
         this.currentMessageId = impersonateResponse.identity;
         this.setState(this.buildMessageState());
-        //sendMessageAndAwait<MessageResponse>;
+        await sendMessageAndAwait<MessageResponse>('BEFORE', impersonateResponse);
         //ReactRunner.
         
 /*
@@ -328,10 +321,6 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     }
     
     render(): ReactElement {
-        console.log('render');
-        if (this.chosenAction) {
-            this.takeAction(this.chosenAction);
-        }
         return <div style={{
             width: '100vw',
             height: '100vh',
