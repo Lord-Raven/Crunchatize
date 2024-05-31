@@ -149,9 +149,30 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                             Essentially only relevant to beforePrompt currently. ***/
             identity
         } = userMessage;
+
         console.log('beforePrompt:' + promptForId + ';' + identity);
         this.promptForId = promptForId ?? undefined;
         this.currentMessageId = identity;
+
+        let errorMessage: string|null = null;
+        let takenAction: Action|null = null;
+        let finalContent: string|undefined = content;
+
+        // Attempt to parse actions:
+        for (const action of this.actions) {
+            if (content.toLowerCase().includes(action.stat.toLowerCase())) {
+                takenAction = action;
+                break;
+            }
+        }
+
+        if (takenAction) {
+            this.setLastOutcome(takenAction.determineSuccess(this.stats[takenAction.stat]));
+            finalContent = this.lastOutcome?.getDescription();
+        } else {
+            errorMessage = 'No action selected.';
+        }
+
         return {
             /*** @type null | string @description A string to add to the
              end of the final prompt sent to the LLM,
@@ -161,7 +182,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             messageState: this.buildMessageState(),
             /*** @type null | string @description If not null, the user's message itself is replaced
              with this value, both in what's sent to the LLM and in the database. ***/
-            modifiedMessage: null,
+            modifiedMessage: finalContent ?? content,
             /*** @type null | string @description A system message to append to the end of this message.
              This is unique in that it shows up in the chat log and is sent to the LLM in subsequent messages,
              but it's shown as coming from a system user and not any member of the chat. If you have things like
@@ -170,7 +191,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             systemMessage: null,
             /*** @type null | string @description an error message to show
              briefly at the top of the screen, if any. ***/
-            error: null,
+            error: errorMessage,
             chatState: null,
         };
     }
@@ -280,15 +301,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         this.messenger.updateEnvironment({
             input_enabled: false
         });
-        this.lastOutcome = action.determineSuccess(this.stats[action.stat]);
-        this.buildOutcomePrompt();
+        this.setLastOutcome(action.determineSuccess(this.stats[action.stat]));
 
         // Impersonate player with result
         let impersonateRequest: ImpersonateRequest = DEFAULT_IMPERSONATION;
         impersonateRequest.is_main = true;
         impersonateRequest.speaker_id = this.playerId;
         impersonateRequest.parent_id = this.currentMessageId ?? null;
-        impersonateRequest.message = this.lastOutcome.getDescription();
+        impersonateRequest.message = this.lastOutcome?.getDescription() ?? '';
         console.log(impersonateRequest);
         const impersonateResponse: MessageResponse = await this.messenger.impersonate(impersonateRequest);
         this.currentMessageId = impersonateResponse.identity;
@@ -313,7 +333,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         });
     }
 
-    buildOutcomePrompt() {
+    setLastOutcome(outcome: Outcome|null) {
+        this.lastOutcome = outcome;
         this.lastOutcomePrompt = '';
         if (this.lastOutcome) {
             this.lastOutcomePrompt += '{{user}} has chosen the following action: ' + this.lastOutcome.action.description; + '\n';
