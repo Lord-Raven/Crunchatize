@@ -72,6 +72,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     lastOutcomePrompt: string = '';
     promptForId: string|undefined = undefined;
     playerId: string;
+    botId: string;
 
     constructor(data: InitialData<InitStateType, ChatStateType, MessageStateType, ConfigType>) {
         /***
@@ -93,6 +94,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         } = data;
         this.setStateFromMessageState(messageState);
         this.playerId = users[Object.keys(users)[0]].anonymizedId;
+        this.botId = characters[Object.keys(characters)[0]].anonymizedId;
     }
 
     async load(): Promise<Partial<LoadResponse<InitStateType, ChatStateType, MessageStateType>>> {
@@ -280,21 +282,24 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         let impersonateRequest: ImpersonateRequest = DEFAULT_IMPERSONATION;
         impersonateRequest.is_main = true;
         impersonateRequest.speaker_id = this.playerId;
-        impersonateRequest.parent_id = this.currentMessageId ?? impersonateRequest.parent_id;
+        impersonateRequest.parent_id = this.currentMessageId ?? null;
         impersonateRequest.message = this.lastOutcome.getDescription();
         console.log(impersonateRequest);
-        const impersonateResponse: MessageResponse = await this.messenger.impersonate(impersonateRequest);
+        const impersonateResponse: MessageResponse = await this.messenger.impersonate(impersonateRequest).then();
         this.currentMessageId = impersonateResponse.identity;
+
 
         // Nudge bot for narration?
         let nudgeRequest: NudgeRequest = DEFAULT_NUDGE_REQUEST;
         nudgeRequest.parent_id = this.currentMessageId;
+        nudgeRequest.stage_directions = `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`;
+        nudgeRequest.speaker_id = this.botId;
         console.log(nudgeRequest);
         const nudgeResponse: MessageResponse = await this.messenger.nudge(nudgeRequest);
         this.currentMessageId = nudgeResponse.identity;
         console.log('Done with nudge');
         this.messenger.updateEnvironment({
-            input_enabled: true
+            input_enabled: true,
         });
     }
 
