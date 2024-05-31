@@ -328,6 +328,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     }
     
     render(): ReactElement {
+        console.log('render');
         if (this.chosenAction) {
             this.takeAction(this.chosenAction);
         }
