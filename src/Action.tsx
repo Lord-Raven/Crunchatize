@@ -25,6 +25,10 @@ export class Action {
         return new Outcome(dieResult1, dieResult2, this);
     }
 
+    fullDescription(): string {
+        return `(${this.stat} ${this.modifier > 0 ? ('+' + this.modifier) : (this.modifier < 0 ? this.modifier : '')}) ${this.description}`;
+    }
+
     render(stage: Stage) {
         return (
             <div>
