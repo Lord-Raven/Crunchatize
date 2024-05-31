@@ -276,13 +276,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         return messageState;
     }
 
-    async chooseAction(action: Action) {
+    chooseAction(action: Action) {
+        console.log('chooseAction');
         this.chosenAction = action;
     }
 
     async takeAction(action: Action) {
         this.chosenAction = null;
-        console.log('chose an action: ' + this.promptForId + ":" + this.currentMessageId);
+        console.log('taking an action: ' + this.promptForId + ":" + this.currentMessageId);
         this.messenger.updateEnvironment({
             input_enabled: false
         });
