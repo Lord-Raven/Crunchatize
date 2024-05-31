@@ -283,15 +283,15 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         // Impersonate player with result
         let impersonateRequest: ImpersonateRequest = DEFAULT_IMPERSONATION;
-        impersonateRequest.is_main = false;
+        impersonateRequest.is_main = true;
         impersonateRequest.speaker_id = this.playerId;
         impersonateRequest.parent_id = this.currentMessageId ?? null;
         impersonateRequest.message = this.lastOutcome.getDescription();
         console.log(impersonateRequest);
         const impersonateResponse: MessageResponse = await this.messenger.impersonate(impersonateRequest);
         this.currentMessageId = impersonateResponse.identity;
-
-
+        this.setState(this.buildMessageState());
+/*
         // Nudge bot for narration?
         let nudgeRequest: NudgeRequest = DEFAULT_NUDGE_REQUEST;
         nudgeRequest.parent_id = this.currentMessageId;
@@ -304,7 +304,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         console.log('Done with nudge');
         this.messenger.updateEnvironment({
             input_enabled: true,
-        });
+        });*/
     }
 
     buildOutcomePrompt() {
