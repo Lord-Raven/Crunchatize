@@ -161,6 +161,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         // Attempt to parse actions:
         for (const action of this.actions) {
             if (content.toLowerCase().includes(action.stat.toLowerCase())) {
+                console.log('found action');
                 takenAction = action;
                 break;
             }
@@ -169,8 +170,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         if (takenAction) {
             this.setLastOutcome(takenAction.determineSuccess(this.stats[takenAction.stat]));
             finalContent = this.lastOutcome?.getDescription();
-        } else {
-            errorMessage = 'No action selected.';
+        } else if (this.actions.length > 0) {
+            console.log('No action--error time!');
+            errorMessage = 'You must choose one of the offered actions.';
         }
 
         return {
