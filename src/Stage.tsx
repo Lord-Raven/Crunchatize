@@ -313,24 +313,6 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     
     render(): ReactElement {
 
-        const stage: Stage = this;
-        if (this.actions.length < 1) {
-            return <div style={{
-                width: '100vw',
-                height: '100vh',
-                display: 'grid',
-                alignItems: 'stretch'
-            }}>
-                <div>{this.lastOutcome? this.lastOutcome.render() : ''}</div>
-                <div>{this.currentMessage}</div>
-                <div>{this.actionPrompt}</div>
-                <div>
-                    Select an action:<br/>
-                    {this.actions.map((action: Action) => action.render(stage))}
-                </div>
-
-            </div>;
-        }
         return <div style={{
             width: '100vw',
             height: '100vh',
@@ -342,7 +324,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             <div>{this.actionPrompt}</div>
             <div>
                 Select an action:<br/>
-                <button onClick={() => this.chooseAction(this.actions[0])}>Click me!</button>
+                {this.actions.map((action: Action) => action.render(this))}
             </div>
 
         </div>;
