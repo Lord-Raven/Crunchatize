@@ -58,7 +58,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         'Place each option on a separate line and study the stat descriptions for inspiration. Here are sample options:\n' +
         '"(Might +1) Force the lock"\n' +
         '"(Skill -1) Pick the lock (it looks difficult)"\n' +
-        '"(Grace +3) Scale the wall"\n' +
+        '"(Grace +0) Scale the wall"\n' +
         '"(Charm -2) Convince someone to give you the key"';
 
     // Regular expression to match the pattern "(Stat +modifier) description"
@@ -282,7 +282,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         let impersonateRequest: ImpersonateRequest = DEFAULT_IMPERSONATION;
         impersonateRequest.is_main = true;
         impersonateRequest.speaker_id = this.playerId;
-        impersonateRequest.parent_id = this.currentMessageId ?? null;
+        //impersonateRequest.parent_id = this.currentMessageId ?? null;
         impersonateRequest.message = this.lastOutcome.getDescription();
         console.log(impersonateRequest);
         const impersonateResponse: MessageResponse = await this.messenger.impersonate(impersonateRequest).then();
@@ -291,7 +291,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         // Nudge bot for narration?
         let nudgeRequest: NudgeRequest = DEFAULT_NUDGE_REQUEST;
-        nudgeRequest.parent_id = this.currentMessageId;
+        //nudgeRequest.parent_id = this.currentMessageId;
         nudgeRequest.stage_directions = `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`;
         nudgeRequest.speaker_id = this.botId;
         nudgeRequest.is_main = true;
