@@ -52,16 +52,16 @@ type ChatStateType = any;
 export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateType, ConfigType> {
 
     readonly defaultStat: number = 0;
-    readonly actionPrompt: string = 'Develop an excerpt of organic narration. At the end of this passage, divise and append three or four varied, stat-oriented, active follow-up suggestions that the user could choose to take, formatted as such:\n' +
-        '"(Stat +Modifier) Brief summary of action"\n' +
+    readonly actionPrompt: string = 'Develop an excerpt of organic narration. At the end of this passage, divise and append three or four varied, stat-oriented, active follow-up suggestions that the user could choose to take, always formatted in this fashion:\n' +
+        '(Stat +Modifier) Brief summary of action\n' +
         '"Stat" is one of these eight core stats:\n' +
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') +
         'And "Modifier" is a relative difficulty modifier between -5 and 5 which will be added to the skill check result; a lower number reflects a more difficult task.\n' +
         'Place each option on a separate line. Study the stat descriptions for inspiration and consider the characters\' current situations and assets. Here are sample options:\n' +
-        '"(Might +1) Force the lock"\n' +
-        '"(Skill -1) Pick the lock (it looks difficult)"\n' +
-        '"(Grace +0) Scale the wall"\n' +
-        '"(Charm -2) Convince someone to give you the key"';
+        '(Might +1) Force the lock\n' +
+        '(Skill -1) Pick the lock (it looks difficult)\n' +
+        '(Grace +0) Scale the wall\n' +
+        '(Charm -2) Convince someone to give you the key';
 
     // Regular expression to match the pattern "(Stat +modifier) description"
     readonly actionRegex = /\((\w+)\s+([\+\-]\d+)\)\s+(.+)/;

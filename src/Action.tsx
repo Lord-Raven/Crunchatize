@@ -26,14 +26,14 @@ export class Action {
     }
 
     fullDescription(): string {
-        return `(${this.stat} ${this.modifier > 0 ? ('+' + this.modifier) : (this.modifier < 0 ? this.modifier : '')}) ${this.description}`;
+        return `(${this.stat} ${this.modifier >= 0 ? ('+' + this.modifier) : (this.modifier < 0 ? this.modifier : '')}) ${this.description}`;
     }
 
     render(stage: Stage) {
         return (
             <div>
                 <button onClick={() => stage.chooseAction(this)}>
-                    ({this.stat} {this.modifier > 0 ? ('+' + this.modifier) : (this.modifier < 0 ? this.modifier : '')}) {this.description}
+                    ({this.stat} {this.modifier >= 0 ? ('+' + this.modifier) : (this.modifier < 0 ? this.modifier : '')}) {this.description}
                 </button>
             </div>
         );
