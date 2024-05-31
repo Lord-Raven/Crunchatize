@@ -62,7 +62,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         '"(Charm -2) Convince someone to give you the key"';
 
     // Regular expression to match the pattern "(Stat +modifier) description"
-    readonly regex = /\((\w+)\s+([\+\-]\d+)\)\s+(.+)/;
+    readonly actionRegex = /\((\w+)\s+([\+\-]\d+)\)\s+(.+)/;
     
     stats: {[key: string]: number} = {};
     currentMessage: string = '';
@@ -193,7 +193,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         
 
         for (const line of lines) {
-            const match = line.match(this.regex);
+            const match = line.match(this.actionRegex);
             if (match) {
                 console.log('Have an action: ' + match[3] + ';' + match[1] + ';' + match[2]);
                 this.actions.push(new Action(match[3], match[1] as Stat, Number(match[2])));
@@ -209,6 +209,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         this.currentMessage = finalContent;
         this.currentMessageId = identity;
         console.log(this.currentMessageId);
+
 
         return {
             /*** @type null | string @description A string to add to the
@@ -308,6 +309,23 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     render(): ReactElement {
 
         const stage: Stage = this;
+        if (this.actions.length < 1) {
+            return <div style={{
+                width: '100vw',
+                height: '100vh',
+                display: 'grid',
+                alignItems: 'stretch'
+            }}>
+                <div>{this.lastOutcome? this.lastOutcome.render() : ''}</div>
+                <div>{this.currentMessage}</div>
+                <div>{this.actionPrompt}</div>
+                <div>
+                    Select an action:<br/>
+                    {this.actions.map((action: Action) => action.render(stage))}
+                </div>
+
+            </div>;
+        }
         return <div style={{
             width: '100vw',
             height: '100vh',
@@ -319,7 +337,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             <div>{this.actionPrompt}</div>
             <div>
                 Select an action:<br/>
-                {this.actions.map((action: Action) => action.render(stage))}
+                <button onClick={() => this.chooseAction(this.actions[0])}>Click me!</button>
             </div>
 
         </div>;
