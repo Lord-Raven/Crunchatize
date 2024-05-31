@@ -280,7 +280,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         // Impersonate player with result
         let impersonateRequest: ImpersonateRequest = DEFAULT_IMPERSONATION;
-        impersonateRequest.is_main = false;
+        impersonateRequest.is_main = true;
         impersonateRequest.speaker_id = this.playerId;
         impersonateRequest.parent_id = this.currentMessageId ?? null;
         impersonateRequest.message = this.lastOutcome.getDescription();
@@ -294,7 +294,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         nudgeRequest.parent_id = this.currentMessageId;
         nudgeRequest.stage_directions = `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`;
         nudgeRequest.speaker_id = this.botId;
-        nudgeRequest.is_main = false;
+        nudgeRequest.is_main = true;
         console.log(nudgeRequest);
         const nudgeResponse: MessageResponse = await this.messenger.nudge(nudgeRequest);
         this.currentMessageId = nudgeResponse.identity;

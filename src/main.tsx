@@ -9,7 +9,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   //     which is common enough to be worth leaving in
   //     commented-out code, but because of the nature
   //     of stages it's disabled by default here.
-  // <React.StrictMode>
+  <React.StrictMode>
     <App />
-  // </React.StrictMode>,
+  </React.StrictMode>,
 )
