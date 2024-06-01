@@ -173,6 +173,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         } else if (this.actions.length > 0) {
             console.log('No action--error time!');
             errorMessage = 'You must choose one of the offered actions.';
+            throw new Error('Invalid action');
         }
 
         return {
@@ -184,7 +185,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             messageState: this.buildMessageState(),
             /*** @type null | string @description If not null, the user's message itself is replaced
              with this value, both in what's sent to the LLM and in the database. ***/
-            modifiedMessage: finalContent ?? content,
+            modifiedMessage: finalContent,
             /*** @type null | string @description A system message to append to the end of this message.
              This is unique in that it shows up in the chat log and is sent to the LLM in subsequent messages,
              but it's shown as coming from a system user and not any member of the chat. If you have things like
@@ -317,7 +318,6 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         this.setState(this.buildMessageState());
         sendMessageAndAwait<MessageResponse>('BEFORE', impersonateResponse);
         console.log('after sendMessageAndAwait');
-        //ReactRunner.
         
 /*
         // Nudge bot for narration?

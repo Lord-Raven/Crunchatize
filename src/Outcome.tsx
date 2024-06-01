@@ -7,9 +7,9 @@ export enum Result {
 }
 
 export const ResultDescription: {[result in Result]: string} = {
-    [Result.Failure]: 'The user failed to achieve their goal or actively soured the situation.',
-    [Result.MixedSuccess]: 'The user may have achieved their goal, but in an inferior way or at some cost.',
-    [Result.CompleteSuccess]: 'The user successfully achieved what they were attempting.'
+    [Result.Failure]: 'The user will fail to achieve their goal and will actively sour their situation.',
+    [Result.MixedSuccess]: 'The user may achieve their goal, but in an inferior way or at some cost.',
+    [Result.CompleteSuccess]: 'The user will successfully achieve what they were attempting.'
 }
 
 export class Outcome {

@@ -11,8 +11,8 @@ export enum Stat {
 
 export const StatDescription: {[stat in Stat]: string} = {
     [Stat.Might]: 'Physical power and endurance. Smash, drag, lift, weather.',
-    [Stat.Grace]: 'Agility and composure. Dodge, balance, dance.',
-    [Stat.Skill]: 'Sleight and craftmanship. Picklock, craft, shoot, paint.',
+    [Stat.Grace]: 'Agility and composure. Dodge, balance, dance, land.',
+    [Stat.Skill]: 'Sleight and craftmanship. Picklock, craft, shoot, fix.',
     [Stat.Brains]: 'Knowledge and judgment. Solve, deduce, recall, plan.',
     [Stat.Wits]: 'Quick-thinking and awareness. React, notice, quip, trick.',
     [Stat.Charm]: 'Allure and Influence. Persuade, inspire, deceive, entertain.',
