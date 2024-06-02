@@ -178,14 +178,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             let textGenRequest: TextGenRequest = {
                 prompt: `${finalContent}\n[${this.adLibPrompt}]`,
                 max_tokens: 5,
-                min_tokens: 0,
+                min_tokens: 1,
                 stop: [],
                 include_history: false,
-                template: "testing: {{history}}; {history}; {pre_history}; {{personality}}",
-                context_length: 1000
+                template: '',
+                context_length: 500
             };
             let textResponse = await this.generator.textGen(textGenRequest);
-            const adLibPattern = new RegExp(`^(${Object.values(Stat).join('|')}) ((\\+|-)\\d+)$`);
+            const adLibPattern = new RegExp(`^(${Object.values(Stat).join('|')}) ((\\+|-)\\d+)`);
             console.log('request complete?');
             console.log(textResponse);
             const match = adLibPattern.exec(textResponse?.result ?? '');
