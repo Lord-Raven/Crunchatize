@@ -52,8 +52,8 @@ type ChatStateType = any;
 export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateType, ConfigType> {
 
     readonly defaultStat: number = 0;
-    readonly adLibPrompt: string = 'Determine whether the user\'s input indicates significant action or motivated dialog. \n' +
-        'If so, output the name of the stat that best governs the action or intent of the dialog, as well as a relative difficulty modifier between -5 and +5.\n' +
+    readonly adLibPrompt: string = 'Determine whether the preceding action includes action or motivated dialog. \n' +
+        'If so, determine and output the name of the stat that best governs the action or intent, as well as a relative difficulty modifier between -5 and +5.\n' +
         'These are the eight possible stats and their descriptions, to aid in selecting the most applicable:\n' +
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') + '\n' +
         'Sample responses:\n"Might +1", "Skill -2", "Grace +0", or "None"';
@@ -157,6 +157,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         } = userMessage;
 
         console.log('beforePrompt:' + promptForId + ';' + identity);
+        console.log(userMessage);
         this.promptForId = promptForId ?? undefined;
         this.currentMessageId = identity;
 
@@ -177,12 +178,12 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             console.log('Ad-lib action.');
             let textGenRequest: TextGenRequest = {
                 prompt: `${finalContent}\n[${this.adLibPrompt}]`,
-                max_tokens: 5,
+                max_tokens: 10,
                 min_tokens: 1,
                 stop: [],
-                include_history: false,
+                include_history: true,
                 template: '',
-                context_length: 500
+                context_length: 2000
             };
             let textResponse = await this.generator.textGen(textGenRequest);
             const adLibPattern = new RegExp(`^(${Object.values(Stat).join('|')}) ((\\+|-)\\d+)`);
