@@ -176,11 +176,11 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         if (!takenAction && finalContent) {
             console.log('Ad-lib action.');
             let textGenRequest: TextGenRequest = {
-                prompt: `${finalContent}\n${this.adLibPrompt}`,
+                prompt: `${finalContent}\n[${this.adLibPrompt}]`,
                 max_tokens: 5,
                 min_tokens: 0,
                 stop: [],
-                include_history: true,
+                include_history: false,
                 template: "testing: {{history}}; {history}; {pre_history}; {{personality}}",
                 context_length: 1000
             };
