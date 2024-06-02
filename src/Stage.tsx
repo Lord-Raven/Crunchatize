@@ -1,5 +1,5 @@
 import {ReactElement} from "react";
-import {StageBase, StageResponse, InitialData, Message, ImpersonateRequest, DEFAULT_IMPERSONATION, MessagingResponse, MessageResponse, DEFAULT_NUDGE_REQUEST, NudgeRequest, EnvironmentRequest} from "@chub-ai/stages-ts";
+import {StageBase, StageResponse, InitialData, Message, ImpersonateRequest, DEFAULT_IMPERSONATION, MessagingResponse, MessageResponse, DEFAULT_NUDGE_REQUEST, NudgeRequest, EnvironmentRequest, TextGenRequest} from "@chub-ai/stages-ts";
 import {LoadResponse} from "@chub-ai/stages-ts/dist/types/load";
 import {Action} from "./Action";
 import {Stat, StatDescription} from "./Stat"
@@ -52,7 +52,13 @@ type ChatStateType = any;
 export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateType, ConfigType> {
 
     readonly defaultStat: number = 0;
-    readonly actionPrompt: string = 'Develop an excerpt of organic narration. At the end of this passage, divise and append three or four varied, stat-oriented, active follow-up suggestions that the user could choose to take, always formatted in this fashion:\n' +
+    readonly adLibPrompt: string = 'Determine whether the user\'s input indicates significant action or motivated dialog. \n' +
+        'If so, output the name of the stat that best governs the action or intent of the dialog, as well as a relative difficulty modifier between -5 and +5.\n' +
+        'These are the eight possible stats and their descriptions, to aid in selecting the most applicable:\n' +
+        Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') + '\n' +
+        'Sample responses:\n"Might +1", "Skill -2", "Grace +0", or "None"';
+    readonly actionPrompt: string = 'Develop an excerpt of organic narration.\n' +
+        'At the end of this passage, divise and append three or four varied, stat-oriented, active follow-up suggestions that the user could choose to take, always formatted in this fashion:\n' +
         '(Stat +Modifier) Brief summary of action\n' +
         '"Stat" is one of these eight core stats:\n' +
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') +
@@ -167,14 +173,32 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             }
         }
 
+        if (!takenAction && finalContent) {
+            console.log('Ad-lib action.');
+            let textGenRequest: TextGenRequest = {
+                prompt: `${finalContent}\n${this.adLibPrompt}`,
+                max_tokens: 5,
+                min_tokens: 0,
+                stop: [],
+                include_history: true,
+                template: "testing: {{history}}; {history}; {pre_history}; {{personality}}",
+                context_length: 1000
+            };
+            let textResponse = await this.generator.textGen(textGenRequest);
+            const adLibPattern = new RegExp(`^(${Object.values(Stat).join('|')}) ((\\+|-)\\d+)$`);
+
+            const match = adLibPattern.exec(textResponse?.result ?? '');
+
+            if (match) {
+                let action: Action = new Action(finalContent, match[1] as Stat, Number(match[2]));
+                takenAction = action;
+            }
+        }
+
         if (takenAction) {
             this.setLastOutcome(takenAction.determineSuccess(this.stats[takenAction.stat]));
             finalContent = this.lastOutcome?.getDescription();
-        } else if (this.actions.length > 0) {
-            console.log('No action--error time!');
-            errorMessage = 'You must choose one of the offered actions.';
-            throw new Error('Invalid action');
-        }
+        } 
 
         return {
             /*** @type null | string @description A string to add to the
