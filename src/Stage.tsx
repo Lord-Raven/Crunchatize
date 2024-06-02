@@ -186,10 +186,12 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             };
             let textResponse = await this.generator.textGen(textGenRequest);
             const adLibPattern = new RegExp(`^(${Object.values(Stat).join('|')}) ((\\+|-)\\d+)$`);
-
+            console.log('request complete?');
+            console.log(textResponse);
             const match = adLibPattern.exec(textResponse?.result ?? '');
 
             if (match) {
+                console.log('Found match');
                 let action: Action = new Action(finalContent, match[1] as Stat, Number(match[2]));
                 takenAction = action;
             }
