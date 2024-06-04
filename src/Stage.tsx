@@ -58,20 +58,20 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') + '\n' +
         'Sample responses:\n"Might +1", "Skill -2", "Grace +0", or "None"';
     readonly actionPrompt: string = 'Follow all previous instructions to develop an organic narrative response.\n' +
-        'At the end of this response, insert a dinkus (***), then output three or four varied options for follow-up actions that {{user}} could choose to pursue.\n' +
-        'Options can simple dialog or free actions or stat-based actions; all options follow this format:\n' +
-        '(Stat +Modifier) Brief summary of action\n' +
-        'These are the eight possible stats with a brief description and example action associations:\n' +
+        'At the end of this response, insert a dinkus (***), then generate and output approximately four brief options for varied follow-up actions that {{user}} could choose to pursue.\n' +
+        'Options can be simple dialog or given actions or they can be risky actions with an associated stat; all options follow this format:\n' +
+        '-(Stat +Modifier) Brief summary of action\n' +
+        'These are all eight possible stats with a brief description and example verb associations:\n' +
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') +
         'The modifier is a relative difficulty adjustment between -5 and +5 which will be added to the skill check result; a lower number reflects a more difficult task.\n' +
-        'Place each of the three to four options on a separate line. Each stat may be used only once per response. Study the stat descriptions for inspiration and consider the characters\' current situations and assets. Here are sample options:\n' +
+        'Place each option on a separate line. Each stat may be used only once per response. Study the stat descriptions for inspiration and consider the characters\' current situations and assets. Here are sample options:\n' +
         '***\n' +
-        'Talk to the guard about admittance.\n' +
-        '(Charm -2) Convince the guard to let you in.\n' +
-        '(Might +1) Force the lock.\n' +
-        '(Skill -1) Pick the lock (it looks difficult).\n' +
-        '(Luck -1) Search for another way in.\n' +
-        'Give up.';
+        '-Talk to the guard about admittance.\n' +
+        '-(Charm -2) Convince the guard to let you in.\n' +
+        '-(Might +1) Force the lock.\n' +
+        '-(Skill -1) Pick the lock (it looks difficult).\n' +
+        '-(Luck -1) Search for another way in.\n' +
+        '-Give up.';
 
     // Regular expression to match the pattern "(Stat +modifier) description"
     readonly actionRegex = /(\w+)\s*([-+]\d+)\s*[-.:)]?\s*(.+)/;
