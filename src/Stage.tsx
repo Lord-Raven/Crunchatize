@@ -3,7 +3,7 @@ import {StageBase, StageResponse, InitialData, Message, ImpersonateRequest, DEFA
 import {LoadResponse} from "@chub-ai/stages-ts/dist/types/load";
 import {Action} from "./Action";
 import {Stat, StatDescription} from "./Stat"
-import {Outcome, ResultDescription} from "./Outcome";
+import {Outcome, Result, ResultDescription} from "./Outcome";
 import {sendMessageAndAwait} from "@chub-ai/stages-ts/dist/services/messaging";
 import {MESSAGING_REQUESTS} from "@chub-ai/stages-ts/dist/types/messaging/constants";
 
@@ -57,8 +57,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         'These are the eight possible stats and their descriptions, to aid in selecting the most applicable:\n' +
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') + '\n' +
         'Sample responses:\n"Might +1", "Skill -2", "Grace +0", or "None"';
-    readonly actionPrompt: string = 'Develop an excerpt of organic narration.\n' +
-        'At the end of this passage, generate and output three or four varied, stat-oriented follow-up actions or dialogs that {{user}} could choose to pursue, always formatted in this fashion:\n' +
+    readonly actionPrompt: string = 'Follow all instructions to develop a response.\n' +
+        'At the end of this response, generate and output three or four varied, stat-oriented follow-up actions that {{user}} could choose to pursue, always formatted as such:\n' +
         '(Stat +Modifier) Brief summary of action\n' +
         '"Stat" is one of these eight core stats:\n' +
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') +
@@ -81,6 +81,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     promptForId: string|undefined = undefined;
     playerId: string;
     botId: string;
+    experience: number = 0;
 
     constructor(data: InitialData<InitStateType, ChatStateType, MessageStateType, ConfigType>) {
         /***
@@ -201,6 +202,10 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         if (takenAction) {
             this.setLastOutcome(takenAction.determineSuccess(this.stats[takenAction.stat]));
             finalContent = this.lastOutcome?.getDescription();
+
+            if (this.lastOutcome?.result === Result.Failure) {
+                this.experience++;
+            }
         } 
 
         return {
@@ -302,6 +307,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 return this.convertAction(action);
             }) : [];
             this.promptForId = messageState['promptForId'];
+            this.experience = messageState['experience'] ?? 0
         }
     }
 
@@ -323,6 +329,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         messageState['lastOutcomePrompt'] = this.lastOutcomePrompt ?? '';
         messageState['actions'] = this.actions ?? [];
         messageState['promptForId'] = this.promptForId;
+        messageState['experience'] = this.experience ?? 0;
         return messageState;
     }
 
