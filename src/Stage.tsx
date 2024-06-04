@@ -275,8 +275,10 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         for (const line of lines) {
             const match = line.match(this.actionRegex);
             if (match) {
-                console.log('Have an action: ' + match[3] + ';' + match[1] + ';' + match[2]);
-                this.actions.push(new Action(match[3], match[1] as Stat, Number(match[2])));
+                if (!match[3].match(/^\\s*$/) && match[1] in Stat) {
+                    console.log('Have an action: ' + match[3] + ';' + match[1] + ';' + match[2]);
+                    this.actions.push(new Action(match[3], match[1] as Stat, Number(match[2])));
+                }
                 parsingActions = true;
             } else if (!parsingActions) {
                 if (line.includes('***')) {
