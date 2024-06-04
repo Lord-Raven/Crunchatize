@@ -58,7 +58,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') + '\n' +
         'Sample responses:\n"Might +1", "Skill -2", "Grace +0", or "None"';
     readonly actionPrompt: string = 'Follow all instructions to develop an organic narrative response.\n' +
-        'At the end of this response, generate and output three or four varied, stat-oriented actions that {{user}} could choose to pursue, always formatted as such:\n' +
+        'At the end of this response, insert a pagebreak, then generate and output three or four varied, stat-oriented actions that {{user}} could choose to pursue, always formatted as such:\n' +
         '(Stat +Modifier) Brief summary of action\n' +
         'These are the eight possible stats with a brief description and example action associations:\n' +
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') +
@@ -168,9 +168,18 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         let finalContent: string|undefined = content;
 
         // Attempt to parse actions:
-        for (const action of this.actions) {
+        for (let i = 0; i < this.actions.length; i++) {
+            const action: Action = this.actions[i];
             if (content.toLowerCase().includes(action.stat.toLowerCase())) {
-                console.log('found action');
+                console.log('Chose action by stat');
+                takenAction = action;
+                break;
+            } else if (content === `${i}` || content === `${i}.`) {
+                console.log('Chose action by number');
+                takenAction = action;
+                break;
+            } else if (content.length > 6 && action.description.toLowerCase().includes(content.toLowerCase())) {
+                console.log('Chose action by description');
                 takenAction = action;
                 break;
             }
@@ -261,7 +270,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             if (match) {
                 console.log('Have an action: ' + match[3] + ';' + match[1] + ';' + match[2]);
                 this.actions.push(new Action(match[3], match[1] as Stat, Number(match[2])));
-            } else {
+            } else if (this.actions.length == 0) {
                 // If the line does not match the pattern, it's a content line
                 contentLines.push(line);
             }
@@ -288,7 +297,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             /*** @type null | string @description an error message to show
              briefly at the top of the screen, if any. ***/
             error: null,
-            systemMessage: this.actions.length > 0 ? this.actions.map(action => action.fullDescription()).join('\n') : null,
+            systemMessage: this.actions.length > 0 ? `Choose an action:\n` + this.actions.map((action, index) => `${index + 1}. ${action.fullDescription()}`).join('\n') : null,
             chatState: null
         };
     }
