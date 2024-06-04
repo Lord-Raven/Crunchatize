@@ -71,7 +71,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         '(Charm -2) Convince someone to give you the key';
 
     // Regular expression to match the pattern "(Stat +modifier) description"
-    readonly actionRegex = /(?:\d+\.\s*)?\(?([A-Za-z]+)\s*([+-]?\d+)\)?\s*-\s*(.*)/;
+    readonly actionRegex = /(\w+)\s*([-+]\d+)\s*[-.:)]?\s*(.+)/;
     // Old: /\((\w+)\s+([\+\-]\d+)\)\s+(.+)/;
     
     stats: {[key: string]: number} = {};
