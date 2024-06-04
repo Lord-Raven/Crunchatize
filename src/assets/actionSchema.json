@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "stat": {
+          "type": "string",
+          "enum": ["Might", "Brains", "Heart", "Skill", "Grace", "Luck", "Charm", "Wits"]
+        },
+        "modifier": {
+          "type": "number"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": ["stat", "modifier", "description"]
+    }
+}

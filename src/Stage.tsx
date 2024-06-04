@@ -5,52 +5,20 @@ import {Action} from "./Action";
 import {Stat, StatDescription} from "./Stat"
 import {Outcome, Result, ResultDescription} from "./Outcome";
 import {sendMessageAndAwait} from "@chub-ai/stages-ts/dist/services/messaging";
-import {MESSAGING_REQUESTS} from "@chub-ai/stages-ts/dist/types/messaging/constants";
+import * as actionSchema from './assets/jsonSchema.json';
 
-/***
- The type that this stage persists message-level state in.
- This is primarily for readability, and not enforced.
-
- @description This type is saved in the database after each message,
-  which makes it ideal for storing things like positions and statuses,
-  but not for things like history, which is best managed ephemerally
-  in the internal state of the Stage class itself.
- ***/
 type MessageStateType = any;
 
-/***
- The type of the stage-specific configuration of this stage.
-
- @description This is for things you want people to be able to configure,
-  like background color.
- ***/
 type ConfigType = any;
 
-/***
- The type that this stage persists chat initialization state in.
- If there is any 'constant once initialized' static state unique to a chat,
- like procedurally generated terrain that is only created ONCE and ONLY ONCE per chat,
- it belongs here.
- ***/
 type InitStateType = any;
 
-/***
- The type that this stage persists dynamic chat-level state in.
- This is for any state information unique to a chat,
-    that applies to ALL branches and paths such as clearing fog-of-war.
- It is usually unlikely you will need this, and if it is used for message-level
-    data like player health then it will enter an inconsistent state whenever
-    they change branches or jump nodes. Use MessageStateType for that.
- ***/
 type ChatStateType = any;
 
-/***
- A simple example class that implements the interfaces necessary for a Stage.
- If you want to rename it, be sure to modify App.js as well.
- @link https://github.com/CharHubAI/chub-stages-ts/blob/main/src/types/stage.ts
- ***/
 export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateType, ConfigType> {
 
+    readonly ACTION_JSON_SCHEMA: string = JSON.stringify(actionSchema);
+    
     readonly defaultStat: number = 0;
     readonly adLibPrompt: string = 'Determine whether the preceding input includes action or motivated dialog. \n' +
         'If so, determine and output the name of the stat that best governs the action or intent, as well as a relative difficulty modifier between -5 and +5.\n' +
@@ -58,7 +26,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') + '\n' +
         'Sample responses:\n"Might +1", "Skill -2", "Grace +0", or "None"';
     readonly actionPrompt: string = 'Follow all previous instructions to develop an organic narrative response.\n' +
-        'At the very end of this response, output a dinkus (***), then generate and list approximately four brief options for varied follow-up actions that {{user}} could choose to pursue.\n' +
+
+        'At the end of this response, generate a set of varied follow-up actions that {{user}} could choose to pursue.\n' +
+        'Output these options in the following JSON schema:\n' +
+        this.ACTION_JSON_SCHEMA + '\n';
+
+
+
+        /*'At the very end of this response, output a dinkus (***), then generate and list approximately four brief options for varied follow-up actions that {{user}} could choose to pursue.\n' +
         'Options can be simple dialog or given actions or they can be risky actions with an associated stat; all options follow this format:\n' +
         '-(Stat +Modifier) Brief summary of action\n' +
         'These are all eight possible stats with a brief description and example verb associations:\n' +
@@ -71,7 +46,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         '-(Might +1) Force the lock.\n' +
         '-(Skill -1) Pick the lock (it looks difficult).\n' +
         '-(Luck -1) Search for another way in.\n' +
-        '-Give up.';
+        '-Give up.';*/
 
     // Regular expression to match the pattern "(Stat +modifier) description"
     readonly actionRegex = /(\w+)\s*([-+]\d+)\s*[-.:)]?\s*(.+)/;
