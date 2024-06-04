@@ -58,7 +58,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') + '\n' +
         'Sample responses:\n"Might +1", "Skill -2", "Grace +0", or "None"';
     readonly actionPrompt: string = 'Follow all previous instructions to develop an organic narrative response.\n' +
-        'At the end of this response, insert a pagebreak, then generate and output three to four varied options for follow-up action that {{user}} could choose to pursue.\n' +
+        'At the end of this response, generate and output three to four varied options for follow-up action that {{user}} could choose to pursue.\n' +
         'Always format options as such:\n' +
         '(Stat +Modifier) Brief summary of action\n' +
         'These are the eight possible stats with a brief description and example action associations:\n' +
@@ -190,10 +190,10 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             console.log('Ad-lib action.');
             let textGenRequest: TextGenRequest = {
                 prompt: `${finalContent}\n[${this.adLibPrompt}]`,
-                max_tokens: 10,
-                min_tokens: 1,
+                max_tokens: 100,
+                min_tokens: 50,
                 stop: [],
-                include_history: true,
+                include_history: false,
                 template: '',
                 context_length: 2000
             };
