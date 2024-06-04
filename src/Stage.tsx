@@ -27,9 +27,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         'Sample responses:\n"Might +1", "Skill -2", "Grace +0", or "None"';
     readonly actionPrompt: string = 'Follow all previous instructions to develop an organic narrative response.\n' +
 
-        'At the end of this response, generate a set of varied follow-up actions that {{user}} could choose to pursue.\n' +
-        'Output these options in the following JSON schema:\n' +
-        this.ACTION_JSON_SCHEMA + '\n';
+        'At the very end of this response, output a JSON array in this schema:\n' +
+        this.ACTION_JSON_SCHEMA + '\n' +
+        'Depicting a set of options for {{user}} to potentially pursue.\n';
 
 
 
