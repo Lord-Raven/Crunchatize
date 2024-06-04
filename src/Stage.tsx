@@ -5,7 +5,7 @@ import {Action} from "./Action";
 import {Stat, StatDescription} from "./Stat"
 import {Outcome, Result, ResultDescription} from "./Outcome";
 import {sendMessageAndAwait} from "@chub-ai/stages-ts/dist/services/messaging";
-import * as actionSchema from './assets/jsonSchema.json';
+import * as actionSchema from './assets/actionSchema.json';
 
 type MessageStateType = any;
 
