@@ -58,7 +58,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') + '\n' +
         'Sample responses:\n"Might +1", "Skill -2", "Grace +0", or "None"';
     readonly actionPrompt: string = 'Follow all previous instructions to develop an organic narrative response.\n' +
-        'At the end of this response, insert a dinkus (***), then generate and output approximately four brief options for varied follow-up actions that {{user}} could choose to pursue.\n' +
+        'At the very end of this response, output a dinkus (***), then generate and list approximately four brief options for varied follow-up actions that {{user}} could choose to pursue.\n' +
         'Options can be simple dialog or given actions or they can be risky actions with an associated stat; all options follow this format:\n' +
         '-(Stat +Modifier) Brief summary of action\n' +
         'These are all eight possible stats with a brief description and example verb associations:\n' +
