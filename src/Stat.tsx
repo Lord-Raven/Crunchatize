@@ -10,7 +10,7 @@ export enum Stat {
 }
 
 export const StatDescription: {[stat in Stat]: string} = {
-    [Stat.Might]: 'Physical power and endurance. Smash, drag, lift, weather.',
+    [Stat.Might]: 'Physical power and endurance. Smash, lift, weather, intimidate.',
     [Stat.Grace]: 'Agility and composure. Dodge, balance, dance, land.',
     [Stat.Skill]: 'Sleight and craftmanship. Picklock, craft, shoot, fix.',
     [Stat.Brains]: 'Knowledge and judgment. Solve, deduce, recall, plan.',
