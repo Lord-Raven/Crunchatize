@@ -75,7 +75,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
     // Regular expression to match the pattern "(Stat +modifier) description"
     readonly actionRegex = /(\w+)\s*([-+]\d+)\s*[-.:)]?\s*(.+)/;
-    // Old: /\((\w+)\s+([\+\-]\d+)\)\s+(.+)/;
+    readonly whitespaceRegex = /^[\s\r\n]*$/;
     
     stats: {[key: string]: number} = {};
     currentMessage: string = '';
@@ -275,7 +275,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         for (const line of lines) {
             const match = line.match(this.actionRegex);
             if (match) {
-                if (!match[3].match(/^\\s*$/) && match[1] in Stat) {
+                if (!match[3].match(this.whitespaceRegex) && match[1] in Stat) {
                     console.log('Have an action: ' + match[3] + ';' + match[1] + ';' + match[2]);
                     this.actions.push(new Action(match[3], match[1] as Stat, Number(match[2])));
                 }
@@ -285,7 +285,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                     parsingActions = true;
                 } else {
                     // If the line does not match the pattern, it's a content line
-                    if (line.match(/^\\s*$/)) {
+                    if (line.match(this.whitespaceRegex)) {
                         break;
                     } else {
                         contentLines.push(line);
