@@ -285,12 +285,10 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                     parsingActions = true;
                 } else {
                     // If the line does not match the pattern, it's a content line
-                    if (line.match(this.whitespaceRegex)) {
-                        break;
-                    } else {
-                        contentLines.push(line);
-                    }
+                    contentLines.push(line);
                 }
+            } else if(this.actions.length > 0 && line.match(this.whitespaceRegex)) {
+                break;
             } else {
                 console.log('Have a stat-less action: ' + line);
                 this.actions.push(new Action(line, null, 0));
