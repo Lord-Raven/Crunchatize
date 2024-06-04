@@ -7,7 +7,7 @@ export class Action {
     stat: Stat|null;
     modifier: number;
 
-    constructor(description: string, stat: Stat, modifier: number) {
+    constructor(description: string, stat: Stat|null, modifier: number) {
         this.description = description;
         this.stat = stat;
         this.modifier = modifier;
