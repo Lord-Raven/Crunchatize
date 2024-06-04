@@ -4,7 +4,7 @@ import {Stat} from "./Stat";
 
 export class Action {
     description: string;
-    stat: Stat;
+    stat: Stat|null;
     modifier: number;
 
     constructor(description: string, stat: Stat, modifier: number) {
@@ -26,7 +26,11 @@ export class Action {
     }
 
     fullDescription(): string {
-        return `(${this.stat} ${this.modifier >= 0 ? ('+' + this.modifier) : (this.modifier < 0 ? this.modifier : '')}) ${this.description}`;
+        if (this.stat) {
+            return `(${this.stat} ${this.modifier >= 0 ? ('+' + this.modifier) : (this.modifier < 0 ? this.modifier : '')}) ${this.description}`;
+        } else {
+            return `${this.description}`;
+        }
     }
 
     render(stage: Stage) {

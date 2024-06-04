@@ -58,17 +58,20 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') + '\n' +
         'Sample responses:\n"Might +1", "Skill -2", "Grace +0", or "None"';
     readonly actionPrompt: string = 'Follow all previous instructions to develop an organic narrative response.\n' +
-        'At the end of this response, generate and output three to four varied options for follow-up action that {{user}} could choose to pursue.\n' +
-        'Always format options as such:\n' +
+        'At the end of this response, insert a dinkus (***), then output three or four varied options for follow-up actions that {{user}} could choose to pursue.\n' +
+        'Options can simple dialog or free actions or stat-based actions; all options follow this format:\n' +
         '(Stat +Modifier) Brief summary of action\n' +
         'These are the eight possible stats with a brief description and example action associations:\n' +
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') +
         'The modifier is a relative difficulty adjustment between -5 and +5 which will be added to the skill check result; a lower number reflects a more difficult task.\n' +
         'Place each of the three to four options on a separate line. Each stat may be used only once per response. Study the stat descriptions for inspiration and consider the characters\' current situations and assets. Here are sample options:\n' +
-        '(Might +1) Force the lock\n' +
-        '(Skill -1) Pick the lock (it looks difficult)\n' +
-        '(Grace +0) Scale the wall\n' +
-        '(Charm -2) Convince someone to give you the key';
+        '***\n' +
+        'Talk to the guard about admittance.\n' +
+        '(Charm -2) Convince the guard to let you in.\n' +
+        '(Might +1) Force the lock.\n' +
+        '(Skill -1) Pick the lock (it looks difficult).\n' +
+        '(Luck -1) Search for another way in.\n' +
+        'Give up.';
 
     // Regular expression to match the pattern "(Stat +modifier) description"
     readonly actionRegex = /(\w+)\s*([-+]\d+)\s*[-.:)]?\s*(.+)/;
@@ -171,11 +174,11 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         // Attempt to parse actions:
         for (let i = 0; i < this.actions.length; i++) {
             const action: Action = this.actions[i];
-            if (content.toLowerCase().includes(action.stat.toLowerCase())) {
+            if (action.stat && content.toLowerCase().includes(action.stat.toLowerCase())) {
                 console.log('Chose action by stat');
                 takenAction = action;
                 break;
-            } else if (content === `${i}` || content === `${i}.`) {
+            } else if (content === `${i + 1}` || content === `${i + 1}.`) {
                 console.log('Chose action by number');
                 takenAction = action;
                 break;
@@ -207,11 +210,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 console.log('Found match');
                 let action: Action = new Action(finalContent, match[1] as Stat, Number(match[2]));
                 takenAction = action;
+            } else {
+                let action: Action = new Action(finalContent, null, 0);
+                takenAction = action;
             }
         }
 
         if (takenAction) {
-            this.setLastOutcome(takenAction.determineSuccess(this.stats[takenAction.stat]));
+            this.setLastOutcome(takenAction.determineSuccess(takenAction.stat ? this.stats[takenAction.stat] : 0));
             finalContent = this.lastOutcome?.getDescription();
 
             if (this.lastOutcome?.result === Result.Failure) {
@@ -263,17 +269,25 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         
         const lines = content.split('\n');
         let contentLines = [];
+        let parsingActions: boolean = false;
         this.actions = [];
-        
 
         for (const line of lines) {
             const match = line.match(this.actionRegex);
             if (match) {
                 console.log('Have an action: ' + match[3] + ';' + match[1] + ';' + match[2]);
                 this.actions.push(new Action(match[3], match[1] as Stat, Number(match[2])));
-            } else if (this.actions.length == 0) {
-                // If the line does not match the pattern, it's a content line
-                contentLines.push(line);
+                parsingActions = true;
+            } else if (!parsingActions) {
+                if (line.includes('***')) {
+                    parsingActions = true;
+                } else {
+                    // If the line does not match the pattern, it's a content line
+                    contentLines.push(line);
+                }
+            } else {
+                console.log('Have a stat-less action: ' + line);
+                this.actions.push(new Action(line, null, 0));
             }
         }
         
@@ -349,7 +363,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         this.messenger.updateEnvironment({
             input_enabled: false
         });
-        this.setLastOutcome(action.determineSuccess(this.stats[action.stat]));
+        this.setLastOutcome(action.determineSuccess(action.stat ? this.stats[action.stat] : 0));
 
         // Impersonate player with result
         let impersonateRequest: ImpersonateRequest = DEFAULT_IMPERSONATION;

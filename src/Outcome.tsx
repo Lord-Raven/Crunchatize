@@ -3,13 +3,15 @@ import {Action} from "./Action";
 export enum Result {
     Failure = 'Failure',
     MixedSuccess = 'Mixed Success',
-    CompleteSuccess = 'Complete Success'
+    CompleteSuccess = 'Complete Success',
+    None = 'No Roll Needed'
 }
 
 export const ResultDescription: {[result in Result]: string} = {
     [Result.Failure]: 'The user will fail to achieve their goal and will actively sour their situation. Describe the action and outcome in your own words.',
     [Result.MixedSuccess]: 'The user may achieve their goal, but in an inferior way or at some cost. Describe the action and outcome in your own words.',
     [Result.CompleteSuccess]: 'The user will successfully achieve what they were attempting and improve their situation. Describe the action and outcome in your own words.',
+    [Result.None]: 'The user took a risk-free action. Describe their actions and dialog in your own words.'
 }
 
 export class Outcome {
@@ -21,7 +23,7 @@ export class Outcome {
 
     constructor(dieResult1: number, dieResult2: number, action: Action) {
         const total = dieResult1 + dieResult2 + action.modifier;
-        this.result = (total >= 10 ? Result.CompleteSuccess : (total >= 7 ? Result.MixedSuccess : Result.Failure));
+        this.result = (!action.stat ? Result.None : (total >= 10 ? Result.CompleteSuccess : (total >= 7 ? Result.MixedSuccess : Result.Failure)));
 
         this.dieResult1 = dieResult1;
         this.dieResult2 = dieResult2;
@@ -57,6 +59,10 @@ export class Outcome {
     }
 
     getDescription(): string {
-        return `###(${this.action.stat}) ${this.action.description}###\n#${this.getDieEmoji(this.dieResult1)} ${this.getDieEmoji(this.dieResult2)} ${this.action.modifier >= 0 ? '+' : ''}${this.action.modifier} = ${this.total} (${this.result})#`
+        if (this.action.stat) {
+            return `###(${this.action.stat}) ${this.action.description}###\n#${this.getDieEmoji(this.dieResult1)} ${this.getDieEmoji(this.dieResult2)} ${this.action.modifier >= 0 ? '+' : ''}${this.action.modifier} = ${this.total} (${this.result})#`
+        } else {
+            return `###${this.action.description}###`;
+        }
     }
 }
