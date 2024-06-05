@@ -33,7 +33,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         'Depicting a set of options for {{user}} to potentially pursue.\n';
      */
 
-        'End this response with a list of about four options for varied follow-up actions that {{user}} could choose to pursue.\n' +
+        'End your narration with a dinkus (***), then output a list of about four options for varied follow-up actions that {{user}} could choose to pursue.\n' +
         'These options can be simple dialog, immediate reactions, or generic courses of action. If the action involves some risk, an associated stat and difficulty modifier is included. All options follow this format:\n' +
         '-(Stat +Modifier) Brief summary of action\n' +
         'These are all eight possible stats with a brief description and example verb associations:\n' +
@@ -41,6 +41,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         'The modifier is a relative difficulty adjustment between -5 and +5 which will be added to the skill check result; a lower number reflects a more difficult task.\n' +
         'Place each option on a separate line. Study the stat descriptions for inspiration and consider the characters\' current situations, motivations, and assets. Here is an example response:\n' +
         'You encounter a door with a guard posted outside.\n' +
+        '***\n' +
         '-Talk to the guard about admittance.\n' +
         '-(Charm -2) Convince the guard to let you in.\n' +
         '-(Might +1) Force the lock.\n' +
