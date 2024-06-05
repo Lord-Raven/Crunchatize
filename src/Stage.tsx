@@ -51,6 +51,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     // Regular expression to match the pattern "(Stat +modifier) description"
     readonly actionRegex = /(\w+)\s*([-+]\d+)\s*[-.:)]?\s*(.+)/;
     readonly whitespaceRegex = /^[\s\r\n]*$/;
+    readonly nonLetterRegex = /^[^a-zA-Z]+/;
     
     stats: {[key: string]: number} = {};
     currentMessage: string = '';
@@ -256,17 +257,17 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 }
                 parsingActions = true;
             } else if (!parsingActions) {
-                if (line.includes('***')) {
+                if (line.includes('***') || line.includes('---')) {
                     parsingActions = true;
                 } else {
                     // If the line does not match the pattern, it's a content line
                     contentLines.push(line);
                 }
-            } else if(this.actions.length > 0 && line.match(this.whitespaceRegex)) {
+            } else if (!line.replace(this.nonLetterRegex, "").match(this.whitespaceRegex)) {
+                console.log('Have a stat-less action: ' + line.replace(this.nonLetterRegex, ""));
+                this.actions.push(new Action(line.replace(this.nonLetterRegex, ""), null, 0));
+            } else if (this.actions.length > 0) {
                 break;
-            } else {
-                console.log('Have a stat-less action: ' + line);
-                this.actions.push(new Action(line, null, 0));
             }
         }
         
