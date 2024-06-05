@@ -25,15 +25,15 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         'These are the eight possible stats and their descriptions, to aid in selecting the most applicable:\n' +
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') + '\n' +
         'Sample responses:\n"Might +1", "Skill -2", "Grace +0", or "None"';
-    readonly actionPrompt: string = 'Follow all previous instructions to develop an organic narrative response.\n' +
-
+    readonly actionPrompt: string = 
+    /*
+        'Follow all previous instructions to develop an organic narrative response.\n' +
         'At the very end of this response, output a JSON array in this schema:\n' +
         this.ACTION_JSON_SCHEMA + '\n' +
         'Depicting a set of options for {{user}} to potentially pursue.\n';
+     */
 
-
-
-        /*'At the very end of this response, output a dinkus (***), then generate and list approximately four brief options for varied follow-up actions that {{user}} could choose to pursue.\n' +
+        'At the very end of this response, output a dinkus (***), then generate and list around four brief options for varied follow-up actions that {{user}} could choose to pursue.\n' +
         'Options can be simple dialog or given actions or they can be risky actions with an associated stat; all options follow this format:\n' +
         '-(Stat +Modifier) Brief summary of action\n' +
         'These are all eight possible stats with a brief description and example verb associations:\n' +
@@ -46,7 +46,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         '-(Might +1) Force the lock.\n' +
         '-(Skill -1) Pick the lock (it looks difficult).\n' +
         '-(Luck -1) Search for another way in.\n' +
-        '-Give up.';*/
+        '-Give up.';
 
     // Regular expression to match the pattern "(Stat +modifier) description"
     readonly actionRegex = /(\w+)\s*([-+]\d+)\s*[-.:)]?\s*(.+)/;
