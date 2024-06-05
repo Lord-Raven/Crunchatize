@@ -33,14 +33,13 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         'Depicting a set of options for {{user}} to potentially pursue.\n';
      */
 
-        'At the very end of this response, output a dinkus (***), then generate and list around four brief options for varied follow-up actions that {{user}} could choose to pursue.\n' +
-        'Options can be simple dialog or given actions or they can be risky actions with an associated stat; all options follow this format:\n' +
+        'Implicitly end this response with a list of about four options for varied follow-up actions that {{user}} could choose to pursue.\n' +
+        'These options can be simple dialog, immediate reactions, or generic courses of action. If the action involves some risk, an associated stat and difficulty modifier is included. All options follow this format:\n' +
         '-(Stat +Modifier) Brief summary of action\n' +
         'These are all eight possible stats with a brief description and example verb associations:\n' +
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') +
         'The modifier is a relative difficulty adjustment between -5 and +5 which will be added to the skill check result; a lower number reflects a more difficult task.\n' +
-        'Place each option on a separate line. Each stat may be used only once per response. Study the stat descriptions for inspiration and consider the characters\' current situations and assets. Here are sample options:\n' +
-        '***\n' +
+        'Place each option on a separate line. Study the stat descriptions for inspiration and consider the characters\' current situations, motivations, and assets. Here are sample options:\n' +
         '-Talk to the guard about admittance.\n' +
         '-(Charm -2) Convince the guard to let you in.\n' +
         '-(Might +1) Force the lock.\n' +
@@ -49,7 +48,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         '-Give up.';
 
     // Regular expression to match the pattern "(Stat +modifier) description"
-    readonly actionRegex = /(\w+)\s*([-+]\d+)\s*[-.:)]?\s*(.+)/;
+    readonly actionRegex = /(\w+)\s*([-+]\d+)\s*[^a-zA-Z]+\s*(.+)/;
     readonly whitespaceRegex = /^[\s\r\n]*$/;
     readonly nonLetterRegex = /^[^a-zA-Z]+/;
     
