@@ -36,7 +36,7 @@ export class Action {
     render(stage: Stage) {
         return (
             <div>
-                <button onClick={() => stage.chooseAction(this)}>
+                <button>
                     ({this.stat} {this.modifier >= 0 ? ('+' + this.modifier) : (this.modifier < 0 ? this.modifier : '')}) {this.description}
                 </button>
             </div>

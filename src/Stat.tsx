@@ -12,10 +12,10 @@ export enum Stat {
 export const StatDescription: {[stat in Stat]: string} = {
     [Stat.Might]: 'Physical power and endurance. Smash, lift, weather, intimidate.',
     [Stat.Grace]: 'Agility and composure. Dodge, balance, dance, land.',
-    [Stat.Skill]: 'Sleight and craftmanship. Picklock, craft, shoot, fix.',
+    [Stat.Skill]: 'Sleight and craftmanship. Picklock, craft, shoot, fix, pickpocket.',
     [Stat.Brains]: 'Knowledge and judgment. Solve, deduce, recall, plan.',
-    [Stat.Wits]: 'Quick-thinking and awareness. React, notice, quip, trick.',
-    [Stat.Charm]: 'Allure and Influence. Persuade, inspire, deceive, entertain.',
-    [Stat.Heart]: 'Determination and empathy. Endure, recover, connect, encourage.',
+    [Stat.Wits]: 'Quick-thought and awareness. React, notice, quip, trick.',
+    [Stat.Charm]: 'Allure and Influence. Persuade, inspire, deceive, entertain, impress.',
+    [Stat.Heart]: 'Determination and empathy. Resist, recover, connect, encourage, comfort.',
     [Stat.Luck]: 'Spirit and fortune. Gamble, discover, coincide, hope.'
 }

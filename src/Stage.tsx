@@ -1,11 +1,9 @@
 import {ReactElement} from "react";
-import {StageBase, StageResponse, InitialData, Message, ImpersonateRequest, DEFAULT_IMPERSONATION, MessagingResponse, MessageResponse, DEFAULT_NUDGE_REQUEST, NudgeRequest, EnvironmentRequest, TextGenRequest} from "@chub-ai/stages-ts";
+import {StageBase, StageResponse, InitialData, Message, TextGenRequest, Character, User} from "@chub-ai/stages-ts";
 import {LoadResponse} from "@chub-ai/stages-ts/dist/types/load";
 import {Action} from "./Action";
 import {Stat, StatDescription} from "./Stat"
 import {Outcome, Result, ResultDescription} from "./Outcome";
-import {sendMessageAndAwait} from "@chub-ai/stages-ts/dist/services/messaging";
-import * as actionSchema from './assets/actionSchema.json';
 
 type MessageStateType = any;
 
@@ -15,93 +13,96 @@ type InitStateType = any;
 
 type ChatStateType = any;
 
-export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateType, ConfigType> {
+/*
+  nvm use 21.7.1
+  yarn install (if dependencies have changed)
+  yarn dev --host --mode staging
+*/
 
-    readonly ACTION_JSON_SCHEMA: string = JSON.stringify(actionSchema);
+export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateType, ConfigType> {
     
     readonly defaultStat: number = 0;
-    readonly adLibPrompt: string = 'Determine whether the preceding input includes action or motivated dialog. \n' +
-        'If so, determine and output the name of the stat that best governs the action or intent, as well as a relative difficulty modifier between -5 and +5.\n' +
+    readonly adLibPrompt: string = 'Determine whether the preceding input includes stat-based action or motivated dialog. \n' +
+        'If so, merely output the name of the stat that best governs the action or intent, with a relative difficulty modifier between -5 and +5 (higher numbers representing lower risk).\n' +
+        'If not, simply output "None".\n' +
         'These are the eight possible stats and their descriptions, to aid in selecting the most applicable:\n' +
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') + '\n' +
-        'Sample responses:\n"Might +1", "Skill -2", "Grace +0", or "None"';
+        'Sample responses:\n"Might +1"\n"Skill -2"\n"Grace +0"\n"None"';
     readonly actionPrompt: string = 
-    /*
-        'Follow all previous instructions to develop an organic narrative response.\n' +
-        'At the very end of this response, output a JSON array in this schema:\n' +
-        this.ACTION_JSON_SCHEMA + '\n' +
-        'Depicting a set of options for {{user}} to potentially pursue.\n';
-     */
-
-        'End your narration with a dinkus (***), then output a list of about four options for varied follow-up actions that {{user}} could choose to pursue.\n' +
-        'These options can be simple dialog, immediate reactions, or generic courses of action. If the action involves some risk, an associated stat and difficulty modifier is included. All options follow this format:\n' +
+        '[INST]Based on the above chat history, output a list of three-to-six options for varied follow-up actions that {{user}} could choose to pursue next.\n' +
+        'These options can be simple dialog, immediate reactions, or generic courses of action. ' +
+        'If the option involves any risk, an associated stat and difficulty modifier is included. ' +
+        'All options follow this format:\n' +
         '-(Stat +Modifier) Brief summary of action\n' +
         'These are all eight possible stats with a brief description and example verb associations:\n' +
         Object.keys(Stat).map(key => `${key}: ${StatDescription[key as Stat]}`).join('\n') +
-        'The modifier is a relative difficulty adjustment between -5 and +5 which will be added to the skill check result; a lower number reflects a more difficult task.\n' +
-        'Place each option on a separate line. Study the stat descriptions for inspiration and consider the characters\' current situations, motivations, and assets. Here is an example response:\n' +
-        'You encounter a door with a guard posted outside.\n' +
-        '***\n' +
+        'The modifier is a relative difficulty adjustment between -5 and +5 which will be added to the skill check result; give easy tasks a higher number and riskier options a negative number.\n' +
+        'Output each option on a separate line. Study the stat descriptions for inspiration and consider the characters\' current situations, motivations, and assets.\n' +
+        '[SAMPLE]\n' +
         '-Talk to the guard about admittance.\n' +
         '-(Charm -2) Convince the guard to let you in.\n' +
         '-(Might +1) Force the lock.\n' +
         '-(Skill -1) Pick the lock (it looks difficult).\n' +
         '-(Luck -1) Search for another way in.\n' +
-        '-Give up.';
+        '-Give up.\n[/SAMPLE]\n' +
+        'Although the flavor of the options should excercise creativity, the presentation of these options should be uniform and plain at all times.[/INST]';
 
     // Regular expression to match the pattern "(Stat +modifier) description"
     readonly actionRegex = /(\w+)\s*([-+]\d+)\s*[^a-zA-Z]+\s*(.+)/;
     readonly whitespaceRegex = /^[\s\r\n]*$/;
     readonly nonLetterRegex = /^[^a-zA-Z]+/;
+
+    readonly levelThresholds: number[] = [2, 5, 9, 14, 20, 27, 35, 44, 54, 65, 77, 90, 104, 119];
     
-    stats: {[key: string]: number} = {};
     currentMessage: string = '';
     actions: Action[] = [];
     currentMessageId: string|undefined = undefined;
     lastOutcome: Outcome|null = null;
     lastOutcomePrompt: string = '';
     promptForId: string|undefined = undefined;
-    playerId: string;
-    botId: string;
+    player: User;
+    character: Character;
+    
+    // message-level variables
     experience: number = 0;
+    messageHistory: string = '';
+    statUses: {[stat in Stat]: number} = this.clearStatMap();
+    stats: {[stat in Stat]: number} = this.clearStatMap();
 
     constructor(data: InitialData<InitStateType, ChatStateType, MessageStateType, ConfigType>) {
-        /***
-         This is the first thing called in the stage,
-         to create an instance of it.
-         The definition of InitialData is at @link https://github.com/CharHubAI/chub-stages-ts/blob/main/src/types/initial.ts
-         Character at @link https://github.com/CharHubAI/chub-stages-ts/blob/main/src/types/character.ts
-         User at @link https://github.com/CharHubAI/chub-stages-ts/blob/main/src/types/user.ts
-         ***/
         super(data);
         const {
-            characters,         // @type:  { [key: string]: Character }
-            users,                  // @type:  { [key: string]: User}
-            config,                                 //  @type:  ConfigType
-            messageState,                           //  @type:  MessageStateType
-            environment,                     // @type: Environment (which is a string)
-            initState,                             // @type: null | InitStateType
-            chatState                              // @type: null | ChatStateType
+            characters,
+            users,
+            config,
+            messageState,
+            environment,
+            initState,
+            chatState
         } = data;
         this.setStateFromMessageState(messageState);
-        this.playerId = users[Object.keys(users)[0]].anonymizedId;
-        this.botId = characters[Object.keys(characters)[0]].anonymizedId;
+        this.player = users[Object.keys(users)[0]];
+        this.character = characters[Object.keys(characters)[0]];
+    }
+
+    clearStatMap() {
+        let statMap = {
+            [Stat.Might]: 0,
+            [Stat.Grace]: 0,
+            [Stat.Skill]: 0,
+            [Stat.Brains]: 0,
+            [Stat.Wits]: 0,
+            [Stat.Charm]: 0,
+            [Stat.Heart]: 0,
+            [Stat.Luck]: 0
+        };
+
+        return statMap;
     }
 
     async load(): Promise<Partial<LoadResponse<InitStateType, ChatStateType, MessageStateType>>> {
-        /***
-         This is called immediately after the constructor, in case there is some asynchronous code you need to
-         run on instantiation.
-         ***/
         return {
-            /*** @type boolean @default null
-             @description The 'success' boolean returned should be false IFF (if and only if), some condition is met that means
-              the stage shouldn't be run at all and the iFrame can be closed/removed.
-              For example, if a stage displays expressions and no characters have an expression pack,
-              there is no reason to run the stage, so it would return false here. ***/
             success: true,
-            /*** @type null | string @description an error message to show
-             briefly at the top of the screen, if any. ***/
             error: null,
             initState: null,
             chatState: null,
@@ -109,33 +110,32 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     }
 
     async setState(state: MessageStateType): Promise<void> {
-        /***
-         This can be called at any time, typically after a jump to a different place in the chat tree
-         or a swipe. Note how neither InitState nor ChatState are given here. They are not for
-         state that is affected by swiping.
-         ***/
         console.log('setState');
         console.log(state);
-        console.log('pre-state-parent-id:' + this.currentMessageId);
         this.setStateFromMessageState(state);
-        console.log('post-state-parent-id' + this.currentMessageId);
+    }
+
+    async addMessageToHistory(message: string, prefix?: string) {
+        const threshold = 2000;
+        const responsePrefix = prefix ?? '###Response: ';
+        if (message.length > 0) {
+            this.messageHistory += responsePrefix + message;
+        }
+        while (this.messageHistory.length > threshold) {
+            let responseIndex = this.messageHistory.indexOf(responsePrefix, 1);
+            if (responseIndex === -1) {
+                return;
+            }
+            this.messageHistory = this.messageHistory.substring(responseIndex);
+        }
     }
 
     async beforePrompt(userMessage: Message): Promise<Partial<StageResponse<ChatStateType, MessageStateType>>> {
-        /***
-         This is called after someone presses 'send', but before anything is sent to the LLM.
-         ***/
         const {
-            content,            /*** @type: string
-             @description Just the last message about to be sent. ***/
-            anonymizedId,       /*** @type: string
-             @description An anonymized ID that is unique to this individual
-              in this chat, but NOT their Chub ID. ***/
-            isBot,             /*** @type: boolean
-             @description Whether this is itself from another bot, ex. in a group chat. ***/
-            promptForId,       /*** @type: string
-             @description The anonymized ID of the bot or human being prompted, if any.
-                            Essentially only relevant to beforePrompt currently. ***/
+            content,
+            anonymizedId,
+            isBot,
+            promptForId,
             identity
         } = userMessage;
 
@@ -197,113 +197,119 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             this.setLastOutcome(takenAction.determineSuccess(takenAction.stat ? this.stats[takenAction.stat] : 0));
             finalContent = this.lastOutcome?.getDescription();
 
+            if (takenAction.stat) {
+                this.statUses[takenAction.stat]++;
+            }
+
             if (this.lastOutcome?.result === Result.Failure) {
                 this.experience++;
+                let level = Object.values(this.stats).reduce((acc, val) => acc + val, 0);
+                if (this.experience == this.levelThresholds[level]) {
+                    const maxCount = Math.max(...Object.values(this.statUses));
+
+                    const maxStats = Object.keys(this.statUses)
+                        .filter((stat) => this.statUses[stat as Stat] === maxCount)
+                        .map((stat) => stat as Stat);
+                    let chosenStat = maxStats[Math.floor(Math.random() * maxStats.length)];
+                    this.stats[chosenStat]++;
+
+                    finalContent += `\n##Welcome to level ${level + 1}!##\n#_${chosenStat}_ up!#`;
+
+                    this.statUses = this.clearStatMap();
+                } else {
+                    finalContent += `\n#You've learned from this experience...#`
+                }
             }
-        } 
+        }
+
+        await this.addMessageToHistory(this.lastOutcomePrompt, '###Input: ');
 
         return {
-            /*** @type null | string @description A string to add to the
-             end of the final prompt sent to the LLM,
-             but that isn't persisted. ***/
-            stageDirections: `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`,
-            /*** @type MessageStateType | null @description the new state after the userMessage. ***/
+            stageDirections: `\n[INST]${this.lastOutcomePrompt}\n[/INST]`,
             messageState: this.buildMessageState(),
-            /*** @type null | string @description If not null, the user's message itself is replaced
-             with this value, both in what's sent to the LLM and in the database. ***/
             modifiedMessage: finalContent,
-            /*** @type null | string @description A system message to append to the end of this message.
-             This is unique in that it shows up in the chat log and is sent to the LLM in subsequent messages,
-             but it's shown as coming from a system user and not any member of the chat. If you have things like
-             computed stat blocks that you want to show in the log, but don't want the LLM to start trying to
-             mimic/output them, they belong here. ***/
             systemMessage: null,
-            /*** @type null | string @description an error message to show
-             briefly at the top of the screen, if any. ***/
             error: errorMessage,
             chatState: null,
         };
     }
 
     async afterResponse(botMessage: Message): Promise<Partial<StageResponse<ChatStateType, MessageStateType>>> {
-        /***
-         This is called immediately after a response from the LLM.
-         ***/
         const {
-            content,            /*** @type: string
-             @description The LLM's response. ***/
-            anonymizedId,       /*** @type: string
-             @description An anonymized ID that is unique to this individual
-              in this chat, but NOT their Chub ID. ***/
-            isBot,             /*** @type: boolean
-             @description Whether this is from a bot, conceivably always true. ***/
-            identity           /*** @type: string
-             @description The unique ID of this chat message. ***/
+            content,
+            anonymizedId,
+            isBot,
+            identity
         } = botMessage;
 
         console.log('afterResponse()');
-        this.lastOutcomePrompt =  '';
-        
-        const lines = content.split('\n');
-        let contentLines = [];
-        let parsingActions: boolean = false;
-        this.actions = [];
+        this.lastOutcomePrompt = '';
 
-        for (const line of lines) {
-            const match = line.match(this.actionRegex);
-            if (match) {
-                if (!match[3].match(this.whitespaceRegex) && match[1] in Stat) {
+        await this.addMessageToHistory(content);
+        
+        // Generate options:
+        let optionPrompt = this.replaceTags(`[{{char}} DESCRIPTION]\n${this.character.description} ${this.character.personality}[/{{char}} DESCRIPTION]\n[{{user}} DESCRIPTION]\n${this.player.chatProfile}[/{{user}} DESCRIPTION]\n[HISTORY]\n${this.messageHistory}\n[/HISTORY]\n${this.actionPrompt}`,
+            {"user": this.player.name, "char": this.character.name, "original": ''});
+        let optionResponse = await this.generator.textGen({
+            prompt: optionPrompt,
+            max_tokens: 100
+        });
+
+        let tmpActions:Action[] = [];
+        
+        if (optionResponse && optionResponse.result) {
+            console.log(`Option response`);
+            console.log(optionResponse.result);
+            const lines = optionResponse.result.split('\n');
+            const regex = /^[-*]/;
+
+            for (const line of lines) {
+                const match = line.match(this.actionRegex);
+                if (match && !match[3].match(this.whitespaceRegex) && match[1] in Stat) {
                     console.log('Have an action: ' + match[3] + ';' + match[1] + ';' + match[2]);
-                    this.actions.push(new Action(match[3], match[1] as Stat, Number(match[2])));
+                    tmpActions.push(new Action(match[3], match[1] as Stat, Number(match[2])));
+                } else if (regex.test(line.trim()) && !line.replace(this.nonLetterRegex, "").match(this.whitespaceRegex)) {
+                    console.log('Have a stat-less action: ' + line.replace(this.nonLetterRegex, ""));
+                    tmpActions.push(new Action(line.replace(this.nonLetterRegex, ""), null, 0));
                 }
-                parsingActions = true;
-            } else if (!parsingActions) {
-                if (line.includes('***') || line.includes('---')) {
-                    parsingActions = true;
-                } else {
-                    // If the line does not match the pattern, it's a content line
-                    contentLines.push(line);
-                }
-            } else if (!line.replace(this.nonLetterRegex, "").match(this.whitespaceRegex)) {
-                console.log('Have a stat-less action: ' + line.replace(this.nonLetterRegex, ""));
-                this.actions.push(new Action(line.replace(this.nonLetterRegex, ""), null, 0));
-            } else if (this.actions.length > 0) {
-                break;
             }
         }
-        
-        // Join the content lines back into a single string
-        const finalContent = contentLines.join('\n');
 
-        this.currentMessage = finalContent;
+        // Trim down options:
+        const uniqueStats = new Set<Stat>();
+        this.actions = tmpActions.filter(action => {
+            if (action.description.trim() == '') {
+                return false;
+            }
+            if (action.stat && !uniqueStats.has(action.stat)) {
+                uniqueStats.add(action.stat);
+                return true;
+            }
+            return !(action.stat);
+        });
+        this.actions.length = Math.min(this.actions.length, 6);
+
         this.currentMessageId = identity;
         console.log(this.currentMessageId);
 
+        //await this.addMessageToHistory(this.actions.length > 0 ? this.actions.map((action, index) => `${index + 1}. ${action.fullDescription()}`).join('\n') : '', '###Choice: ');
 
         return {
-            /*** @type null | string @description A string to add to the
-             end of the final prompt sent to the LLM,
-             but that isn't persisted. ***/
             stageDirections: null,
-            /*** @type MessageStateType | null @description the new state after the botMessage. ***/
             messageState: this.buildMessageState(),
-            /*** @type null | string @description If not null, the bot's response itself is replaced
-             with this value, both in what's sent to the LLM subsequently and in the database. ***/
-            modifiedMessage: finalContent,
-            /*** @type null | string @description an error message to show
-             briefly at the top of the screen, if any. ***/
-            error: null,
+            modifiedMessage: null,
+            error: this.actions.length == 0 ? 'Failed to generate actions; consider swiping or write your own.' : null,
             systemMessage: this.actions.length > 0 ? `Choose an action:\n` + this.actions.map((action, index) => `${index + 1}. ${action.fullDescription()}`).join('\n') : null,
             chatState: null
         };
     }
 
-
     setStateFromMessageState(messageState: MessageStateType) {
-        this.stats = {};
+        this.stats = this.clearStatMap();
         if (messageState != null) {
             for (let stat in Stat) {
-                this.stats[stat] = messageState[stat] ?? this.defaultStat;
+                this.stats[stat as Stat] = messageState[stat] ?? this.defaultStat;
+                this.statUses[stat as Stat] = messageState[`use_${stat}`] ?? 0;
             }
             this.currentMessage= messageState['currentMessage'] ?? '';
             this.currentMessageId = messageState['currentMessageId'] ?? '';
@@ -313,13 +319,15 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 return this.convertAction(action);
             }) : [];
             this.promptForId = messageState['promptForId'];
-            this.experience = messageState['experience'] ?? 0
+            this.experience = messageState['experience'] ?? 0;
+            this.messageHistory = messageState['messageHistory'] ?? '';
         }
     }
 
     convertOutcome(input: any): Outcome {
         return new Outcome(input['dieResult1'], input['dieResult2'], this.convertAction(input['action']));
     }
+
     convertAction(input: any): Action {
         return new Action(input['description'], input['stat'] as Stat, input['modifier'])
     }
@@ -327,7 +335,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     buildMessageState(): any {
         let messageState: {[key: string]: any} = {};
         for (let stat in Stat) {
-            messageState[stat] = this.stats[stat] ?? this.defaultStat;
+            messageState[stat] = this.stats[stat as Stat] ?? this.defaultStat;
+            messageState[`use_${stat}`] = this.statUses[stat as Stat] ?? 0;
         }
         messageState['currentMessage'] = this.currentMessage ?? '';
         messageState['currentMessageId'] = this.currentMessageId ?? '';
@@ -336,43 +345,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         messageState['actions'] = this.actions ?? [];
         messageState['promptForId'] = this.promptForId;
         messageState['experience'] = this.experience ?? 0;
+        messageState['messageHistory'] = this.messageHistory;
+
         return messageState;
-    }
-
-    async chooseAction(action: Action) {
-        console.log('taking an action: ' + this.promptForId + ":" + this.currentMessageId);
-        this.messenger.updateEnvironment({
-            input_enabled: false
-        });
-        this.setLastOutcome(action.determineSuccess(action.stat ? this.stats[action.stat] : 0));
-
-        // Impersonate player with result
-        let impersonateRequest: ImpersonateRequest = DEFAULT_IMPERSONATION;
-        impersonateRequest.is_main = true;
-        impersonateRequest.speaker_id = this.playerId;
-        impersonateRequest.parent_id = this.currentMessageId ?? null;
-        impersonateRequest.message = this.lastOutcome?.getDescription() ?? '';
-        console.log(impersonateRequest);
-        const impersonateResponse: MessageResponse = await this.messenger.impersonate(impersonateRequest);
-        this.currentMessageId = impersonateResponse.identity;
-        this.setState(this.buildMessageState());
-        sendMessageAndAwait<MessageResponse>('BEFORE', impersonateResponse);
-        console.log('after sendMessageAndAwait');
-        
-/*
-        // Nudge bot for narration?
-        let nudgeRequest: NudgeRequest = DEFAULT_NUDGE_REQUEST;
-        nudgeRequest.parent_id = this.currentMessageId;
-        nudgeRequest.stage_directions = `\n[${this.lastOutcomePrompt}\n${this.actionPrompt}]`;
-        nudgeRequest.speaker_id = this.botId;
-        nudgeRequest.is_main = false;
-        console.log(nudgeRequest);
-        const nudgeResponse: MessageResponse = await this.messenger.nudge(nudgeRequest);
-        this.currentMessageId = nudgeResponse.identity;
-        console.log('Done with nudge');*/
-        this.messenger.updateEnvironment({
-            input_enabled: true,
-        });
     }
 
     setLastOutcome(outcome: Outcome|null) {
@@ -383,7 +358,13 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             this.lastOutcomePrompt += `${ResultDescription[this.lastOutcome.result]}\n`
         }
     }
-    
+
+    replaceTags(source: string, replacements: {[name: string]: string}) {
+        return source.replace(/{{([A-z]*)}}/g, (match) => {
+            return replacements[match.substring(2, match.length - 2)];
+        });
+    }
+
     render(): ReactElement {
         return <div style={{
             width: '100vw',
@@ -393,11 +374,6 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         }}>
             <div>{this.currentMessage}</div>
             <div>{this.actionPrompt}</div>
-            <div>
-                Select an action:<br/>
-                {this.actions.map((action: Action) => action.render(this))}
-            </div>
-
         </div>;
     }
 

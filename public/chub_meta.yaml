@@ -5,7 +5,23 @@
 project_name: "Crunchatize Me"
 
 # A short tagline to show in search.
-tagline: "Turn any chat into a proper RPG."
+tagline: "Turn any chat into a basic CYOA RPG."
+
+creator_notes: "***Warning: This stage does not currently persist the user's pre- or post-history prompt to the LLM for its action prompts;
+if you rely on a jailbreak in these settings, this stage will NOT honor it. As a result, _please_ do not include this stage directly on 
+character cards at this time.***
+
+The stage builds assembles some history and other details for its prompts, but has no way to get at the user's jailbreak yet. I 
+hope this will be resolvable with the next wave of Stage features.
+<br><br>
+**What it does:**<br>
+Adding this stage to a chat will cause every response to end with a number of (usually) stat-based choices. 
+You will forfeit agency over the details as you choose general directions, rolling the dice to see whether you succeed or fail.
+<br><br>
+The Stage vaguely follows Apocalypse system rules, where two D6 are rolled and a modifier added or subtracted from the result to arrive at 
+one of three degrees of success. Failures will grant experience which slowly leads to a level up--increasing the stat you attempted to use 
+most during that level.
+"
 
 # 'PUBLIC', 'PRIVATE', or 'UNLISTED'.
 visibility: 'UNLISTED'
@@ -21,11 +37,8 @@ visibility: 'UNLISTED'
 position: 'NONE'
 
 # Self-explanatory.
-# tags:
-#  - 'Stage'
-#  - 'Admin'
-#  - 'Template'
-#  - 'Base'
+tags:
+  - 'Stage'
 
 # The schema of any user-supplied config.
 # If your stage requires a configuration but has no
