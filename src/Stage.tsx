@@ -52,7 +52,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     readonly whitespaceRegex = /^[\s\r\n]*$/;
     readonly nonLetterRegex = /^[^a-zA-Z]+/;
 
-    readonly levelThresholds: number[] = [2, 5, 9, 14, 20, 27, 35, 44, 54, 65, 77, 90, 104, 119];
+    readonly levelThresholds: number[] = [2, 5, 8, 12, 16, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
     
     currentMessage: string = '';
     actions: Action[] = [];
@@ -175,7 +175,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 stop: [],
                 include_history: false,
                 template: '',
-                context_length: 2000
+                context_length: 500
             };
             let textResponse = await this.generator.textGen(textGenRequest);
             const adLibPattern = new RegExp(`^(${Object.values(Stat).join('|')}) ((\\+|-)\\d+)`);
@@ -213,11 +213,11 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                     let chosenStat = maxStats[Math.floor(Math.random() * maxStats.length)];
                     this.stats[chosenStat]++;
 
-                    finalContent += `\n##Welcome to level ${level + 1}!##\n#_${chosenStat}_ up!#`;
+                    finalContent += `\n##Welcome to level ${level + 2}!##\n#_${chosenStat}_ up!#`;
 
                     this.statUses = this.clearStatMap();
                 } else {
-                    finalContent += `\n#You've learned from this experience...#`
+                    finalContent += `\n##You've learned from this experience...##`
                 }
             }
         }
