@@ -39,6 +39,7 @@ position: 'NONE'
 # Self-explanatory.
 tags:
   - 'Stage'
+  - 'WIP'
 
 # The schema of any user-supplied config.
 # If your stage requires a configuration but has no
