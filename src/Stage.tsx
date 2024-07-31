@@ -48,7 +48,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         'Although the flavor of the options should excercise creativity, the presentation of these options should be uniform and plain at all times.[/INST]';
 
     // Regular expression to match the pattern "(Stat +modifier) description"
-    readonly actionRegex = /(\w+)\s*([-+]\d+)\s*[^a-zA-Z]+\s*(.+)/;
+    readonly actionRegex = /(\w+)\s*([-+]\d+)\s*[^a-zA-Z]+\s*(.*)/; // /(\w+)\s*([-+]\d+)\s*[^a-zA-Z]+\s*(.+)/
     readonly whitespaceRegex = /^[\s\r\n]*$/;
     readonly nonLetterRegex = /^[^a-zA-Z]+/;
 
@@ -252,7 +252,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             {"user": this.player.name, "char": this.character.name, "original": ''});
         let optionResponse = await this.generator.textGen({
             prompt: optionPrompt,
-            max_tokens: 100
+            max_tokens: 150
         });
 
         let tmpActions:Action[] = [];
