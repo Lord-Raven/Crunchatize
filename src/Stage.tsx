@@ -252,8 +252,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             {"user": this.player.name, "char": this.character.name, "original": ''});
         let optionResponse = await this.generator.textGen({
             prompt: optionPrompt,
-            max_tokens: 150,
-            include_history: true
+            max_tokens: 150
         });
 
         let tmpActions:Action[] = [];
