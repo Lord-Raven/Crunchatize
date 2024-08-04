@@ -191,7 +191,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
             const difficultyLabels = ['Easy', 'Straightforward', 'Complex', 'Difficult', 'Impossible'];
             let difficultyResponse = await this.conceptPipeline(content, difficultyLabels, { multi_label: true });
-            console.log(pipelineResponse);
+            console.log(difficultyResponse);
 
 
 
