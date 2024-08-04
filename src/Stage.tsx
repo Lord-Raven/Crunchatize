@@ -4,6 +4,7 @@ import {LoadResponse} from "@chub-ai/stages-ts/dist/types/load";
 import {Action} from "./Action";
 import {Stat, StatDescription} from "./Stat"
 import {Outcome, Result, ResultDescription} from "./Outcome";
+import {env, pipeline} from '@xenova/transformers';
 
 type MessageStateType = any;
 
@@ -45,7 +46,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         '-(Skill -1) Pick the lock (it looks difficult).\n' +
         '-(Luck -1) Search for another way in.\n' +
         '-Give up.\n[/SAMPLE]\n' +
-        'Although the flavor of the options should excercise creativity, the presentation of these options should be uniform and plain at all times.[/INST]';
+        'Although the flavor of the options should exercise creativity, the presentation of these options should be uniform and plain at all times.[/INST]';
 
     // Regular expression to match the pattern "(Stat +modifier) description"
     readonly actionRegex = /(\w+)\s*([-+]\d+)\s*[^a-zA-Z]+\s*(.*)/; // /(\w+)\s*([-+]\d+)\s*[^a-zA-Z]+\s*(.+)/
@@ -69,6 +70,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     statUses: {[stat in Stat]: number} = this.clearStatMap();
     stats: {[stat in Stat]: number} = this.clearStatMap();
 
+    // other
+    conceptPipeline: any;
+
     constructor(data: InitialData<InitStateType, ChatStateType, MessageStateType, ConfigType>) {
         super(data);
         const {
@@ -83,10 +87,13 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         this.setStateFromMessageState(messageState);
         this.player = users[Object.keys(users)[0]];
         this.character = characters[Object.keys(characters)[0]];
+
+        this.conceptPipeline = null;
+        env.allowRemoteModels = false;
     }
 
     clearStatMap() {
-        let statMap = {
+        return {
             [Stat.Might]: 0,
             [Stat.Grace]: 0,
             [Stat.Skill]: 0,
@@ -96,11 +103,16 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             [Stat.Heart]: 0,
             [Stat.Luck]: 0
         };
-
-        return statMap;
     }
 
     async load(): Promise<Partial<LoadResponse<InitStateType, ChatStateType, MessageStateType>>> {
+
+        try {
+            this.conceptPipeline = await pipeline("zero-shot-classification", "Xenova/mobilebert-uncased-mnli");//"SamLowe/roberta-base-go_emotions");
+        } catch (exception: any) {
+            console.error(`Error loading pipeline: ${exception}`);
+        }
+
         return {
             success: true,
             error: null,
@@ -168,7 +180,22 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         if (!takenAction && finalContent) {
             console.log('Ad-lib action.');
-            let textGenRequest: TextGenRequest = {
+
+            const labels = ['Might', 'Grace', 'Skill', 'Brains', 'Wits', 'Charm', 'Heart', 'Luck'];
+
+            let pipelineResponse = await this.conceptPipeline(content, labels, { multi_label: true });
+            console.log(pipelineResponse);
+            if (pipelineResponse && pipelineResponse.labels) {
+
+            }
+
+            const difficultyLabels = ['Easy', 'Straightforward', 'Complex', 'Difficult', 'Impossible'];
+            let difficultyResponse = await this.conceptPipeline(content, difficultyLabels, { multi_label: true });
+            console.log(pipelineResponse);
+
+
+
+            /*let textGenRequest: TextGenRequest = {
                 prompt: `${finalContent}\n[${this.adLibPrompt}]`,
                 max_tokens: 100,
                 min_tokens: 50,
@@ -190,7 +217,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             } else {
                 let action: Action = new Action(finalContent, null, 0);
                 takenAction = action;
-            }
+            }*/
         }
 
         if (takenAction) {
@@ -206,10 +233,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 let level = Object.values(this.stats).reduce((acc, val) => acc + val, 0);
                 if (this.experience == this.levelThresholds[level]) {
                     const maxCount = Math.max(...Object.values(this.statUses));
-
                     const maxStats = Object.keys(this.statUses)
-                        .filter((stat) => this.statUses[stat as Stat] === maxCount)
-                        .map((stat) => stat as Stat);
+                            .filter((stat) => this.statUses[stat as Stat] === maxCount)
+                            .map((stat) => stat as Stat);
                     let chosenStat = maxStats[Math.floor(Math.random() * maxStats.length)];
                     this.stats[chosenStat]++;
 
@@ -248,7 +274,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         await this.addMessageToHistory(content);
         
         // Generate options:
-        let optionPrompt = this.replaceTags(`[{{char}} DESCRIPTION]\n${this.character.description} ${this.character.personality}[/{{char}} DESCRIPTION]\n[{{user}} DESCRIPTION]\n${this.player.chatProfile}[/{{user}} DESCRIPTION]\n[HISTORY]\n${this.messageHistory}\n[/HISTORY]\n${this.actionPrompt}`,
+        /*let optionPrompt = this.replaceTags(`[{{char}} DESCRIPTION]\n${this.character.description} ${this.character.personality}[/{{char}} DESCRIPTION]\n[{{user}} DESCRIPTION]\n${this.player.chatProfile}[/{{user}} DESCRIPTION]\n[HISTORY]\n${this.messageHistory}\n[/HISTORY]\n${this.actionPrompt}`,
             {"user": this.player.name, "char": this.character.name, "original": ''});
         let optionResponse = await this.generator.textGen({
             prompt: optionPrompt,
@@ -287,7 +313,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             }
             return !(action.stat);
         });
-        this.actions.length = Math.min(this.actions.length, 6);
+        this.actions.length = Math.min(this.actions.length, 6);*/
 
         this.currentMessageId = identity;
         console.log(this.currentMessageId);
@@ -298,8 +324,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             stageDirections: null,
             messageState: this.buildMessageState(),
             modifiedMessage: null,
-            error: this.actions.length == 0 ? 'Failed to generate actions; consider swiping or write your own.' : null,
-            systemMessage: this.actions.length > 0 ? `Choose an action:\n` + this.actions.map((action, index) => `${index + 1}. ${action.fullDescription()}`).join('\n') : null,
+            error: null, //this.actions.length == 0 ? 'Failed to generate actions; consider swiping or write your own.' : null,
+            systemMessage: null, //this.actions.length > 0 ? `Choose an action:\n` + this.actions.map((action, index) => `${index + 1}. ${action.fullDescription()}`).join('\n') : null,
             chatState: null
         };
     }
