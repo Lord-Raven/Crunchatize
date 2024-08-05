@@ -106,7 +106,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Connection and Character': 'Heart',
                 'Chance and Luck': 'Luck'};
             let topStat: Stat|null = null;
-            this.zeroShotPipeline.task = 'Choose a set of attributes that best describe or govern the actions taken in this narrative passage.'
+            this.zeroShotPipeline.task = 'Choose a set of attributes that best describe or govern the actions in this narrative passage.'
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.3 ? statMapping[statResponse.labels[0]] : 'None')}`);
             console.log(statResponse);
@@ -116,7 +116,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
             const difficultyMapping:{[key: string]: number} = {'Piece of Cake': 2, 'Simple': 1, 'Straightforward': 0, 'Troublesome': -1, 'Daunting': -2, 'Impossible': -3};
             let difficultyRating:number = 0;
-            this.zeroShotPipeline.task = 'Select the most likely difficulty of performing the actions described in this narrative passage.'
+            this.zeroShotPipeline.task = 'Describe the difficulty of performing the actions in this narrative passage.'
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
             console.log(difficultyResponse);
