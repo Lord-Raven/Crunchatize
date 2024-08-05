@@ -4,7 +4,7 @@ import {LoadResponse} from "@chub-ai/stages-ts/dist/types/load";
 import {Action} from "./Action";
 import {Stat, StatDescription} from "./Stat"
 import {Outcome, Result, ResultDescription} from "./Outcome";
-import {env, pipeline} from '@xenova/transformers';
+import {env, pipeline, ZeroShotClassificationPipeline} from '@xenova/transformers';
 
 type MessageStateType = any;
 
@@ -71,7 +71,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     stats: {[stat in Stat]: number} = this.clearStatMap();
 
     // other
-    conceptPipeline: any;
+    zeroShotPipeline: any;
 
     constructor(data: InitialData<InitStateType, ChatStateType, MessageStateType, ConfigType>) {
         super(data);
@@ -88,7 +88,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         this.player = users[Object.keys(users)[0]];
         this.character = characters[Object.keys(characters)[0]];
 
-        this.conceptPipeline = null;
+        this.zeroShotPipeline = null;
         env.allowRemoteModels = false;
     }
 
@@ -108,7 +108,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     async load(): Promise<Partial<LoadResponse<InitStateType, ChatStateType, MessageStateType>>> {
 
         try {
-            this.conceptPipeline = await pipeline("zero-shot-classification", "Xenova/mobilebert-uncased-mnli");//"SamLowe/roberta-base-go_emotions");
+            this.zeroShotPipeline = await pipeline("zero-shot-classification", "Xenova/mobilebert-uncased-mnli");
         } catch (exception: any) {
             console.error(`Error loading pipeline: ${exception}`);
         }
@@ -178,12 +178,13 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             }
         }
 
-        if (!takenAction && finalContent) {
-            console.log('Ad-lib action.');
+        if (!takenAction && finalContent && this.zeroShotPipeline != null) {
+            console.log('Assess ad-lib action.');
 
             const statMapping:{[key: string]: string} = {'Physical Strength': 'Might', 'Agility and Composure': 'Grace', 'Talent and Adroitness': 'Skill', 'Logic and Learnedness': 'Brains', 'Wits': 'Wits', 'Charm': 'Charm', 'Heart and Character': 'Heart', 'Luck': 'Luck'};
             let topStat: Stat|null = null;
-            let statResponse = await this.conceptPipeline('Choose a set of personal attributes associated with this passage of activity.', content, Object.keys(statMapping), { multi_label: true });
+            this.zeroShotPipeline.task = 'Choose a set of personal attributes associated with this passage of activity.'
+            let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { multi_label: true });
             console.log(statResponse);
             if (statResponse && statResponse.labels && statResponse.scores[0] > 0.5) {
                 topStat = Stat[statMapping[statResponse.labels[0]] as keyof typeof Stat];
@@ -191,7 +192,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
             const difficultyMapping:{[key: string]: number} = {'Very Easy': 2, 'Easy': 1, 'Average': 0, 'Difficult': -1, 'Very Difficult': -2, 'Impossible': -3};
             let difficultyRating:number = 0;
-            let difficultyResponse = await this.conceptPipeline('Rank the difficulty of performing this passage of activity.', content, Object.keys(difficultyMapping), { multi_label: true });
+            this.zeroShotPipeline.task = 'Choose a set of personal attributes associated with this passage of activity.'
+            let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { multi_label: true });
             console.log(difficultyResponse);
             if (difficultyResponse && difficultyResponse.labels[0]) {
                 difficultyRating = difficultyMapping[difficultyResponse.labels[0]];
