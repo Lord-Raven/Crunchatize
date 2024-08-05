@@ -8,10 +8,10 @@ export enum Result {
 }
 
 export const ResultDescription: {[result in Result]: string} = {
-    [Result.Failure]: 'The user will fail to achieve their goal and will actively sour their situation. Describe the action and outcome in your own words.',
-    [Result.MixedSuccess]: 'The user may achieve their goal, but in an inferior way or at some cost. Describe the action and outcome in your own words.',
-    [Result.CompleteSuccess]: 'The user will successfully achieve what they were attempting and improve their situation. Describe the action and outcome in your own words.',
-    [Result.None]: 'The user took a risk-free action. Describe their actions and dialog in your own words.'
+    [Result.Failure]: `{{user}} will fail to achieve their goal and will actively sour or worsen their situation. Describe {{user}}'s actions and outcomes in your own words.`,
+    [Result.MixedSuccess]: `{{user}} may achieve their goal, but in an inferior way or at some cost. Describe {{user}}'s actions and outcomes in your own words.`,
+    [Result.CompleteSuccess]: `{{user}} will successfully achieve what they were attempting and improve their situation. Describe {{user}}'s actions and outcomes in your own words.`,
+    [Result.None]: '{{user}} took a risk-free action. Describe their actions and dialog in your own words.'
 }
 
 export class Outcome {
@@ -60,7 +60,7 @@ export class Outcome {
 
     getDescription(): string {
         if (this.action.stat) {
-            return `###(${this.action.stat}) ${this.action.description}###\n#${this.getDieEmoji(this.dieResult1)} ${this.getDieEmoji(this.dieResult2)} ${this.action.difficultyModifier >= 0 ? '+' : ''}${this.action.difficultyModifier}# <sup>difficulty</sup> #${this.action.skillModifier > 0 ? ` +${this.action.skillModifier}<sup>skill</sup>` : ''} = ${this.total} (${this.result})#`
+            return `###(${this.action.stat}) ${this.action.description}###\n#${this.getDieEmoji(this.dieResult1)} ${this.getDieEmoji(this.dieResult2)} ${this.action.difficultyModifier >= 0 ? '+' : ''}${this.action.difficultyModifier}<sup><sup>difficulty</sup></sup>${this.action.skillModifier > 0 ? ` +${this.action.skillModifier}<sup><sup>skill</sup></sup>` : ''} = ${this.total} (${this.result})#`
         } else {
             return `###(No Check) ${this.action.description}###`;
         }

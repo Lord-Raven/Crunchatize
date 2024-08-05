@@ -184,9 +184,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 topStat = Stat[statMapping[statResponse.labels[0]] as keyof typeof Stat];
             }
 
-            const difficultyMapping:{[key: string]: number} = {'Piece of Cake': 2, 'Simple': 1, 'Straightforward': 0, 'Challenging': -1, 'Very Challenging': -2, 'Impossible': -3};
+            const difficultyMapping:{[key: string]: number} = {'Piece of Cake': 2, 'Simple': 1, 'Straightforward': 0, 'Troublesome': -1, 'Daunting': -2, 'Impossible': -3};
             let difficultyRating:number = 0;
-            this.zeroShotPipeline.task = 'Describe the apparent difficulty of performing the actions described in this narrative passage.'
+            this.zeroShotPipeline.task = 'Select the apparent difficulty of performing the actions described in this narrative passage.'
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { multi_label: true });
             console.log(difficultyResponse);
             if (difficultyResponse && difficultyResponse.labels[0]) {
