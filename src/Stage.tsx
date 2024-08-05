@@ -103,7 +103,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Logic and Knowledge': 'Brains',
                 'Instinct and Awareness': 'Wits',
                 'Allure and Influence': 'Charm',
-                'Empathy and Character': 'Heart',
+                'Connection and Character': 'Heart',
                 'Chance and Luck': 'Luck'};
             let topStat: Stat|null = null;
             this.zeroShotPipeline.task = 'Choose a set of attributes that best describe or govern the actions taken in this narrative passage.'
