@@ -38,9 +38,7 @@ There are eight stats, and they are all a bit nebulous and overlapping:<br>
 You can view console output to see the classification results that the stage is using to arrive at its skill/difficulty assessments.
 <br><br>
 **What's next:**<br>
-I think I'll add some basic health tracking, but obviously the biggest missing element is some form of character creation, 
-as currently, everyone starts with no bonuses. Maybe I'll add that, or maybe I'll move on to other stages, 
-but I thought this was interesting enough to release as-is.
+I could add some basic health tracking, or some form of character creation. I have other ideas that will have to wait for future Stage feature improvements.
 "
 
 # 'PUBLIC', 'PRIVATE', or 'UNLISTED'.
@@ -59,14 +57,9 @@ position: 'NONE'
 # Self-explanatory.
 tags:
   - 'Stage'
-  - 'WIP'
-
-# The schema of any user-supplied config.
-# If your stage requires a configuration but has no
-#   defined schema, it won't work.
-config_schema:
-  type: object
-  properties:
+  - 'Extension'
+  - 'Add-on'
+  - 'RPG'
 
 # The schema of the state that you store.
 # This isn't needed even if you do store state,
