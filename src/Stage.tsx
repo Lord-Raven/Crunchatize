@@ -183,13 +183,13 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
             const labels = ['Might', 'Grace', 'Skill', 'Brains', 'Wits', 'Charm', 'Heart', 'Luck'];
 
-            let pipelineResponse = await this.conceptPipeline(content, labels, { multi_label: true });
+            let pipelineResponse = await this.conceptPipeline(`Assess relevant RPG attributes governing this content: ${content}`, labels, { multi_label: true });
             console.log(pipelineResponse);
             if (pipelineResponse && pipelineResponse.labels) {
 
             }
 
-            const difficultyLabels = ['Easy', 'Straightforward', 'Complex', 'Difficult', 'Impossible'];
+            const difficultyLabels = ['Easy Activity', 'Straightforward Activity', 'Significant Activity', 'Difficult Activity', 'Impossible Activity'];
             let difficultyResponse = await this.conceptPipeline(content, difficultyLabels, { multi_label: true });
             console.log(difficultyResponse);
 
