@@ -184,13 +184,13 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             this.zeroShotPipeline.task = 'Choose a set of personal attributes that best govern this passage of activity.'
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { multi_label: true });
             console.log(statResponse);
-            if (statResponse && statResponse.labels && statResponse.scores[0] > 0.5) {
+            if (statResponse && statResponse.labels && statResponse.scores[0] > 0.4) {
                 topStat = Stat[statMapping[statResponse.labels[0]] as keyof typeof Stat];
             }
 
             const difficultyMapping:{[key: string]: number} = {'Very Easy': 2, 'Easy': 1, 'Average': 0, 'Difficult': -1, 'Very Difficult': -2, 'Impossible': -3};
             let difficultyRating:number = 0;
-            this.zeroShotPipeline.task = 'Choose the relative difficulty of successfully performing this passage of activity.'
+            this.zeroShotPipeline.task = 'Assess the perceived difficulty of successfully performing the activity in this passage.'
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { multi_label: true });
             console.log(difficultyResponse);
             if (difficultyResponse && difficultyResponse.labels[0]) {
@@ -329,8 +329,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             messageState: this.buildMessageState(),
             modifiedMessage: null,
             error: null, //this.actions.length == 0 ? 'Failed to generate actions; consider swiping or write your own.' : null,
-            systemMessage: `^${this.player.name} - ${this.getLevel() + 1} (${this.experience}/${this.levelThresholds[this.getLevel()]})^\n` +
-                `^${Object.keys(Stat).map(key => `${key}: ${this.stats[key as Stat]}`).join(' | ')}^`,
+            systemMessage: `---\n` +
+                `\`${this.player.name} - Level ${this.getLevel() + 1} (${this.experience}/${this.levelThresholds[this.getLevel()]})\`\n` +
+                `\`${Object.keys(Stat).map(key => `${key}: ${this.stats[key as Stat]}`).join(' | ')}\``,
             // this.actions.length > 0 ? `Choose an action:\n` + this.actions.map((action, index) => `${index + 1}. ${action.fullDescription()}`).join('\n') : null,
             chatState: null
         };
