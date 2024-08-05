@@ -183,7 +183,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
             const statMapping:{[key: string]: string} = {'Strength': 'Might', 'Grace': 'Grace', 'Skill': 'Skill', 'Logic': 'Brains', 'Wits': 'Wits', 'Charm': 'Charm', 'Heart': 'Heart', 'Luck': 'Luck'};
             let topStat: Stat|null = null;
-            let statResponse = await this.conceptPipeline(`An RPG attributes governing this passage of activity: '${content}'`, Object.keys(statMapping), { multi_label: true });
+            let statResponse = await this.conceptPipeline(`Personal attributes governing this passage of activity: '${content}'`, Object.keys(statMapping), { multi_label: true });
             console.log(statResponse);
             if (statResponse && statResponse.labels && statResponse.scores[0] > 0.5) {
                 topStat = Stat[statMapping[statResponse.labels[0]] as keyof typeof Stat];
@@ -191,7 +191,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
             const difficultyMapping:{[key: string]: number} = {'Very Easy': 2, 'Easy': 1, 'Average': 0, 'Difficult': -1, 'Very Difficult': -2, 'Impossible': -3};
             let difficultyRating:number = 0;
-            let difficultyResponse = await this.conceptPipeline(`The relative difficulty of this passage of activity: '${content}'`, Object.keys(difficultyMapping), { multi_label: true });
+            let difficultyResponse = await this.conceptPipeline(`The relative difficulty of performing this activity: '${content}'`, Object.keys(difficultyMapping), { multi_label: true });
             console.log(difficultyResponse);
             if (difficultyResponse && difficultyResponse.labels[0]) {
                 difficultyRating = difficultyMapping[difficultyResponse.labels[0]];
@@ -216,14 +216,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
             if (topStat) {
                 console.log('Found match');
-                takenAction = new Action(finalContent, topStat, difficultyRating);
+                takenAction = new Action(finalContent, topStat, difficultyRating, this.stats[topStat]);
             } else {
-                takenAction = new Action(finalContent, null, 0);
+                takenAction = new Action(finalContent, null, 0, 0);
             }
         }
 
         if (takenAction) {
-            this.setLastOutcome(takenAction.determineSuccess(takenAction.stat ? this.stats[takenAction.stat] : 0));
+            this.setLastOutcome(takenAction.determineSuccess());
             finalContent = this.lastOutcome?.getDescription();
 
             if (takenAction.stat) {
@@ -357,7 +357,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     }
 
     convertAction(input: any): Action {
-        return new Action(input['description'], input['stat'] as Stat, input['modifier'])
+        return new Action(input['description'], input['stat'] as Stat, input['difficultyModifier'], input['skillModifier'])
     }
 
     buildMessageState(): any {

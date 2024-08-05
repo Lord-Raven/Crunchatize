@@ -22,13 +22,13 @@ export class Outcome {
     total: number;
 
     constructor(dieResult1: number, dieResult2: number, action: Action) {
-        const total = dieResult1 + dieResult2 + action.modifier;
+        const total = dieResult1 + dieResult2 + action.difficultyModifier + action.skillModifier;
         this.result = (!action.stat ? Result.None : (total >= 10 ? Result.CompleteSuccess : (total >= 7 ? Result.MixedSuccess : Result.Failure)));
 
         this.dieResult1 = dieResult1;
         this.dieResult2 = dieResult2;
         this.action = action;
-        this.total = this.dieResult1 + this.dieResult2 + this.action.modifier;
+        this.total = this.dieResult1 + this.dieResult2 + this.action.difficultyModifier + this.action.skillModifier;
     }
 
     render() {
@@ -41,7 +41,7 @@ export class Outcome {
                 {this.result} (
                     <img src={`/assets/dice_${this.dieResult1}.png`} style={style} alt={`D6 showing ${this.dieResult1}`} />
                     <img src={`/assets/dice_${this.dieResult2}.png`} style={style} alt={`D6 showing ${this.dieResult2}`} />
-                    + {this.action.modifier} = {this.total})
+                    + {this.action.difficultyModifier} + {this.action.skillModifier} = {this.total})
             </div>
         );
     }
@@ -60,7 +60,7 @@ export class Outcome {
 
     getDescription(): string {
         if (this.action.stat) {
-            return `###(${this.action.stat}) ${this.action.description}###\n#${this.getDieEmoji(this.dieResult1)} ${this.getDieEmoji(this.dieResult2)} ${this.action.modifier >= 0 ? '+' : ''}${this.action.modifier} = ${this.total} (${this.result})#`
+            return `###(${this.action.stat} ${this.action.difficultyModifier >= 0 ? '+' : ''}${this.action.difficultyModifier}${this.action.skillModifier > 0 ? ` +${this.action.skillModifier}` : ''}) ${this.action.description}###\n#${this.getDieEmoji(this.dieResult1)} ${this.getDieEmoji(this.dieResult2)} ${this.action.difficultyModifier >= 0 ? '+' : ''}${this.action.difficultyModifier}${this.action.skillModifier > 0 ? ` +${this.action.skillModifier}` : ''} = ${this.total} (${this.result})#`
         } else {
             return `###${this.action.description}###`;
         }
