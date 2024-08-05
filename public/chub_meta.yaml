@@ -61,6 +61,13 @@ tags:
   - 'Add-on'
   - 'RPG'
 
+needs_config:
+  false
+
+config_schema:
+  title: Crunchatize Me
+  type: object
+
 # The schema of the state that you store.
 # This isn't needed even if you do store state,
 #   and is here more for future use cases to
