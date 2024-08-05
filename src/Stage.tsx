@@ -175,7 +175,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         }
 
         if (!takenAction && finalContent && this.zeroShotPipeline != null) {
-            const statMapping:{[key: string]: string} = {'Strength and Endurance': 'Might', 'Agility and Composure': 'Grace', 'Craft and Deftness': 'Skill', 'Logic and Knowledge': 'Brains', 'Instinct and Awareness': 'Wits', 'Allure and Influence': 'Charm', 'Empathy and Character': 'Heart', 'Karma and Luck': 'Luck'};
+            const statMapping:{[key: string]: string} = {'Muscle and Endurance': 'Might', 'Agility and Composure': 'Grace', 'Craft and Deftness': 'Skill', 'Logic and Knowledge': 'Brains', 'Instinct and Awareness': 'Wits', 'Allure and Influence': 'Charm', 'Empathy and Character': 'Heart', 'Karma and Luck': 'Luck'};
             let topStat: Stat|null = null;
             this.zeroShotPipeline.task = 'Choose a set of attributes that best describe or govern the actions in this passage.'
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { multi_label: true });
@@ -186,7 +186,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
             const difficultyMapping:{[key: string]: number} = {'Very Easy': 2, 'Easy': 1, 'Average': 0, 'Difficult': -1, 'Very Difficult': -2, 'Impossible': -3};
             let difficultyRating:number = 0;
-            this.zeroShotPipeline.task = 'Assess the perceived difficulty of successfully performing the activity in this passage.'
+            this.zeroShotPipeline.task = 'Describe the apparent difficulty of performing the actions described in this passage.'
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { multi_label: true });
             console.log(difficultyResponse);
             if (difficultyResponse && difficultyResponse.labels[0]) {
@@ -324,7 +324,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             modifiedMessage: null,
             error: null, //this.actions.length == 0 ? 'Failed to generate actions; consider swiping or write your own.' : null,
             systemMessage: `---\n` +
-                `\`${this.player.name} - Level ${this.getLevel() + 1} (${this.experience}/${this.levelThresholds[this.getLevel()]})\`<br>` +
+                `\`{{user}} - Level ${this.getLevel() + 1} (${this.experience}/${this.levelThresholds[this.getLevel()]})\`<br>` +
                 `\`${Object.keys(Stat).map(key => `${key}: ${this.stats[key as Stat]}`).join(' | ')}\``,
             // this.actions.length > 0 ? `Choose an action:\n` + this.actions.map((action, index) => `${index + 1}. ${action.fullDescription()}`).join('\n') : null,
             chatState: null
