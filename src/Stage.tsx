@@ -151,8 +151,6 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             identity
         } = userMessage;
 
-        console.log('beforePrompt:' + promptForId + ';' + identity);
-        console.log(userMessage);
         this.promptForId = promptForId ?? undefined;
         this.currentMessageId = identity;
 
@@ -234,7 +232,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
             if (this.lastOutcome?.result === Result.Failure) {
                 this.experience++;
-                let level = Object.values(this.stats).reduce((acc, val) => acc + val, 0);
+                let level = this.getLevel();
                 if (this.experience == this.levelThresholds[level]) {
                     const maxCount = Math.max(...Object.values(this.statUses));
                     const maxStats = Object.keys(this.statUses)
@@ -247,7 +245,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
                     this.statUses = this.clearStatMap();
                 } else {
-                    finalContent += `\n##You've learned from this experience...##`
+                    finalContent += `\n###You've learned from this experience...###`
                 }
             }
         }
@@ -264,6 +262,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         };
     }
 
+    getLevel(): number {
+        return Object.values(this.stats).reduce((acc, val) => acc + val, 0)
+    }
     async afterResponse(botMessage: Message): Promise<Partial<StageResponse<ChatStateType, MessageStateType>>> {
         const {
             content,
@@ -272,7 +273,6 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             identity
         } = botMessage;
 
-        console.log('afterResponse()');
         this.lastOutcomePrompt = '';
 
         await this.addMessageToHistory(content);
@@ -329,7 +329,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             messageState: this.buildMessageState(),
             modifiedMessage: null,
             error: null, //this.actions.length == 0 ? 'Failed to generate actions; consider swiping or write your own.' : null,
-            systemMessage: null, //this.actions.length > 0 ? `Choose an action:\n` + this.actions.map((action, index) => `${index + 1}. ${action.fullDescription()}`).join('\n') : null,
+            systemMessage: `^${this.player.name} - ${this.getLevel() + 2}^\n` +
+                `^${Object.keys(Stat).map(key => `${key}: ${this.stats[key as Stat]}`).join(' | ')}^`,
+            // this.actions.length > 0 ? `Choose an action:\n` + this.actions.map((action, index) => `${index + 1}. ${action.fullDescription()}`).join('\n') : null,
             chatState: null
         };
     }
