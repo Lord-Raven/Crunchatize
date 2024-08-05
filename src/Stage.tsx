@@ -189,9 +189,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 topStat = Stat[statResponse.labels[0] as keyof typeof Stat];
             }
 
-            const difficultyMapping:{[key: string]: number} = {'Very Easy': 2, 'Easy': 1, 'Straightforward': 0, 'Challenging': -1, 'Very Difficult': -2, 'Impossible': -3};
+            const difficultyMapping:{[key: string]: number} = {'Very Easy': 2, 'Easy': 1, 'Average': 0, 'Challenging': -1, 'Very Difficult': -2, 'Impossible': -3};
             let difficultyRating:number = 0;
-            let difficultyResponse = await this.conceptPipeline(`Assess the relative difficulty of achieving this activity: ${content}`, Object.keys(difficultyMapping), { multi_label: true });
+            let difficultyResponse = await this.conceptPipeline(`What is the relative difficulty of succeeding with this activity: ${content}`, Object.keys(difficultyMapping), { multi_label: true });
             console.log(difficultyResponse);
             if (difficultyResponse && difficultyResponse.labels[0]) {
                 difficultyRating = difficultyMapping[difficultyResponse.labels[0]];
