@@ -181,9 +181,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         if (!takenAction && finalContent) {
             console.log('Ad-lib action.');
 
-            const statMapping:{[key: string]: string} = {'Strength': 'Might', 'Grace': 'Grace', 'Skill': 'Skill', 'Logic': 'Brains', 'Wits': 'Wits', 'Charm': 'Charm', 'Heart': 'Heart', 'Luck': 'Luck'};
+            const statMapping:{[key: string]: string} = {'Physical Strength': 'Might', 'Agility and Composure': 'Grace', 'Talent and Adroitness': 'Skill', 'Logic and Learnedness': 'Brains', 'Wits': 'Wits', 'Charm': 'Charm', 'Heart and Character': 'Heart', 'Luck': 'Luck'};
             let topStat: Stat|null = null;
-            let statResponse = await this.conceptPipeline(`Personal attributes governing this passage of activity: '${content}'`, Object.keys(statMapping), { multi_label: true });
+            let statResponse = await this.conceptPipeline('Choose a set of personal attributes associated with this passage of activity.', content, Object.keys(statMapping), { multi_label: true });
             console.log(statResponse);
             if (statResponse && statResponse.labels && statResponse.scores[0] > 0.5) {
                 topStat = Stat[statMapping[statResponse.labels[0]] as keyof typeof Stat];
@@ -191,7 +191,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
             const difficultyMapping:{[key: string]: number} = {'Very Easy': 2, 'Easy': 1, 'Average': 0, 'Difficult': -1, 'Very Difficult': -2, 'Impossible': -3};
             let difficultyRating:number = 0;
-            let difficultyResponse = await this.conceptPipeline(`The relative difficulty of performing this activity: '${content}'`, Object.keys(difficultyMapping), { multi_label: true });
+            let difficultyResponse = await this.conceptPipeline('Rank the difficulty of performing this passage of activity.', content, Object.keys(difficultyMapping), { multi_label: true });
             console.log(difficultyResponse);
             if (difficultyResponse && difficultyResponse.labels[0]) {
                 difficultyRating = difficultyMapping[difficultyResponse.labels[0]];
