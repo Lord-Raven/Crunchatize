@@ -96,10 +96,19 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         let finalContent: string|undefined = content;
 
         if (finalContent && this.zeroShotPipeline != null) {
-            const statMapping:{[key: string]: string} = {'Muscle and Endurance': 'Might', 'Agility and Composure': 'Grace', 'Craft and Deftness': 'Skill', 'Logic and Knowledge': 'Brains', 'Instinct and Awareness': 'Wits', 'Allure and Influence': 'Charm', 'Empathy and Character': 'Heart', 'Karma and Luck': 'Luck'};
+            const statMapping:{[key: string]: string} = {
+                'Muscle and Endurance': 'Might',
+                'Agility and Composure': 'Grace',
+                'Craft and Deftness': 'Skill',
+                'Logic and Knowledge': 'Brains',
+                'Instinct and Awareness': 'Wits',
+                'Allure and Influence': 'Charm',
+                'Empathy and Character': 'Heart',
+                'Chance and Luck': 'Luck'};
             let topStat: Stat|null = null;
             this.zeroShotPipeline.task = 'Choose a set of attributes that best describe or govern the actions taken in this narrative passage.'
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { multi_label: true });
+            console.log(`Stat selected: ${(statResponse.scores[0] > 0.3 ? statResponse.labels[0] : 'None')}`);
             console.log(statResponse);
             if (statResponse && statResponse.labels && statResponse.scores[0] > 0.3) {
                 topStat = Stat[statMapping[statResponse.labels[0]] as keyof typeof Stat];
@@ -109,6 +118,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             let difficultyRating:number = 0;
             this.zeroShotPipeline.task = 'Select the most likely difficulty of performing the actions described in this narrative passage.'
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { multi_label: true });
+            console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
             console.log(difficultyResponse);
             if (difficultyResponse && difficultyResponse.labels[0]) {
                 difficultyRating = difficultyMapping[difficultyResponse.labels[0]];
