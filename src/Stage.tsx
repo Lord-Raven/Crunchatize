@@ -182,16 +182,20 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             console.log('Ad-lib action.');
 
             const labels = ['Might', 'Grace', 'Skill', 'Brains', 'Wits', 'Charm', 'Heart', 'Luck'];
-
-            let pipelineResponse = await this.conceptPipeline(`Assess relevant RPG attributes governing this content: ${content}`, labels, { multi_label: true });
-            console.log(pipelineResponse);
-            if (pipelineResponse && pipelineResponse.labels) {
-
+            let topStat: Stat|null = null;
+            let statResponse = await this.conceptPipeline(`Assess relevant RPG attributes governing this content: ${content}`, labels, { multi_label: true });
+            console.log(statResponse);
+            if (statResponse && statResponse.labels && statResponse.scores[0] > 0.5) {
+                topStat = Stat[statResponse.labels[0] as keyof typeof Stat];
             }
 
-            const difficultyLabels = ['Easy Activity', 'Straightforward Activity', 'Significant Activity', 'Difficult Activity', 'Impossible Activity'];
-            let difficultyResponse = await this.conceptPipeline(content, difficultyLabels, { multi_label: true });
+            const difficultyMapping:{[key: string]: number} = {'Very Easy': 2, 'Easy': 1, 'Straightforward': 0, 'Challenging': -1, 'Very Difficult': -2, 'Impossible': -3};
+            let difficultyRating:number = 0;
+            let difficultyResponse = await this.conceptPipeline(`Assess the relative difficulty of achieving this activity: ${content}`, Object.keys(difficultyMapping), { multi_label: true });
             console.log(difficultyResponse);
+            if (difficultyResponse && difficultyResponse.labels[0]) {
+                difficultyRating = difficultyMapping[difficultyResponse.labels[0]];
+            }
 
 
 
@@ -208,16 +212,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             const adLibPattern = new RegExp(`^(${Object.values(Stat).join('|')}) ((\\+|-)\\d+)`);
             console.log('request complete?');
             console.log(textResponse);
-            const match = adLibPattern.exec(textResponse?.result ?? '');
+            const match = adLibPattern.exec(textResponse?.result ?? '');*/
 
-            if (match) {
+            if (topStat) {
                 console.log('Found match');
-                let action: Action = new Action(finalContent, match[1] as Stat, Number(match[2]));
-                takenAction = action;
+                takenAction = new Action(finalContent, topStat, difficultyRating);
             } else {
-                let action: Action = new Action(finalContent, null, 0);
-                takenAction = action;
-            }*/
+                takenAction = new Action(finalContent, null, 0);
+            }
         }
 
         if (takenAction) {
