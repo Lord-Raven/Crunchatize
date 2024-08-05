@@ -181,9 +181,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         if (!takenAction && finalContent && this.zeroShotPipeline != null) {
             console.log('Assess ad-lib action.');
 
-            const statMapping:{[key: string]: string} = {'Physical Strength': 'Might', 'Agility and Composure': 'Grace', 'Talent and Adroitness': 'Skill', 'Logic and Learnedness': 'Brains', 'Wits': 'Wits', 'Charm': 'Charm', 'Heart and Character': 'Heart', 'Luck': 'Luck'};
+            const statMapping:{[key: string]: string} = {'Strength and Endurance': 'Might', 'Agility and Composure': 'Grace', 'Talent and Sleight': 'Skill', 'Logic and Knowledge': 'Brains', 'Wits and Awareness': 'Wits', 'Allure and Influence': 'Charm', 'Empathy and Character': 'Heart', 'Luck': 'Luck'};
             let topStat: Stat|null = null;
-            this.zeroShotPipeline.task = 'Choose a set of personal attributes associated with this passage of activity.'
+            this.zeroShotPipeline.task = 'Choose a set of personal attributes that best govern this passage of activity.'
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { multi_label: true });
             console.log(statResponse);
             if (statResponse && statResponse.labels && statResponse.scores[0] > 0.5) {
@@ -192,7 +192,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
             const difficultyMapping:{[key: string]: number} = {'Very Easy': 2, 'Easy': 1, 'Average': 0, 'Difficult': -1, 'Very Difficult': -2, 'Impossible': -3};
             let difficultyRating:number = 0;
-            this.zeroShotPipeline.task = 'Choose a set of personal attributes associated with this passage of activity.'
+            this.zeroShotPipeline.task = 'Choose the relative difficulty of successfully performing this passage of activity.'
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { multi_label: true });
             console.log(difficultyResponse);
             if (difficultyResponse && difficultyResponse.labels[0]) {
