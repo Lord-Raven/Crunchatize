@@ -108,7 +108,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             let topStat: Stat|null = null;
             this.zeroShotPipeline.task = 'Choose a set of attributes that best describe or govern the actions taken in this narrative passage.'
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { multi_label: true });
-            console.log(`Stat selected: ${(statResponse.scores[0] > 0.3 ? statResponse.labels[0] : 'None')}`);
+            console.log(`Stat selected: ${(statResponse.scores[0] > 0.3 ? statMapping[statResponse.labels[0]] : 'None')}`);
             console.log(statResponse);
             if (statResponse && statResponse.labels && statResponse.scores[0] > 0.3) {
                 topStat = Stat[statMapping[statResponse.labels[0]] as keyof typeof Stat];
