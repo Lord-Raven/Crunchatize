@@ -35,7 +35,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     // other
     zeroShotPipeline: any;
     player: User;
-    character: Character;
+    characters: {[key: string]: Character};
 
     constructor(data: InitialData<InitStateType, ChatStateType, MessageStateType, ConfigType>) {
         super(data);
@@ -46,7 +46,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         } = data;
         this.setStateFromMessageState(messageState);
         this.player = users[Object.keys(users)[0]];
-        this.character = characters[Object.keys(characters)[0]];
+        this.characters = characters;
 
         this.zeroShotPipeline = null;
         env.allowRemoteModels = false;
@@ -87,7 +87,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
     async beforePrompt(userMessage: Message): Promise<Partial<StageResponse<ChatStateType, MessageStateType>>> {
         const {
-            content
+            content,
+            promptForId
         } = userMessage;
 
         let errorMessage: string|null = null;
@@ -106,7 +107,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
             const difficultyMapping:{[key: string]: number} = {'Piece of Cake': 2, 'Simple': 1, 'Straightforward': 0, 'Troublesome': -1, 'Daunting': -2, 'Impossible': -3};
             let difficultyRating:number = 0;
-            this.zeroShotPipeline.task = 'Select the apparent difficulty of performing the actions described in this narrative passage.'
+            this.zeroShotPipeline.task = 'Select the most likely difficulty of performing the actions described in this narrative passage.'
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { multi_label: true });
             console.log(difficultyResponse);
             if (difficultyResponse && difficultyResponse.labels[0]) {
@@ -149,7 +150,10 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         }
 
         return {
-            stageDirections: `\n[INST]${this.lastOutcomePrompt}\n[/INST]`,
+            stageDirections: `\n[INST]${this.replaceTags(this.lastOutcomePrompt,{
+                "user": this.player.name,
+                "char": promptForId ? this.characters[promptForId].name : ''
+            })}\n[/INST]`,
             messageState: this.buildMessageState(),
             modifiedMessage: finalContent,
             systemMessage: null,
