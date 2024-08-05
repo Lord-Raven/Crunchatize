@@ -122,8 +122,6 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     }
 
     async setState(state: MessageStateType): Promise<void> {
-        console.log('setState');
-        console.log(state);
         this.setStateFromMessageState(state);
     }
 
@@ -177,11 +175,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         }
 
         if (!takenAction && finalContent && this.zeroShotPipeline != null) {
-            console.log('Assess ad-lib action.');
-
-            const statMapping:{[key: string]: string} = {'Strength and Endurance': 'Might', 'Agility and Composure': 'Grace', 'Talent and Sleight': 'Skill', 'Logic and Knowledge': 'Brains', 'Instinct and Awareness': 'Wits', 'Allure and Influence': 'Charm', 'Empathy and Character': 'Heart', 'Luck': 'Luck'};
+            const statMapping:{[key: string]: string} = {'Strength and Endurance': 'Might', 'Agility and Composure': 'Grace', 'Craft and Deftness': 'Skill', 'Logic and Knowledge': 'Brains', 'Instinct and Awareness': 'Wits', 'Allure and Influence': 'Charm', 'Empathy and Character': 'Heart', 'Karma and Luck': 'Luck'};
             let topStat: Stat|null = null;
-            this.zeroShotPipeline.task = 'Choose a set of personal attributes that best govern this passage of activity.'
+            this.zeroShotPipeline.task = 'Choose a set of attributes that best describe or govern the actions in this passage.'
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { multi_label: true });
             console.log(statResponse);
             if (statResponse && statResponse.labels && statResponse.scores[0] > 0.4) {
@@ -215,7 +211,6 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             const match = adLibPattern.exec(textResponse?.result ?? '');*/
 
             if (topStat) {
-                console.log('Found match');
                 takenAction = new Action(finalContent, topStat, difficultyRating, this.stats[topStat]);
             } else {
                 takenAction = new Action(finalContent, null, 0, 0);
@@ -320,7 +315,6 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         this.actions.length = Math.min(this.actions.length, 6);*/
 
         this.currentMessageId = identity;
-        console.log(this.currentMessageId);
 
         //await this.addMessageToHistory(this.actions.length > 0 ? this.actions.map((action, index) => `${index + 1}. ${action.fullDescription()}`).join('\n') : '', '###Choice: ');
 
@@ -329,8 +323,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             messageState: this.buildMessageState(),
             modifiedMessage: null,
             error: null, //this.actions.length == 0 ? 'Failed to generate actions; consider swiping or write your own.' : null,
-            systemMessage: `---\n` +
-                `\`${this.player.name} - Level ${this.getLevel() + 1} (${this.experience}/${this.levelThresholds[this.getLevel()]})\`\n` +
+            systemMessage: `---` +
+                `\`${this.player.name} - Level ${this.getLevel() + 1} (${this.experience}/${this.levelThresholds[this.getLevel()]})\`<br>` +
                 `\`${Object.keys(Stat).map(key => `${key}: ${this.stats[key as Stat]}`).join(' | ')}\``,
             // this.actions.length > 0 ? `Choose an action:\n` + this.actions.map((action, index) => `${index + 1}. ${action.fullDescription()}`).join('\n') : null,
             chatState: null
