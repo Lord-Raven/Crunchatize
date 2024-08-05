@@ -323,7 +323,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             messageState: this.buildMessageState(),
             modifiedMessage: null,
             error: null, //this.actions.length == 0 ? 'Failed to generate actions; consider swiping or write your own.' : null,
-            systemMessage: `---` +
+            systemMessage: `---\n` +
                 `\`${this.player.name} - Level ${this.getLevel() + 1} (${this.experience}/${this.levelThresholds[this.getLevel()]})\`<br>` +
                 `\`${Object.keys(Stat).map(key => `${key}: ${this.stats[key as Stat]}`).join(' | ')}\``,
             // this.actions.length > 0 ? `Choose an action:\n` + this.actions.map((action, index) => `${index + 1}. ${action.fullDescription()}`).join('\n') : null,
