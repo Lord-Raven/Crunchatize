@@ -39,6 +39,8 @@ There are eight stats, and they are all a bit nebulous and overlapping:<br>
 You can view console output to see the classification results that the stage is using to arrive at its skill/difficulty assessments. 
 These are zero-shot classifications, which are pretty naive and lack significant context; I am continuing to tweak and improve.
 <br><br>
+I've tagged it NSFW, but there isn't really anything in here that isn't SFW. My example bot isn't, though, and I'm sure other bots that attach this stage won't be either.
+<br><br>
 **What's next:**<br>
 I could add some basic health tracking, or some form of character creation that builds upon your persona somehow. 
 Most of my other ideas will have to wait for future Stage improvements, but I'm happy to receive feedback regardless!
@@ -59,6 +61,7 @@ position: 'NONE'
 
 # Self-explanatory.
 tags:
+  - 'NSFW'
   - 'Stage'
   - 'Extension'
   - 'Add-on'
