@@ -114,7 +114,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Convincing, Influencing, Impressing, Entertaining': 'Charm',
                 'Resolving, Resisting, Recovering, Connecting, Comforting': 'Heart',
                 'Gambling, Hoping, Discovering, Coinciding, Lucking Out': 'Luck',
-                'Doing Nothing, Just Answering, Idling': ''};
+                'Doing Nothing, Just Answering, Just Listening, Idling': ''};
             let topStat: Stat|null = null;
             //this.zeroShotPipeline.task = 'Choose a set of attributes that best encapsulate or represent the actions in this narrative passage.'
             this.zeroShotPipeline.task = 'Choose the set of verbs that most closely aligns with the actions in this narrative passage.'
