@@ -114,12 +114,12 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Convincing, Influencing, Impressing, Entertaining': 'Charm',
                 'Resolving, Resisting, Recovering, Connecting, Comforting': 'Heart',
                 'Gambling, Hoping, Discovering, Coinciding, Lucking Out': 'Luck',
-                'Doing Nothing, Just Answering, Just Listening, Idling': 'None'};
+                'Doing Nothing, Doing Little, Just Answering, Just Listening, Idling, Passing': 'None'};
             let topStat: Stat|null = null;
             //this.zeroShotPipeline.task = 'Choose a set of attributes that best encapsulate or represent the actions in this narrative passage.'
-            this.zeroShotPipeline.task = 'Choose the set of verbs that most closely aligns with the actions in this narrative passage.'
+            this.zeroShotPipeline.task = 'Choose the set of verbs that most closely aligns with or describes the activity in this narrative passage.'
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { multi_label: true });
-            console.log(`Stat selected: ${(statResponse.scores[0] > 0.3 ? statMapping[statResponse.labels[0]] : 'None')}`);
+            console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
             console.log(statResponse);
             if (statResponse && statResponse.labels && statResponse.scores[0] > 0.3 && statMapping[statResponse.labels[0]] != 'None') {
                 topStat = Stat[statMapping[statResponse.labels[0]] as keyof typeof Stat];
@@ -133,7 +133,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Daunting, Arduous, Formidable, Demanding': -2,
                 'Impossible, Insurmountable': -3};
             let difficultyRating:number = 0;
-            this.zeroShotPipeline.task = 'Choose the set of adjectives that best describe the work or effort represented within this narrative passage.'
+            this.zeroShotPipeline.task = 'Choose the set of adjectives that best describe the work or effort presented in this narrative passage.'
             console.log('Prompt for difficulty assessment: ' + this.zeroShotPipeline.task);
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
