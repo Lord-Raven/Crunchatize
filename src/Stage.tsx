@@ -128,11 +128,11 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Trivial, Effortless, Insignificant, Piece of Cake': 1000,
                 'Simple, Minimal Effort, Straightforward, Easy': 1,
                 'Average Effort, Middling, Intermediate, Standard': 0,
-                'Troublesome, Complex, Challenging, Hard': -1,
+                'Troublesome, Complex, High Effort, Challenging, Hard': -1,
                 'Daunting, Arduous, Formidable, Demanding': -2,
-                'Impossible': -3};
+                'Impossible, Insurmountable': -3};
             let difficultyRating:number = 0;
-            this.zeroShotPipeline.task = 'Select a set of words that reflect the relative difficulty or effort of the actions in this narrative passage.'
+            this.zeroShotPipeline.task = 'Choose words that best reflect the effort depicted in this narrative passage.'
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
             console.log(difficultyResponse);
