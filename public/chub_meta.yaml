@@ -44,7 +44,7 @@ Most of my other ideas will have to wait for future Stage improvements, but I'm 
 "
 
 # 'PUBLIC', 'PRIVATE', or 'UNLISTED'.
-visibility: 'PUBLIC'
+visibility: 'UNLISTED'
 
 # 'ADJACENT' | 'NONE' | 'COVER' | 'FULLSCREEN'
 # 'ADJACENT' is default. The frame will display on the side of the
