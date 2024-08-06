@@ -36,7 +36,8 @@ There are eight stats, and they are all a bit nebulous and overlapping:<br>
  * Heart - Determination and empathy<br>
  * Luck - Chance and fortune<br>
 <br>
-You can view console output to see the classification results that the stage is using to arrive at its skill/difficulty assessments.
+You can view console output to see the classification results that the stage is using to arrive at its skill/difficulty assessments. 
+These are zero-shot classifications, which are pretty naive and lack significant context; I am continuing to tweak and improve.
 <br><br>
 **What's next:**<br>
 I could add some basic health tracking, or some form of character creation that builds upon your persona somehow. 
