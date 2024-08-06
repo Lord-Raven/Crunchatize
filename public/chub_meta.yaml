@@ -8,26 +8,26 @@ project_name: "Crunchatize"
 tagline: "Turn any chat into a simple, stat-based RPG."
 
 creator_notes: "
-Can't enjoy an organic role-playing experience without the thrill of meta-gaming?<br>
+Can't enjoy an organic role-playing narrative without the thrill of meta-gaming?<br>
 Worried you'll develop genuine feelings or accidentally exercise thought-provoking introspection if numbers and probabilities aren't artificially injected into your every experience?<br>
 Why endure some meaningless simulacrum of our equally meaningless reality when you can turn everything into a game of chance?<br>
 Crunchatize could be the stage for you! Or not. It's something for somebody, though!<br>
 <br>
-**What it does:**<br>
+**What's it do?**<br>
 Adding this stage to a chat will cause your every input to be distilled into a skill check against one of eight attributes. 
 Dice will be rolled and modifiers added to determine whether you succeed or fail.
 <br><br>
 Unlike most chats, where you don't want the bot to speak or act for your character, 
 this stage requires you to forfeit some agency over the details of your actions; 
 the bot will be specifically instructed to take your skill check result and paraphrase your choices as it narrates, rather than accept your input as canon. 
-As a result, you may find you are better off simply describing the nature of the action you intend to take, rather than specifying precisely what you are doing or saying.
+As a result, you may find you are better off simply describing the nature of the action you intend to take, rather than specifying precise words or actions.
 <br><br>
 The Stage vaguely follows Powered by the Apocalypse system rules, where 2d6 are rolled and modifiers added or subtracted to arrive at 
 one of three degrees of success. Failures grant experience, which slowly leads to a level up--increasing one of the stat you used 
-most during that level.
+most during that level. And that's about it!
 <br><br>
 There are eight stats, and they are all a bit nebulous and overlapping:<br>
- * Might - Physical strength and endurance<br>
+ * Might - Strength and endurance<br>
  * Grace - Agility and composure<br>
  * Skill - Craft and deftness<br>
  * Brains - Knowledge and logic<br>
@@ -36,10 +36,11 @@ There are eight stats, and they are all a bit nebulous and overlapping:<br>
  * Heart - Determination and empathy<br>
  * Luck - Chance and fortune<br>
 <br>
-You can view console output to see the classification results that the stage is using to arrive at its skill/difficulty assessments. 
-These are zero-shot classifications, which are pretty naive and lack significant context; I am continuing to tweak and improve.
+You can view console output to see the classification results that the stage is using to arrive at its skill and difficulty assessments. 
+These are zero-shot classifications, which are pretty naive and lack significant context; I am continuing to tweak and improve, 
+but it is pretty easy to skew the results through the language you use in your input.
 <br><br>
-I've tagged it NSFW, but there isn't really anything in here that isn't SFW. My example bot isn't, though, and I'm sure other bots that attach this stage won't be either.
+I've tagged the stage NSFW, but there isn't really anything in here that isn't SFW. My example bot isn't, though, and I'm sure other bots that attach this stage won't be either.
 <br><br>
 **What's next:**<br>
 I could add some basic health tracking, or some form of character creation that builds upon your persona somehow. 
