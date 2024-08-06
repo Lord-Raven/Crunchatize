@@ -113,14 +113,15 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Sensing, Reacting, Quipping, Noticing, Tricking': 'Wits',
                 'Convincing, Influencing, Impressing, Entertaining': 'Charm',
                 'Resolving, Resisting, Recovering, Connecting, Comforting': 'Heart',
-                'Gambling, Hoping, Discovering, Coinciding, Lucking out': 'Luck'};
+                'Gambling, Hoping, Discovering, Coinciding, Lucking Out': 'Luck',
+                'Doing Nothing, Just Answering, Idling': ''};
             let topStat: Stat|null = null;
             //this.zeroShotPipeline.task = 'Choose a set of attributes that best encapsulate or represent the actions in this narrative passage.'
             this.zeroShotPipeline.task = 'Choose the set of verbs that most closely aligns with the actions in this narrative passage.'
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.3 ? statMapping[statResponse.labels[0]] : 'None')}`);
             console.log(statResponse);
-            if (statResponse && statResponse.labels && statResponse.scores[0] > 0.3) {
+            if (statResponse && statResponse.labels && statResponse.scores[0] > 0.3 && statMapping[statResponse.labels[0]] != '') {
                 topStat = Stat[statMapping[statResponse.labels[0]] as keyof typeof Stat];
             }
 
