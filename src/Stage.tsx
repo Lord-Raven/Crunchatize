@@ -106,9 +106,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Connection, Character, and Resolve': 'Heart',
                 'Chance, Fortune, and Karma': 'Luck'};*/
             const statMapping:{[key: string]: string} = {
-                'Flexing, Hitting, Lifting, Enduring, Intimidating': 'Might',
+                'Flexing, Hitting, Lifting, Enduring, Throwing, Intimidating': 'Might',
                 'Jumping, Dodging, Balancing, Dancing, Landing': 'Grace',
-                'Crafting, Lock-picking, Pickpocketing, Shooting, Fixing': 'Skill',
+                'Crafting, Lock-picking, Pickpocketing, Aiming, Shooting, Fixing': 'Skill',
                 'Reasoning, Recalling, Knowing, Solving, Planning': 'Brains',
                 'Sensing, Reacting, Quipping, Noticing, Tricking': 'Wits',
                 'Convincing, Influencing, Impressing, Entertaining': 'Charm',
@@ -124,9 +124,15 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 topStat = Stat[statMapping[statResponse.labels[0]] as keyof typeof Stat];
             }
 
-            const difficultyMapping:{[key: string]: number} = {'Piece of Cake': 2, 'Simple': 1, 'Straightforward': 0, 'Troublesome': -1, 'Daunting': -2, 'Impossible': -3};
+            const difficultyMapping:{[key: string]: number} = {
+                'Trivial, Effortless, Insignificant, Piece of Cake': 1000,
+                'Simple, Minimal Effort, Straightforward, Easy': 1,
+                'Average Effort, Middling, Intermediate, Standard': 0,
+                'Troublesome, Complex, Challenging, Hard': -1,
+                'Daunting, Arduous, Formidable, Demanding': -2,
+                'Impossible': -3};
             let difficultyRating:number = 0;
-            this.zeroShotPipeline.task = 'Describe the difficulty of performing the actions in this narrative passage.'
+            this.zeroShotPipeline.task = 'Select a set of words that reflect the relative difficulty or effort of the actions in this narrative passage.'
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
             console.log(difficultyResponse);
@@ -134,7 +140,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 difficultyRating = difficultyMapping[difficultyResponse.labels[0]];
             }
 
-            if (topStat) {
+            if (topStat && difficultyRating < 1000) {
                 takenAction = new Action(finalContent, topStat, difficultyRating, this.stats[topStat]);
             } else {
                 takenAction = new Action(finalContent, null, 0, 0);
