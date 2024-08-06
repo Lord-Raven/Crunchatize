@@ -96,7 +96,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         let finalContent: string|undefined = content;
 
         if (finalContent && this.zeroShotPipeline != null) {
-            const statMapping:{[key: string]: string} = {
+            /*const statMapping:{[key: string]: string} = {
                 'Muscle, Strength, and Endurance': 'Might',
                 'Agility, Reflexes, and Composure': 'Grace',
                 'Craft, Talent, and Sleight': 'Skill',
@@ -104,9 +104,19 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Instinct, Sass, and Awareness': 'Wits',
                 'Allure, Charm, and Influence': 'Charm',
                 'Connection, Character, and Resolve': 'Heart',
-                'Chance, Fortune, and Karma': 'Luck'};
+                'Chance, Fortune, and Karma': 'Luck'};*/
+            const statMapping:{[key: string]: string} = {
+                'Flexing, Hitting, Lifting, Enduring, Intimidating': 'Might',
+                'Jumping, Dodging, Balancing, Dancing, Landing': 'Grace',
+                'Crafting, Lock-picking, Pickpocketing, Shooting, Fixing': 'Skill',
+                'Reasoning, Recalling, Knowing, Solving, Planning': 'Brains',
+                'Sensing, Reacting, Quipping, Noticing, Tricking': 'Wits',
+                'Convincing, Influencing, Impressing, Entertaining': 'Charm',
+                'Resolving, Resisting, Recovering, Connecting, Comforting': 'Heart',
+                'Gambling, Hoping, Discovering, Coinciding, Lucking out': 'Luck'};
             let topStat: Stat|null = null;
-            this.zeroShotPipeline.task = 'Choose a set of attributes that best encapsulate or represent the actions in this narrative passage.'
+            //this.zeroShotPipeline.task = 'Choose a set of attributes that best encapsulate or represent the actions in this narrative passage.'
+            this.zeroShotPipeline.task = 'Choose the set of verbs that most closely aligns with the actions in this narrative passage.'
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.3 ? statMapping[statResponse.labels[0]] : 'None')}`);
             console.log(statResponse);
