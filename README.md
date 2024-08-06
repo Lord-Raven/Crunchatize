@@ -1,1 +1,1 @@
-This is the Crunchatize Me stage. Most actual information is currently in chub_meta.yaml.
+This is the Crunchatize stage. Most actual information is currently in chub_meta.yaml.
