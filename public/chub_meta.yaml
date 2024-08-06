@@ -65,8 +65,13 @@ needs_config:
   false
 
 config_schema:
-  title: Crunchatize Me
+  title: Crunchatize Me Configuration
   type: object
+  properties:
+    debugMode:
+      label: Debug Mode
+      type: boolean
+      default: false
 
 # The schema of the state that you store.
 # This isn't needed even if you do store state,
