@@ -111,7 +111,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Crafting, Lock-picking, Pickpocketing, Aiming, Shooting, Fixing': 'Skill',
                 'Reasoning, Recalling, Knowing, Solving, Planning': 'Brains',
                 'Sensing, Reacting, Quipping, Noticing, Tricking': 'Wits',
-                'Convincing, Influencing, Impressing, Entertaining': 'Charm',
+                'Convincing, Deceiving, Entertaining': 'Charm',
                 'Resolving, Resisting, Recovering, Connecting, Comforting': 'Heart',
                 'Gambling, Hoping, Discovering, Coinciding, Lucking Out': 'Luck',
                 'Doing Nothing, Doing Little, Just Answering, Just Listening, Idling, Passing': 'None'};
@@ -133,7 +133,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Daunting, Arduous, Formidable, Demanding': -2,
                 'Impossible, Insurmountable': -3};
             let difficultyRating:number = 0;
-            this.zeroShotPipeline.task = 'Choose the set of adjectives that best describe the work or effort presented in this narrative passage.'
+            this.zeroShotPipeline.task = 'Choose the set of descriptors that align with the level of effort represented by the activity in this narrative passage.'
             console.log('Prompt for difficulty assessment: ' + this.zeroShotPipeline.task);
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
