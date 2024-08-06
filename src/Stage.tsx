@@ -102,7 +102,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Craft, Talent, and Sleight': 'Skill',
                 'Logic, Knowledge, and Judgment': 'Brains',
                 'Instinct, Sass, and Awareness': 'Wits',
-                'Allure, Personality, and Influence': 'Charm',
+                'Allure, Charm, and Influence': 'Charm',
                 'Connection, Character, and Resolve': 'Heart',
                 'Chance, Fortune, and Karma': 'Luck'};
             let topStat: Stat|null = null;
