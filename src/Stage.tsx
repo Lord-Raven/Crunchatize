@@ -97,16 +97,16 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         if (finalContent && this.zeroShotPipeline != null) {
             const statMapping:{[key: string]: string} = {
-                'Muscle and Endurance': 'Might',
-                'Agility and Composure': 'Grace',
-                'Craft and Deftness': 'Skill',
-                'Logic and Knowledge': 'Brains',
-                'Instinct and Awareness': 'Wits',
-                'Allure and Influence': 'Charm',
-                'Connection and Character': 'Heart',
-                'Chance and Luck': 'Luck'};
+                'Muscle, Strength, and Endurance': 'Might',
+                'Agility, Reflexes, and Composure': 'Grace',
+                'Craft, Talent, and Sleight': 'Skill',
+                'Logic, Knowledge, and Judgment': 'Brains',
+                'Instinct, Sass, and Awareness': 'Wits',
+                'Allure, Personality, and Influence': 'Charm',
+                'Connection, Character, and Resolve': 'Heart',
+                'Chance, Fortune, and Karma': 'Luck'};
             let topStat: Stat|null = null;
-            this.zeroShotPipeline.task = 'Choose a set of attributes that best describe or govern the actions in this narrative passage.'
+            this.zeroShotPipeline.task = 'Choose a set of attributes that best encapsulate or represent the actions in this narrative passage.'
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.3 ? statMapping[statResponse.labels[0]] : 'None')}`);
             console.log(statResponse);
