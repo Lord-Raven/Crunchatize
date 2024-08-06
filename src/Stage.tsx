@@ -132,7 +132,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Daunting, Arduous, Formidable, Demanding': -2,
                 'Impossible, Insurmountable': -3};
             let difficultyRating:number = 0;
-            this.zeroShotPipeline.task = 'Assess the effort and challenge--or lack thereof--required to perform the activity in this content and choose the set of words that best describe it.'
+            this.zeroShotPipeline.task = 'How much effort or challenge is involved in this activity; choose a set of words that reflect that effort or lack thereof.'
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
             console.log(difficultyResponse);
