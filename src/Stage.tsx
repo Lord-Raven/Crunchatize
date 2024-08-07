@@ -97,17 +97,17 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         if (finalContent && this.zeroShotPipeline != null) {
             const statMapping:{[key: string]: string} = {
-                'Flexing, Hitting, Lifting, Enduring, Throwing, or Intimidating': 'Might',
-                'Jumping, Dodging, Balancing, Dancing, or Landing': 'Grace',
-                'Crafting, Lock-picking, Pickpocketing, Aiming, Shooting, or Fixing': 'Skill',
-                'Reasoning, Recalling, Knowing, Solving, or Planning': 'Brains',
-                'Sensing, Reacting, Quipping, Noticing, or Tricking': 'Wits',
-                'Persuading, Deceiving, Beckoning, or Performing': 'Charm',
-                'Resolving, Resisting, Recovering, Empathizing, or Comforting': 'Heart',
-                'Gambling, Hoping, Discovering, Coinciding, or Lucking Out': 'Luck',
-                'Waiting, Loitering, Chatting, Idling, or Resting': 'None'};
+                'flexing, hitting, lifting, enduring, throwing, or intimidating': 'Might',
+                'jumping, dodging, balancing, dancing, or landing': 'Grace',
+                'crafting, lock-picking, pickpocketing, aiming, shooting, or fixing': 'Skill',
+                'reasoning, recalling, solving, or strategizing': 'Brains',
+                'sensing, reacting, quipping, noticing, or tricking': 'Wits',
+                'persuading, deceiving, beckoning, or performing': 'Charm',
+                'resolving, resisting, recovering, empathizing, or comforting': 'Heart',
+                'gambling, hoping, discovering, or lucking out': 'Luck',
+                'waiting, loitering, chatting, idling, or resting': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'The actions in this passage are similar to these activities: {}.'
+            const statHypothesis = 'The author is doing something in the vein of {}.'
             console.log('Hypothesis for stat assessment: ' + statHypothesis);
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
@@ -124,7 +124,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'daunting, arduous, formidable, or demanding': -2,
                 'impossible or insurmountable': -3};
             let difficultyRating:number = 0;
-            const difficultyHypothesis = 'The scope or difficulty of the narrator\'s activity in this passage is {}.';
+            const difficultyHypothesis = 'The author is attempting to do something {}.';
             console.log('Hypothesis for difficulty assessment: ' + difficultyHypothesis);
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { hypothesis_template: difficultyHypothesis, multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
