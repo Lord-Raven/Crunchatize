@@ -97,19 +97,19 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         if (finalContent && this.zeroShotPipeline != null) {
             const statMapping:{[key: string]: string} = {
-                'Flexing, Hitting, Lifting, Enduring, Throwing, Intimidating': 'Might',
-                'Jumping, Dodging, Balancing, Dancing, Landing': 'Grace',
-                'Crafting, Lock-picking, Pickpocketing, Aiming, Shooting, Fixing': 'Skill',
-                'Reasoning, Recalling, Knowing, Solving, Planning': 'Brains',
-                'Sensing, Reacting, Quipping, Noticing, Tricking': 'Wits',
-                'Persuading, Deceiving, Beckoning, Performing': 'Charm',
-                'Resolving, Resisting, Recovering, Empathizing, Comforting': 'Heart',
-                'Gambling, Hoping, Discovering, Coinciding, Lucking Out': 'Luck',
-                'Doing Little, Loitering, Chatting, Idling, Resting': 'None'};
+                'Flexing, Hitting, Lifting, Enduring, Throwing, or Intimidating': 'Might',
+                'Jumping, Dodging, Balancing, Dancing, or Landing': 'Grace',
+                'Crafting, Lock-picking, Pickpocketing, Aiming, Shooting, or Fixing': 'Skill',
+                'Reasoning, Recalling, Knowing, Solving, or Planning': 'Brains',
+                'Sensing, Reacting, Quipping, Noticing, or Tricking': 'Wits',
+                'Persuading, Deceiving, Beckoning, or Performing': 'Charm',
+                'Resolving, Resisting, Recovering, Empathizing, or Comforting': 'Heart',
+                'Gambling, Hoping, Discovering, Coinciding, or Lucking Out': 'Luck',
+                'Doing Little, Loitering, Chatting, Idling, or Resting': 'None'};
             let topStat: Stat|null = null;
-            this.zeroShotPipeline.task = 'Choose the set of verbs that most closely aligns with or describes the action (if any) of this narrative passage.'
+            this.zeroShotPipeline.hypothesis_template = 'The activities in this narrative text are closely aligned with {}.'
             console.log('Prompt for stat assessment: ' + this.zeroShotPipeline.task);
-            let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { multi_label: true });
+            let statResponse = await this.zeroShotPipeline(`[Choose the set of verbs that most closely aligns with the activity (if any) in this narrative passage.] ${content}`, Object.keys(statMapping), { multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
             console.log(statResponse);
             if (statResponse && statResponse.labels && statResponse.scores[0] > 0.3 && statMapping[statResponse.labels[0]] != 'None') {
@@ -117,14 +117,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             }
 
             const difficultyMapping:{[key: string]: number} = {
-                'Trivial, Effortless, Insignificant': 1000,
-                'Simple, Minimal Effort, Straightforward, Easy': 1,
-                'Average Effort, Some Effort, Intermediate, Standard': 0,
-                'Troublesome, Complex, High Effort, Challenging, Hard': -1,
-                'Daunting, Arduous, Formidable, Demanding': -2,
-                'Impossible, Insurmountable': -3};
+                'Trivial, Effortless, or Insignificant': 1000,
+                'Simple, Minimal Effort, Straightforward, or Easy': 1,
+                'Average Effort, Some Effort, Intermediate, or Standard': 0,
+                'Troublesome, Complex, High Effort, Challenging, or Hard': -1,
+                'Daunting, Arduous, Formidable, or Demanding': -2,
+                'Impossible or Insurmountable': -3};
             let difficultyRating:number = 0;
-            this.zeroShotPipeline.task = 'Choose the set of descriptors that best aligns with the ease or difficulty of the activity in this narrative passage.'
+            this.zeroShotPipeline.hypothesis_template = 'The effort or difficulty of activity in this narrative text could be described as {}.';
             console.log('Prompt for difficulty assessment: ' + this.zeroShotPipeline.task);
             let difficultyResponse = await this.zeroShotPipeline(`[I weigh the complexity or effort of this activity.] ${content}`, Object.keys(difficultyMapping), { multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
