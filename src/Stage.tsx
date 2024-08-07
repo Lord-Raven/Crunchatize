@@ -107,9 +107,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Gambling, Hoping, Discovering, Coinciding, or Lucking Out': 'Luck',
                 'Doing Little, Loitering, Chatting, Idling, or Resting': 'None'};
             let topStat: Stat|null = null;
-            this.zeroShotPipeline.hypothesis_template = 'The activities in this narrative text are closely aligned with {}.'
+            const statHypothesis = 'The activities in this narrative text are closely aligned with {}.'
             console.log('Prompt for stat assessment: ' + this.zeroShotPipeline.task);
-            let statResponse = await this.zeroShotPipeline(`[Choose the set of verbs that most closely aligns with the activity (if any) in this narrative passage.] ${content}`, Object.keys(statMapping), { multi_label: true });
+            let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
             console.log(statResponse);
             if (statResponse && statResponse.labels && statResponse.scores[0] > 0.3 && statMapping[statResponse.labels[0]] != 'None') {
@@ -124,9 +124,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Daunting, Arduous, Formidable, or Demanding': -2,
                 'Impossible or Insurmountable': -3};
             let difficultyRating:number = 0;
-            this.zeroShotPipeline.hypothesis_template = 'The effort or difficulty of activity in this narrative text could be described as {}.';
+            const difficultyHypothesis = 'The effort or difficulty of activity in this narrative text could be described as {}.';
             console.log('Prompt for difficulty assessment: ' + this.zeroShotPipeline.task);
-            let difficultyResponse = await this.zeroShotPipeline(`[I weigh the complexity or effort of this activity.] ${content}`, Object.keys(difficultyMapping), { multi_label: true });
+            let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { hypothesis_template: difficultyHypothesis, multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
             console.log(difficultyResponse);
             if (difficultyResponse && difficultyResponse.labels[0]) {
