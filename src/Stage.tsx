@@ -97,7 +97,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         if (finalContent && this.zeroShotPipeline != null) {
             const statMapping:{[key: string]: string} = {
-                'flexing, hitting, lifting, enduring, throwing, or intimidating': 'Might',
+                'hitting, lifting, enduring, throwing, or intimidating': 'Might',
                 'jumping, dodging, balancing, dancing, or landing': 'Grace',
                 'crafting, lock-picking, pickpocketing, aiming, shooting, or fixing': 'Skill',
                 'reasoning, recalling, solving, or strategizing': 'Brains',
@@ -107,7 +107,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'gambling, hoping, discovering, or lucking out': 'Luck',
                 'waiting, loitering, chatting, idling, or resting': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'The author is doing something in the vein of {}.'
+            const statHypothesis = 'The author is doing something along the lines of {}.'
             console.log('Hypothesis for stat assessment: ' + statHypothesis);
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
@@ -117,11 +117,11 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             }
 
             const difficultyMapping:{[key: string]: number} = {
-                'trivial, effortless, or insignificant': 1000,
-                'simple, minimal, straightforward, or easy': 1,
-                'average effort, intermediate, or standard': 0,
-                'troublesome, complex, high effort, challenging, or hard': -1,
-                'daunting, arduous, formidable, or demanding': -2,
+                'trivial or effortless': 1000,
+                'simple or straightforward': 1,
+                'intermediate or standard': 0,
+                'complex or challenging': -1,
+                'arduous or formidable': -2,
                 'impossible or insurmountable': -3};
             let difficultyRating:number = 0;
             const difficultyHypothesis = 'The author is attempting to do something {}.';
