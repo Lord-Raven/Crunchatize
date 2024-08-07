@@ -107,7 +107,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Gambling, Hoping, Discovering, Coinciding, or Lucking Out': 'Luck',
                 'Doing Little, Loitering, Chatting, Idling, or Resting': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'The activities in this narrative text are closely aligned with {}.'
+            const statHypothesis = 'The actions or motives of this narrative text are closely aligned with these activities: {}.'
             console.log('Prompt for stat assessment: ' + this.zeroShotPipeline.task);
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
@@ -117,12 +117,12 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             }
 
             const difficultyMapping:{[key: string]: number} = {
-                'Trivial, Effortless, or Insignificant': 1000,
-                'Simple, Minimal Effort, Straightforward, or Easy': 1,
-                'Average Effort, Some Effort, Intermediate, or Standard': 0,
-                'Troublesome, Complex, High Effort, Challenging, or Hard': -1,
-                'Daunting, Arduous, Formidable, or Demanding': -2,
-                'Impossible or Insurmountable': -3};
+                'trivial, effortless, or insignificant': 1000,
+                'simple, minimal, straightforward, or easy': 1,
+                'average effort, intermediate, or standard': 0,
+                'troublesome, complex, high effort, challenging, or hard': -1,
+                'daunting, arduous, formidable, or demanding': -2,
+                'impossible or insurmountable': -3};
             let difficultyRating:number = 0;
             const difficultyHypothesis = 'The effort or difficulty of activity in this narrative text could be described as {}.';
             console.log('Prompt for difficulty assessment: ' + this.zeroShotPipeline.task);
