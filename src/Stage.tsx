@@ -126,7 +126,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             let difficultyRating:number = 0;
             this.zeroShotPipeline.task = 'Choose the set of descriptors that best aligns with the ease or difficulty of the activity in this narrative passage.'
             console.log('Prompt for difficulty assessment: ' + this.zeroShotPipeline.task);
-            let difficultyResponse = await this.zeroShotPipeline(`[I contemplate the complexity or effort of my actions before continuing] ${content}`, Object.keys(difficultyMapping), { multi_label: true });
+            let difficultyResponse = await this.zeroShotPipeline(`[I weigh the complexity or effort of this activity.] ${content}`, Object.keys(difficultyMapping), { multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
             console.log(difficultyResponse);
             if (difficultyResponse && difficultyResponse.labels[0]) {
