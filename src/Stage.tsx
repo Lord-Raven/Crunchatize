@@ -107,7 +107,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Gambling, Hoping, Discovering, Coinciding, or Lucking Out': 'Luck',
                 'Waiting, Loitering, Chatting, Idling, or Resting': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'The actions in this narrative text are similar to these activities: {}.'
+            const statHypothesis = 'The actions in this passage are similar to these activities: {}.'
             console.log('Hypothesis for stat assessment: ' + statHypothesis);
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
@@ -124,7 +124,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'daunting, arduous, formidable, or demanding': -2,
                 'impossible or insurmountable': -3};
             let difficultyRating:number = 0;
-            const difficultyHypothesis = 'The scope or difficulty of activity in this narrative text is {}.';
+            const difficultyHypothesis = 'The scope or difficulty of the narrator\'s activity in this passage is {}.';
             console.log('Hypothesis for difficulty assessment: ' + difficultyHypothesis);
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { hypothesis_template: difficultyHypothesis, multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
