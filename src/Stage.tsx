@@ -103,7 +103,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'Reasoning, Recalling, Knowing, Solving, Planning': 'Brains',
                 'Sensing, Reacting, Quipping, Noticing, Tricking': 'Wits',
                 'Persuading, Deceiving, Beckoning, Performing': 'Charm',
-                'Resolving, Resisting, Recovering, Connecting, Comforting': 'Heart',
+                'Resolving, Resisting, Recovering, Empathizing, Comforting': 'Heart',
                 'Gambling, Hoping, Discovering, Coinciding, Lucking Out': 'Luck',
                 'Doing Little, Loitering, Chatting, Idling, Resting': 'None'};
             let topStat: Stat|null = null;
@@ -126,7 +126,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             let difficultyRating:number = 0;
             this.zeroShotPipeline.task = 'Choose the set of descriptors that best aligns with the ease or difficulty of the activity in this narrative passage.'
             console.log('Prompt for difficulty assessment: ' + this.zeroShotPipeline.task);
-            let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { multi_label: true });
+            let difficultyResponse = await this.zeroShotPipeline(`[I contemplate the complexity or effort of my actions before continuing] ${content}`, Object.keys(difficultyMapping), { multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
             console.log(difficultyResponse);
             if (difficultyResponse && difficultyResponse.labels[0]) {
