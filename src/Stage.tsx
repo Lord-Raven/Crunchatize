@@ -97,17 +97,17 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         if (finalContent && this.zeroShotPipeline != null) {
             const statMapping:{[key: string]: string} = {
-                'hitting, lifting, enduring, throwing, flexing, intimidating': 'Might',
-                'jumping, dodging, balancing, dancing, landing': 'Grace',
-                'crafting, lock-picking, pickpocketing, aiming, repairing': 'Skill',
-                'recalling, memorizing, solving, strategizing': 'Brains',
-                'reacting, quipping, noticing, tricking': 'Wits',
-                'persuading, deceiving, beckoning, performing': 'Charm',
-                'resolving, resisting, recovering, empathizing, comforting': 'Heart',
-                'gambling, hoping, discovering': 'Luck',
-                'chatting, resting, remaining passive': 'None'};
+                'hit, lift, weather, throw, intimidate': 'Might',
+                'jump, dodge, balance, dance, land': 'Grace',
+                'craft, lock-pick, pickpocket, aim, repair': 'Skill',
+                'recall, memorize, solve, strategize': 'Brains',
+                'react, quip, notice, trick': 'Wits',
+                'persuade, deceive, beckon, perform': 'Charm',
+                'resist, recover, empathize, comfort': 'Heart',
+                'gamble, hope, discover': 'Luck',
+                'chat, rest, remain passive': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'Activity depicts {}, or something related.'
+            const statHypothesis = 'Narrator is attempting to {}, or do something related.'
             console.log('Hypothesis for stat assessment: ' + statHypothesis);
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
@@ -119,7 +119,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             const difficultyMapping:{[key: string]: number} = {
                 'straightforward or trivial': 1000,
                 'inconvenient or fiddly': 1,
-                'significant or involved': 0,
+                'substantial or involved': 0,
                 'taxing or challenging': -1,
                 'arduous or formidable': -2,
                 'impossible or insurmountable': -3};
