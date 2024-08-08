@@ -107,7 +107,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'gambling, hoping, discovering': 'Luck',
                 'chatting, resting, remaining passive': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'The narrator is {}, or something similar.'
+            const statHypothesis = 'The narrator is {}, or doing something similar.'
             console.log('Hypothesis for stat assessment: ' + statHypothesis);
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
@@ -118,7 +118,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
             const difficultyMapping:{[key: string]: number} = {
                 'effortless or trivial': 1000,
-                'straightforward yet effortful': 1,
+                'straightforward and typical': 1,
                 'significant or involved': 0,
                 'taxing or challenging': -1,
                 'arduous or formidable': -2,
