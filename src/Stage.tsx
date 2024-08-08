@@ -97,17 +97,17 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         if (finalContent && this.zeroShotPipeline != null) {
             const statMapping:{[key: string]: string} = {
-                'hit, lift, weather, throw, intimidate': 'Might',
-                'jump, dodge, balance, dance, land': 'Grace',
-                'craft, lock-pick, pickpocket, aim, repair': 'Skill',
-                'recall, memorize, solve, strategize': 'Brains',
-                'react, quip, notice, trick': 'Wits',
-                'persuade, deceive, beckon, perform': 'Charm',
-                'resist, recover, empathize, comfort': 'Heart',
-                'gamble, hope, discover': 'Luck',
-                'chat, rest, remain passive': 'None'};
+                'might (hit, lift, weather, throw, intimidate)': 'Might',
+                'grace (jump, dodge, balance, dance, land)': 'Grace',
+                'skill (craft, lock-pick, pickpocket, aim, repair)': 'Skill',
+                'brains (recall, memorize, solve, strategize)': 'Brains',
+                'wits (react, quip, notice, trick)': 'Wits',
+                'charm (persuade, deceive, beckon, perform)': 'Charm',
+                'heart (resist, recover, empathize, comfort)': 'Heart',
+                'luck (gamble, hope, discover)': 'Luck',
+                'sloth (chat, rest, remain passive)': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'Narrator is attempting to {}, or do something related.'
+            const statHypothesis = 'Narrator is attempting to apply their {}.'
             console.log('Hypothesis for stat assessment: ' + statHypothesis);
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
@@ -117,14 +117,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             }
 
             const difficultyMapping:{[key: string]: number} = {
-                'straightforward or trivial': 1000,
-                'inconvenient or fiddly': 1,
-                'substantial or involved': 0,
-                'taxing or challenging': -1,
-                'arduous or formidable': -2,
-                'impossible or insurmountable': -3};
+                '1 - straightforward or trivial': 1000,
+                '2 - inconvenient or fiddly': 1,
+                '3 - involved or complicated': 0,
+                '4 - taxing or challenging': -1,
+                '5 - arduous or formidable': -2,
+                '6 - impossible or insurmountable': -3};
             let difficultyRating:number = 0;
-            const difficultyHypothesis = 'The scope and effort of these actions seem {}.';
+            const difficultyHypothesis = 'The scope and effort of this activity on a scale of 1-6 is {}.';
             console.log('Hypothesis for difficulty assessment: ' + difficultyHypothesis);
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { hypothesis_template: difficultyHypothesis, multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
