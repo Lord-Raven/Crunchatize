@@ -105,9 +105,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'charm (persuade, deceive, beckon, perform)': 'Charm',
                 'heart (resist, recover, empathize, comfort)': 'Heart',
                 'luck (gamble, hope, discover)': 'Luck',
-                'sloth (chat, rest, remain passive)': 'None'};
+                'sloth (chat, rest, wait, stand by)': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'Narrator is attempting to apply their {}.'
+            const statHypothesis = 'Through these actions, the narrator is exemplifying {}.'
             console.log('Hypothesis for stat assessment: ' + statHypothesis);
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
@@ -124,7 +124,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 '5 - arduous or formidable': -2,
                 '6 - impossible or insurmountable': -3};
             let difficultyRating:number = 0;
-            const difficultyHypothesis = 'The scope and effort of this activity on a scale of 1-6 is {}.';
+            const difficultyHypothesis = 'The expected scope/effort on a scale of 1-6 (1 being trivial and 6 being impossible) is {}.';
             console.log('Hypothesis for difficulty assessment: ' + difficultyHypothesis);
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { hypothesis_template: difficultyHypothesis, multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
