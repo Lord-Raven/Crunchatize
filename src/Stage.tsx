@@ -99,7 +99,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             const statMapping:{[key: string]: string} = {
                 'hitting, lifting, enduring, throwing, or intimidating': 'Might',
                 'jumping, dodging, balancing, dancing, or landing': 'Grace',
-                'crafting, lock-picking, pickpocketing, aiming, shooting, or fixing': 'Skill',
+                'crafting, lock-picking, pickpocketing, aiming, shooting, or repairing': 'Skill',
                 'rationalizing, recalling, solving, or strategizing': 'Brains',
                 'sensing, reacting, quipping, noticing, or tricking': 'Wits',
                 'persuading, deceiving, beckoning, or performing': 'Charm',
@@ -107,7 +107,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'gambling, hoping, discovering, or lucking out': 'Luck',
                 'chatting, resting, or remaining passive': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'The narrator is doing something in the vein of {}.'
+            const statHypothesis = 'The narrator\'s activity involves {}.'
             console.log('Hypothesis for stat assessment: ' + statHypothesis);
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
@@ -119,7 +119,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             const difficultyMapping:{[key: string]: number} = {
                 'effortless or trivial': 1000,
                 'straightforward or typical': 1,
-                'significant or intermediate': 0,
+                'significant or involved': 0,
                 'taxing or challenging': -1,
                 'arduous or formidable': -2,
                 'impossible or insurmountable': -3};
