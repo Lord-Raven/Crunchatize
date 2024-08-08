@@ -107,7 +107,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'gambling, hoping, discovering': 'Luck',
                 'chatting, resting, remaining passive': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'The activity is aligned with {}, or doing something related.'
+            const statHypothesis = 'Activity depicts {}, or something related.'
             console.log('Hypothesis for stat assessment: ' + statHypothesis);
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
@@ -117,14 +117,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             }
 
             const difficultyMapping:{[key: string]: number} = {
-                'effortless or trivial': 1000,
-                'straightforward and typical': 1,
+                'straightforward or trivial': 1000,
+                'inconvenient or fiddly': 1,
                 'significant or involved': 0,
                 'taxing or challenging': -1,
                 'arduous or formidable': -2,
                 'impossible or insurmountable': -3};
             let difficultyRating:number = 0;
-            const difficultyHypothesis = 'The scope and effort of the narrator\'s actions seem {}.';
+            const difficultyHypothesis = 'The scope and effort of these actions seem {}.';
             console.log('Hypothesis for difficulty assessment: ' + difficultyHypothesis);
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { hypothesis_template: difficultyHypothesis, multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
