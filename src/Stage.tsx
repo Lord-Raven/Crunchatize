@@ -97,23 +97,23 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         if (finalContent && this.zeroShotPipeline != null) {
             const statMapping:{[key: string]: string} = {
-                'Might (hitting, lifting, weathering, throwing, intimidating)': 'Might',
+                'Might (strength, physique, endurance)': 'Might',
                 //'might (hit, lift, weather, throw, intimidate)': 'Might',
-                'Grace (jumping, dodging, balancing, dancing, landing)': 'Grace',
+                'Grace (agility, balance, speed)': 'Grace',
                 //'grace (jump, dodge, balance, dance, land)': 'Grace',
-                'Skill (crafting, lock-picking, pickpocketing, aiming, repairing)': 'Skill',
+                'Skill (handiness, deftness, slight)': 'Skill',
                 // 'skill (craft, lock-pick, pickpocket, aim, repair)': 'Skill',
-                'Brains (recalling, memorizing, solving, strategizing)': 'Brains',
+                'Brains (memory, logic, strategy)': 'Brains',
                 //'brains (recall, memorize, solve, strategize)': 'Brains',
-                'Wits (reacting, quipping, noticing, fooling)': 'Wits',
+                'Wits (awareness, sharpness, trickery, sass)': 'Wits',
                 // 'wits (react, quip, notice, fool)': 'Wits',
-                'Charm (persuading, deceiving, beckoning, performing)': 'Charm',
+                'Charm (persuasiveness, attractiveness, stage presence)': 'Charm',
                 //'charm (persuade, deceive, beckon, perform)': 'Charm',
-                'Heart (resisting, recovering, empathizing, comforting)': 'Heart',
+                'Heart (resistance, resilience, empathy)': 'Heart',
                 // 'heart (resist, recover, empathize, comfort)': 'Heart',
-                'Luck (gambling, hoping, discovering)': 'Luck',
+                'Luck (riskiness, hope, fortune)': 'Luck',
                 //'luck (gamble, hope, discover)': 'Luck',
-                'Sloth (chatting, resting, waiting, sitting, standing by)': 'None'};
+                'Sloth (passivity, idleness, small-talk)': 'None'};
                 //'sloth (chat, rest, wait, stand by)': 'None'};
             let topStat: Stat|null = null;
             const statHypothesis = 'The activity in this passage involves or exemplifies {}.'
@@ -133,7 +133,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 '5 - utterly arduous or formidable': -2,
                 '6 - absolutely impossible or insurmountable': -3};
             let difficultyRating:number = 0;
-            const difficultyHypothesis = 'The scope/difficulty of this activity on a scale of 1-6 is {}.';
+            const difficultyHypothesis = 'The difficulty of this activity on a scale of 1-6 is {}.';
             console.log('Hypothesis for difficulty assessment: ' + difficultyHypothesis);
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { hypothesis_template: difficultyHypothesis, multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
