@@ -97,7 +97,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         if (finalContent && this.zeroShotPipeline != null) {
             const statMapping:{[key: string]: string} = {
-                'hitting, lifting, enduring, throwing, intimidating': 'Might',
+                'hitting, lifting, enduring, throwing, flexing, intimidating': 'Might',
                 'jumping, dodging, balancing, dancing, landing': 'Grace',
                 'crafting, lock-picking, pickpocketing, aiming, repairing': 'Skill',
                 'recalling, memorizing, solving, strategizing': 'Brains',
@@ -118,7 +118,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
             const difficultyMapping:{[key: string]: number} = {
                 'effortless or trivial': 1000,
-                'straightforward and easy': 1,
+                'straightforward yet effortful': 1,
                 'significant or involved': 0,
                 'taxing or challenging': -1,
                 'arduous or formidable': -2,
