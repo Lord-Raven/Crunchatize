@@ -100,7 +100,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'hitting, lifting, enduring, throwing, or intimidating': 'Might',
                 'jumping, dodging, balancing, dancing, or landing': 'Grace',
                 'crafting, lock-picking, pickpocketing, aiming, shooting, or fixing': 'Skill',
-                'reasoning, recalling, solving, or strategizing': 'Brains',
+                'rationalizing, recalling, solving, or strategizing': 'Brains',
                 'sensing, reacting, quipping, noticing, or tricking': 'Wits',
                 'persuading, deceiving, beckoning, or performing': 'Charm',
                 'resolving, resisting, recovering, empathizing, or comforting': 'Heart',
@@ -119,12 +119,12 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             const difficultyMapping:{[key: string]: number} = {
                 'trivial or effortless': 1000,
                 'simple or straightforward': 1,
-                'intermediate or standard': 0,
-                'complex or challenging': -1,
+                'typical or intermediate': 0,
+                'taxing or challenging': -1,
                 'arduous or formidable': -2,
                 'impossible or insurmountable': -3};
             let difficultyRating:number = 0;
-            const difficultyHypothesis = 'The narrator\'s actions are {}.';
+            const difficultyHypothesis = 'The scope and effort of the narrator\'s actions seem {}.';
             console.log('Hypothesis for difficulty assessment: ' + difficultyHypothesis);
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { hypothesis_template: difficultyHypothesis, multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
