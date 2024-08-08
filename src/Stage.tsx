@@ -97,17 +97,26 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         if (finalContent && this.zeroShotPipeline != null) {
             const statMapping:{[key: string]: string} = {
-                'might (hit, lift, weather, throw, intimidate)': 'Might',
-                'grace (jump, dodge, balance, dance, land)': 'Grace',
-                'skill (craft, lock-pick, pickpocket, aim, repair)': 'Skill',
-                'brains (recall, memorize, solve, strategize)': 'Brains',
-                'wits (react, quip, notice, trick)': 'Wits',
-                'charm (persuade, deceive, beckon, perform)': 'Charm',
-                'heart (resist, recover, empathize, comfort)': 'Heart',
-                'luck (gamble, hope, discover)': 'Luck',
-                'sloth (chat, rest, wait, stand by)': 'None'};
+                'might (hitting, lifting, weathering, throwing, intimidating)': 'Might',
+                //'might (hit, lift, weather, throw, intimidate)': 'Might',
+                'grace (jumping, dodging, balancing, dancing, landing)': 'Grace',
+                //'grace (jump, dodge, balance, dance, land)': 'Grace',
+                'skill (crafting, lock-picking, pickpocketing, aiming, repairing)': 'Skill',
+                // 'skill (craft, lock-pick, pickpocket, aim, repair)': 'Skill',
+                'brains (recalling, memorizing, solving, strategizing)': 'Brains',
+                //'brains (recall, memorize, solve, strategize)': 'Brains',
+                'wits (reacting, quipping, noticing, fooling)': 'Wits',
+                // 'wits (react, quip, notice, fool)': 'Wits',
+                'charm (persuading, deceiving, beckoning, performing)': 'Charm',
+                //'charm (persuade, deceive, beckon, perform)': 'Charm',
+                'heart (resisting, recovering, empathizing, comforting)': 'Heart',
+                // 'heart (resist, recover, empathize, comfort)': 'Heart',
+                'luck (gambling, hoping, discovering)': 'Luck',
+                //'luck (gamble, hope, discover)': 'Luck',
+                'sloth (chatting, resting, waiting, standing by)': 'None'};
+                //'sloth (chat, rest, wait, stand by)': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'These actions are leveraging {}.'
+            const statHypothesis = 'These actions are governed by {}.'
             console.log('Hypothesis for stat assessment: ' + statHypothesis);
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
@@ -117,12 +126,12 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             }
 
             const difficultyMapping:{[key: string]: number} = {
-                '1 - straightforward, minimal, or trivial': 1000,
+                '1 - simple or straightforward': 1000,
                 '2 - slightly inconvenient or fiddly': 1,
                 '3 - moderately involved or complex': 0,
-                '4 - taxing or challenging': -1,
-                '5 - arduous or formidable': -2,
-                '6 - impossible or insurmountable': -3};
+                '4 - very taxing or challenging': -1,
+                '5 - utterly arduous or formidable': -2,
+                '6 - absolutely impossible or insurmountable': -3};
             let difficultyRating:number = 0;
             const difficultyHypothesis = 'The expected scope/difficulty on a scale of 1-6 is {}.';
             console.log('Hypothesis for difficulty assessment: ' + difficultyHypothesis);
