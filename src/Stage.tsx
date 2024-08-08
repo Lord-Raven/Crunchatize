@@ -105,7 +105,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'persuading, deceiving, beckoning, or performing': 'Charm',
                 'resolving, resisting, recovering, empathizing, or comforting': 'Heart',
                 'gambling, hoping, discovering, or lucking out': 'Luck',
-                'waiting, chatting, idling, resting, or doing nothing in particular': 'None'};
+                'chatting, resting, or remaining passive': 'None'};
             let topStat: Stat|null = null;
             const statHypothesis = 'The narrator is doing something in the vein of {}.'
             console.log('Hypothesis for stat assessment: ' + statHypothesis);
