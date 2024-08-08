@@ -107,9 +107,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'gambling, hoping, discovering': 'Luck',
                 'chatting, resting, remaining passive': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'The narrator is actively {}, or doing something related.'
+            const statHypothesis = 'The activity is aligned with {}, or doing something related.'
             console.log('Hypothesis for stat assessment: ' + statHypothesis);
-            let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), {multi_label: true });
+            let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
             console.log(statResponse);
             if (statResponse && statResponse.labels && statResponse.scores[0] > 0.3 && statMapping[statResponse.labels[0]] != 'None') {
