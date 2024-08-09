@@ -125,7 +125,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 //'Sloth (chat, rest, wait, stand by)': 'None'};
                 'chatting, resting, waiting, standing by': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'This activity involves {}, or something related.'
+            const statHypothesis = 'This passage involves {}, or related activities.'
             console.log('Hypothesis for stat assessment: ' + statHypothesis);
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
@@ -135,14 +135,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             }
 
             const difficultyMapping:{[key: string]: number} = {
-                '1 - simple or straightforward': 1000,
-                '2 - somewhat involved or fiddly': 1,
-                '3 - moderately involved or complex': 0,
-                '4 - highly taxing or challenging': -1,
-                '5 - utterly arduous or formidable': -2,
-                '6 - absolutely impossible or insurmountable': -3};
+                '1 (simple or straightforward)': 1000,
+                '2 (somewhat involved or fiddly)': 1,
+                '3 (moderately involved or complex)': 0,
+                '4 (highly taxing or challenging)': -1,
+                '5 (utterly arduous or formidable)': -2,
+                '6 (absolutely impossible or insurmountable)': -3};
             let difficultyRating:number = 0;
-            const difficultyHypothesis = 'The difficulty of this activity on a scale of 1-6 is {}.';
+            const difficultyHypothesis = 'The apparent difficulty of this activity on a scale of 1-6 is {}.';
             console.log('Hypothesis for difficulty assessment: ' + difficultyHypothesis);
             let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { hypothesis_template: difficultyHypothesis, multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
