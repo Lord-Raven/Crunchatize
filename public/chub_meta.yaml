@@ -43,9 +43,10 @@ but it is pretty easy to skew the results through the language you use in your i
 I've tagged the stage NSFW, but there isn't really anything in here that isn't SFW. My example bot isn't, though, and I'm sure other bots that attach this stage won't be either.
 <br><br>
 **Updates:**<br>
-08/07/2024 - I've pushed a lot of builds trying to improve stat and difficulty classification. In particular, I am attempting to get trivial inputs to be more reliably classified as no-check actions.
+08/08/2024 - I've pushed a lot of builds trying to improve stat and difficulty classification. In particular, I am attempting to get trivial inputs to be more reliably classified as no-check actions.
 <br><br>
 **What's next:**<br>
+The model used for zero-shot classification is the smallest I can find because it has to be loaded by the stage; ideally, if I could host a bigger model, the classifications could be improved. 
 I could add some basic health tracking, or some form of character creation that builds upon your persona somehow. 
 Most of my other ideas will have to wait for future Stage improvements, but I'm happy to receive feedback regardless!
 "
