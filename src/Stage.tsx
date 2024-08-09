@@ -99,7 +99,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             const statMapping:{[key: string]: string} = {
                 //'Might (strength, physique, endurance)': 'Might',
                 //'Might (hit, lift, weather, throw, intimidate)': 'Might',
-                'hitting, lifting, weathering, throwing, intimidating': 'Might',
+                'hitting, lifting, enduring, throwing, intimidating': 'Might',
                 //'Grace (agility, reflexes, balance, speed)': 'Grace',
                 //'Grace (jump, dodge, balance, dance, land)': 'Grace',
                 'jumping, dodging, balancing, dancing, landing': 'Grace',
@@ -125,7 +125,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 //'Sloth (chat, rest, wait, stand by)': 'None'};
                 'chatting, resting, waiting, standing by': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'This activity focuses on {}, or a related activity.'
+            const statHypothesis = 'This activity involves {}, or something related.'
             console.log('Hypothesis for stat assessment: ' + statHypothesis);
             let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
