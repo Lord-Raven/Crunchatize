@@ -5,6 +5,7 @@ import {Action} from "./Action";
 import {Stat} from "./Stat"
 import {Outcome, Result, ResultDescription} from "./Outcome";
 import {env, pipeline} from '@xenova/transformers';
+import {Client} from "@gradio/client";
 
 type MessageStateType = any;
 
@@ -33,7 +34,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     lastOutcomePrompt: string = '';
 
     // other
-    zeroShotPipeline: any;
+    client: any;
+    fallbackPipeline: any;
+    fallbackMode: boolean;
     player: User;
     characters: {[key: string]: Character};
 
@@ -48,7 +51,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         this.player = users[Object.keys(users)[0]];
         this.characters = characters;
 
-        this.zeroShotPipeline = null;
+        this.fallbackMode = false;
+        this.fallbackPipeline = null;
         env.allowRemoteModels = false;
     }
 
@@ -68,10 +72,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     async load(): Promise<Partial<LoadResponse<InitStateType, ChatStateType, MessageStateType>>> {
 
         try {
-            this.zeroShotPipeline = await pipeline("zero-shot-classification", "Xenova/mobilebert-uncased-mnli");
+            this.fallbackPipeline = await pipeline("zero-shot-classification", "Xenova/mobilebert-uncased-mnli");
         } catch (exception: any) {
             console.error(`Error loading pipeline: ${exception}`);
         }
+
+        this.client = await Client.connect("JHuhman/statosphere-backend", {hf_token: import.meta.env.VITE_HF_API_KEY});
+
+        console.log('Finished loading stage.');
 
         return {
             success: true,
@@ -95,7 +103,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         let takenAction: Action|null = null;
         let finalContent: string|undefined = content;
 
-        if (finalContent && this.zeroShotPipeline != null) {
+        if (finalContent && this.fallbackPipeline != null) {
             const statMapping:{[key: string]: string} = {
                 //'Might (strength, physique, endurance)': 'Might',
                 //'Might (hit, lift, weather, throw, intimidate)': 'Might',
@@ -126,10 +134,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'chatting, resting, waiting, standing by': 'None'};
             let topStat: Stat|null = null;
             const statHypothesis = 'This passage involves {}, or related activities.'
-            console.log('Hypothesis for stat assessment: ' + statHypothesis);
-            let statResponse = await this.zeroShotPipeline(content, Object.keys(statMapping), { hypothesis_template: statHypothesis, multi_label: true });
+            let statResponse = await this.query({sequence: content, candidate_labels: Object.keys(statMapping), hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
-            console.log(statResponse);
             if (statResponse && statResponse.labels && statResponse.scores[0] > 0.4 && statMapping[statResponse.labels[0]] != 'None') {
                 topStat = Stat[statMapping[statResponse.labels[0]] as keyof typeof Stat];
             }
@@ -143,10 +149,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 '6 (absolutely impossible or insurmountable)': -3};
             let difficultyRating:number = 0;
             const difficultyHypothesis = 'The apparent difficulty of this activity on a scale of 1-6 is {}.';
-            console.log('Hypothesis for difficulty assessment: ' + difficultyHypothesis);
-            let difficultyResponse = await this.zeroShotPipeline(content, Object.keys(difficultyMapping), { hypothesis_template: difficultyHypothesis, multi_label: true });
+            let difficultyResponse = await this.query({sequence: content, candidate_labels: Object.keys(difficultyMapping), hypothesis_template: difficultyHypothesis, multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
-            console.log(difficultyResponse);
             if (difficultyResponse && difficultyResponse.labels[0]) {
                 difficultyRating = difficultyMapping[difficultyResponse.labels[0]];
             }
@@ -265,6 +269,26 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         return source.replace(/{{([A-z]*)}}/g, (match) => {
             return replacements[match.substring(2, match.length - 2)];
         });
+    }
+
+    async query(data: any) {
+        console.log(data);
+        let result: any = null;
+        if (this.client && !this.fallbackMode) {
+            try {
+                const response = await this.client.predict("/predict", {data_string: JSON.stringify(data)});
+                result = JSON.parse(`${response.data[0]}`);
+            } catch(e) {
+                console.log(e);
+            }
+        }
+        if (!result) {
+            console.log('Falling back to local zero-shot pipeline.');
+            this.fallbackMode = true;
+            result = await this.fallbackPipeline(data.sequence, data.candidate_labels, { hypothesis_template: data.hypothesis_template, multi_label: data.multi_label });
+        }
+        console.log(result);
+        return result;
     }
 
     render(): ReactElement {

@@ -107,6 +107,8 @@ jobs:
         run: yarn install
 
       - name: Build
+        env:
+          VITE_HF_API_KEY: ${{ secrets.HF_API_KEY }}
         run: yarn build
 
       - name: Zip the build folder

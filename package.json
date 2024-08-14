@@ -15,7 +15,8 @@
     "@chub-ai/stages-ts": "0.3.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@xenova/transformers": "2.17.2"
+    "@xenova/transformers": "2.17.2",
+    "@gradio/client": "^1.5.0"
   },
   "engines": {
     "node": "21.7.1"

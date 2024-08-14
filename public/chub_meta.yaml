@@ -20,7 +20,7 @@ Dice will be rolled and modifiers added to determine whether you succeed or fail
 Unlike most chats, where you don't want the bot to speak or act for your character, 
 this stage requires you to forfeit some agency over the details of your actions; 
 the bot will be specifically instructed to take your skill check result and paraphrase your choices as it narrates, rather than accept your input as canon. 
-As a result, you may find you are better off simply describing the nature of the action you intend to take, rather than specifying precise words or actions.
+As a result, you may find you are better off simply describing the nature or attitude of the action you intend to take and let the bot take care of the details.
 <br><br>
 The Stage vaguely follows Powered by the Apocalypse system rules, where 2d6 are rolled and modifiers added or subtracted to arrive at 
 one of three degrees of success. Failures grant experience, which slowly leads to a level up--increasing one of the stats you used 
@@ -43,12 +43,13 @@ but it is pretty easy to skew the results through the language you use in your i
 I've tagged the stage NSFW, but there isn't really anything in here that isn't SFW. My example bot isn't, though, and I'm sure other bots that attach this stage won't be either.
 <br><br>
 **Updates:**<br>
-08/08/2024 - I've pushed a lot of builds trying to improve stat and difficulty classification. In particular, I am attempting to get trivial inputs to be more reliably classified as no-check actions.
+08/14/2024 - I have partially swapped the inference calls to a hosted model that is a larger size. 
+There is still a bundled model, which the stage can fall back on, if the hosted model is unresponsive. 
+Hopefully, the larger model yields better results on skill and difficulty classifications.
 <br><br>
 **What's next:**<br>
-The model used for zero-shot classification is the smallest I can find because it has to be loaded by the stage; ideally, if I could host a bigger model, the classifications could be improved. 
-I could add some basic health tracking, or some form of character creation that builds upon your persona somehow. 
-Most of my other ideas will have to wait for future Stage improvements, but I'm happy to receive feedback regardless!
+I could maybe add some health tracking or some form of character creation that builds upon your persona somehow. 
+Most ideas will likely have to wait for future improvements to Stages in general, but I am happy to receive feedback and start planning!
 "
 
 # 'PUBLIC', 'PRIVATE', or 'UNLISTED'.
