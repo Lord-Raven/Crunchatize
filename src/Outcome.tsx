@@ -17,10 +17,10 @@ export const ResultDescription: {[result in Result]: string} = {
 }
 
 export const ResultSpan: {[result in Result]: (input: string) => string} = {
-    [Result.Failure]: (input: string) => `<span style="color: red;">${input}</span>`,
-    [Result.MixedSuccess]: (input: string) => `<span style="color: darkorange;">${input}</span>`,
-    [Result.CompleteSuccess]: (input: string) => `<span style="color: mediumseagreen;">${input}</span>`,
-    [Result.CriticalSuccess]: (input: string) => `<span style="color: #b9f2ff;">${input}</span>`,
+    [Result.Failure]: (input: string) => `<span style='color: red;'>${input}</span>`,
+    [Result.MixedSuccess]: (input: string) => `<span style='color: darkorange;'>${input}</span>`,
+    [Result.CompleteSuccess]: (input: string) => `<span style='color: mediumseagreen;'>${input}</span>`,
+    [Result.CriticalSuccess]: (input: string) => `<span style='color: #b9f2ff;''>${input}</span>`,
     [Result.None]: (input: string) => input,
 }
 
