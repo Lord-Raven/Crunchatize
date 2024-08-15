@@ -60,7 +60,7 @@ export class Outcome {
 
     getDescription(): string {
         if (this.action.stat) {
-            return `###(${this.action.stat}) ${this.action.description}###\n#${this.getDieEmoji(this.dieResult1)}${this.dieResult1} + ${this.getDieEmoji(this.dieResult2)}${this.dieResult2}${this.action.difficultyModifier >= 0 ? ' + ' : ' - '}${Math.abs(this.action.difficultyModifier)}<sup><sub>(difficulty)</sub></sup>${this.action.skillModifier > 0 ? ` + ${this.action.skillModifier}<sup><sub>(skill)</sub></sup>` : ''} = ${this.total} (${this.result})#`
+            return `###(${this.action.stat}) ${this.action.description}###\n#${this.getDieEmoji(this.dieResult1)}${this.dieResult1} + ${this.getDieEmoji(this.dieResult2)}${this.dieResult2}${this.action.difficultyModifier >= 0 ? ' + ' : ' - '}${Math.abs(this.action.difficultyModifier)}<sup><sub><sup><sub>(difficulty)</sub></sup></sub></sup>${this.action.skillModifier > 0 ? ` + ${this.action.skillModifier}<sup><sub><sup><sub>(skill)</sub></sup></sub></sup>` : ''} = ${this.total} (${this.result})#`
         } else {
             return `###(No Check) ${this.action.description}###`;
         }

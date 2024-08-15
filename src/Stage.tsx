@@ -105,32 +105,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         if (finalContent && this.fallbackPipeline != null) {
             const statMapping:{[key: string]: string} = {
-                //'Might (strength, physique, endurance)': 'Might',
-                //'Might (hit, lift, weather, throw, intimidate)': 'Might',
                 'hitting, lifting, enduring, throwing, wrestling, intimidating': 'Might',
-                //'Grace (agility, reflexes, balance, speed)': 'Grace',
-                //'Grace (jump, dodge, balance, dance, land)': 'Grace',
                 'jumping, dodging, balancing, dancing, landing': 'Grace',
-                //'Skill (handiness, deftness, slight)': 'Skill',
-                //'Skill (craft, lock-pick, pickpocket, aim, repair)': 'Skill',
                 'crafting, lock-picking, pickpocketing, aiming, repairing': 'Skill',
-                //'Brains (memory, logic, strategy)': 'Brains',
-                //'Brains (recall, memorize, solve, strategize)': 'Brains',
-                'recalling, memorizing, solving, strategizing': 'Brains',
-                //'Wits (awareness, sharpness, trickery, sass)': 'Wits',
-                //'Wits (react, quip, notice, fool)': 'Wits',
-                'reacting, quipping, spotting, fooling': 'Wits',
-                //'Charm (persuasiveness, attractiveness, stage presence)': 'Charm',
-                //'Charm (persuade, deceive, beckon, perform)': 'Charm',
+                'recalling, memorizing, solving, strategizing, debating': 'Brains',
+                'reacting, quipping, spotting, fooling, intuiting': 'Wits',
                 'persuading, deceiving, beckoning, performing': 'Charm',
-                //'Heart (resistance, resilience, empathy)': 'Heart',
-                //'Heart (resist, recover, empathize, comfort)': 'Heart',
                 'resisting, recovering, empathizing, comforting': 'Heart',
-                //'Luck (riskiness, hope, fortune)': 'Luck',
-                //'Luck (gamble, hope, discover)': 'Luck',
                 'gambling, hoping, discovering': 'Luck',
-                //'Sloth (passivity, idleness, small-talk)': 'None'};
-                //'Sloth (chat, rest, wait, stand by)': 'None'};
                 'chatting, resting, waiting, standing by': 'None'};
             let topStat: Stat|null = null;
             const statHypothesis = 'This passage involves {}, or related activities.'
