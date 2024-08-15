@@ -254,7 +254,6 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     }
 
     async query(data: any) {
-        console.log(data);
         let result: any = null;
         if (this.client && !this.fallbackMode) {
             try {
@@ -265,11 +264,13 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             }
         }
         if (!result) {
-            console.log('Falling back to local zero-shot pipeline.');
+            if (!this.fallbackMode) {
+                console.log('Falling back to local zero-shot pipeline.');
+            }
             this.fallbackMode = true;
             result = await this.fallbackPipeline(data.sequence, data.candidate_labels, { hypothesis_template: data.hypothesis_template, multi_label: data.multi_label });
         }
-        console.log(result);
+        console.log({sequence: data.sequence, hypothesisTemplate: data.hypothesis_template, labels: data.labels, scores: data.scores});
         return result;
     }
 
