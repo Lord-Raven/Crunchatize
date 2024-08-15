@@ -113,7 +113,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'persuading, deceiving, beckoning, performing': 'Charm',
                 'resisting, recovering, empathizing, comforting': 'Heart',
                 'gambling, hoping, discovering, guessing': 'Luck',
-                'chatting, resting, waiting, standing by': 'None'};
+                'chatting, resting, waiting, idling': 'None'};
             let topStat: Stat|null = null;
             const statHypothesis = 'This passage involves {}, or related activities.'
             let statResponse = await this.query({sequence: content, candidate_labels: Object.keys(statMapping), hypothesis_template: statHypothesis, multi_label: true });
