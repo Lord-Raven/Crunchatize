@@ -109,10 +109,10 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'jumping, dodging, balancing, dancing, landing': 'Grace',
                 'crafting, lock-picking, pickpocketing, aiming, repairing': 'Skill',
                 'recalling, memorizing, solving, strategizing, debating': 'Brains',
-                'reacting, quipping, spotting, fooling, intuiting': 'Wits',
+                'adapting, quipping, spotting, fooling': 'Wits',
                 'persuading, deceiving, beckoning, performing': 'Charm',
                 'resisting, recovering, empathizing, comforting': 'Heart',
-                'gambling, hoping, discovering': 'Luck',
+                'gambling, hoping, discovering, guessing': 'Luck',
                 'chatting, resting, waiting, standing by': 'None'};
             let topStat: Stat|null = null;
             const statHypothesis = 'This passage involves {}, or related activities.'
@@ -270,7 +270,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             this.fallbackMode = true;
             result = await this.fallbackPipeline(data.sequence, data.candidate_labels, { hypothesis_template: data.hypothesis_template, multi_label: data.multi_label });
         }
-        console.log({sequence: data.sequence, hypothesisTemplate: data.hypothesis_template, labels: data.labels, scores: data.scores});
+        console.log({sequence: data.sequence, hypothesisTemplate: data.hypothesis_template, labels: result.labels, scores: result.scores});
         return result;
     }
 
