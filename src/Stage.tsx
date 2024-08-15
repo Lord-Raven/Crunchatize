@@ -77,7 +77,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             console.error(`Error loading pipeline: ${exception}`);
         }
 
-        this.client = await Client.connect("JHuhman/statosphere-backend", {hf_token: import.meta.env.VITE_HF_API_KEY});
+        this.client = await Client.connect("Ravenok/statosphere-backend", {hf_token: import.meta.env.VITE_HF_API_KEY});
 
         console.log('Finished loading stage.');
 
@@ -107,7 +107,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             const statMapping:{[key: string]: string} = {
                 //'Might (strength, physique, endurance)': 'Might',
                 //'Might (hit, lift, weather, throw, intimidate)': 'Might',
-                'hitting, lifting, enduring, throwing, intimidating': 'Might',
+                'hitting, lifting, enduring, throwing, wrestling, intimidating': 'Might',
                 //'Grace (agility, reflexes, balance, speed)': 'Grace',
                 //'Grace (jump, dodge, balance, dance, land)': 'Grace',
                 'jumping, dodging, balancing, dancing, landing': 'Grace',
