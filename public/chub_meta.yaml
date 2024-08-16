@@ -27,14 +27,16 @@ one of four degrees of success. Failures grant experience, which slowly leads to
 most during that level. And that's about it!
 <br><br>
 There are eight stats, and they are all a bit nebulous and overlapping:<br>
- * Might - Strength and endurance<br>
- * Grace - Agility and composure<br>
- * Skill - Craft and deftness<br>
- * Brains - Knowledge and logic<br>
- * Wits - Instinct and awareness<br>
- * Charm - Allure and influence<br>
- * Heart - Determination and empathy<br>
- * Luck - Chance and fortune<br>
+<ul>
+<li>Might - Strength and endurance<br>
+<li>Grace - Agility and composure<br>
+<li>Skill - Craft and deftness<br>
+<li>Brains - Knowledge and logic<br>
+<li>Wits - Instinct and awareness<br>
+<li>Charm - Allure and influence<br>
+<li>Heart - Determination and empathy<br>
+<li>Luck - Chance and fortune<br>
+</ul>
 <br>
 You can view console output to see the classification results that the stage is using to arrive at its skill and difficulty assessments. 
 These are zero-shot classifications, which are pretty naive and lack significant context; I am continuing to tweak and improve, 
