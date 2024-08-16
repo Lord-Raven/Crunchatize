@@ -152,7 +152,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 this.statUses[takenAction.stat]++;
             }
 
-            if (this.lastOutcome?.result === Result.Failure) {
+            if (this.lastOutcome && [Result.Failure, Result.CriticalSuccess].includes(this.lastOutcome.result)) {
                 this.experience++;
                 let level = this.getLevel();
                 if (this.experience == this.levelThresholds[level]) {
