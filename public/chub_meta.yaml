@@ -23,7 +23,7 @@ the bot will be specifically instructed to take your skill check result and para
 As a result, you may find you are better off simply describing the nature or attitude of the action you intend to take and allow the bot to fill in the details.
 <br><br>
 The stage is vaguely inspired by \"Powered by the Apocalypse\" rules, where 2d6 are rolled and modifiers added or subtracted to arrive at 
-one of four degrees of success. Failures grant experience, which slowly leads to a level up--increasing one of the stats you used 
+one of four degrees of success. Failures and criticals grant experience, which slowly leads to a level up--increasing one of the stats you used 
 most during that level. And that's about it!
 <br><br>
 There are eight stats, and they are all a bit nebulous and overlapping:<br>
@@ -45,14 +45,18 @@ but it is pretty easy to skew the results through the language you use in your i
 I've tagged the stage NSFW, but there isn't really anything in here that isn't SFW. However, my example bot isn't, and I'm sure other bots that attach this stage won't be either.
 <br><br>
 **Updates:**<br>
-08/16/2024 - Made critical successes also grant an XP point, the same as failures do, just so they feel extra good.
-08/15/2024 - Added critical successes; when you roll double sixes, the bot is given instructions to make your success a little over-the-top. Also color-coded some outcome stuff for fun.
+08/27/2024 - Improved stage loading to no longer rely on loading the local model straight away. 
+I am doing some experimentation with the backend, so this stage may have to resort to the local model more frequently. 
+Hopefully, these experiments bear fruit, and I can improve the inferences for this stage, but in the interim, the stage may be a little less stable as it falls back to local inference.
+08/16/2024 - Made critical successes also grant an XP point, the same as failures do, just so they feel extra good.<br>
+08/15/2024 - Added critical successes; when you roll double sixes, the bot is given instructions to make your success a little over-the-top. Also color-coded some outcome stuff for fun.<br>
 08/14/2024 - Partially swapped the inference calls to a hosted model that is a larger size. 
 There is still a bundled model, which the stage can fall back on, if the hosted model is unresponsive. 
 Hopefully, the larger model yields better results on skill and difficulty classifications.
 <br><br>
 **What's next:**<br>
-I could maybe add some health tracking or some form of character creation that builds upon your persona somehow. 
+Improving inference quality for stat and difficulty determinations is my top priority; this goes hand-in-hand with my other ongoing stage development. 
+I could maybe add health tracking or some form of character creation that builds upon your persona somehow. 
 Most ideas will likely have to wait for future improvements to stages in general, but I am happy to receive feedback so I can keep things in mind!
 "
 

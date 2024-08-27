@@ -35,7 +35,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
     // other
     client: any;
-    fallbackPipeline: any;
+    fallbackPipelinePromise: Promise<any> | null = null;
+    fallbackPipeline: any = null;
     fallbackMode: boolean;
     player: User;
     characters: {[key: string]: Character};
@@ -72,7 +73,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     async load(): Promise<Partial<LoadResponse<InitStateType, ChatStateType, MessageStateType>>> {
 
         try {
-            this.fallbackPipeline = await pipeline("zero-shot-classification", "Xenova/mobilebert-uncased-mnli");
+            this.fallbackPipelinePromise = this.getPipeline();
         } catch (exception: any) {
             console.error(`Error loading pipeline: ${exception}`);
         }
@@ -89,6 +90,10 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         };
     }
 
+    async getPipeline() {
+        return pipeline("zero-shot-classification", "Xenova/mobilebert-uncased-mnli");
+    }
+
     async setState(state: MessageStateType): Promise<void> {
         this.setStateFromMessageState(state);
     }
@@ -103,20 +108,23 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         let takenAction: Action|null = null;
         let finalContent: string|undefined = content;
 
-        if (finalContent && this.fallbackPipeline != null) {
+        if (finalContent) {
+            let sequence = this.replaceTags(`{{user}} is the narrator of this passage:\n${content}`,
+                {"user": this.player.name, "char": promptForId ? this.characters[promptForId].name : ''});
+
             const statMapping:{[key: string]: string} = {
                 'hitting, lifting, enduring, throwing, wrestling, intimidating': 'Might',
-                'jumping, dodging, balancing, dancing, landing': 'Grace',
+                'jumping, dodging, balancing, dancing, landing, sneaking': 'Grace',
                 'crafting, lock-picking, pickpocketing, aiming, repairing': 'Skill',
                 'recalling, memorizing, solving, strategizing, debating': 'Brains',
-                'adapting, quipping, spotting, fooling': 'Wits',
-                'persuading, deceiving, beckoning, performing': 'Charm',
+                'adapting, quipping, spotting, tricking, hiding': 'Wits',
+                'persuading, deceiving, enticing, performing': 'Charm',
                 'resisting, recovering, empathizing, comforting': 'Heart',
                 'gambling, hoping, discovering, guessing': 'Luck',
                 'chatting, resting, waiting, idling': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'This passage involves {}, or related activities.'
-            let statResponse = await this.query({sequence: content, candidate_labels: Object.keys(statMapping), hypothesis_template: statHypothesis, multi_label: true });
+            const statHypothesis = 'This passage involves {}, or closely related activities.'
+            let statResponse = await this.query({sequence: sequence, candidate_labels: Object.keys(statMapping), hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
             if (statResponse && statResponse.labels && statResponse.scores[0] > 0.4 && statMapping[statResponse.labels[0]] != 'None') {
                 topStat = Stat[statMapping[statResponse.labels[0]] as keyof typeof Stat];
@@ -131,7 +139,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 '6 (absolutely impossible or insurmountable)': -3};
             let difficultyRating:number = 0;
             const difficultyHypothesis = 'The apparent difficulty of this activity on a scale of 1-6 is {}.';
-            let difficultyResponse = await this.query({sequence: content, candidate_labels: Object.keys(difficultyMapping), hypothesis_template: difficultyHypothesis, multi_label: true });
+            let difficultyResponse = await this.query({sequence: sequence, candidate_labels: Object.keys(difficultyMapping), hypothesis_template: difficultyHypothesis, multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
             if (difficultyResponse && difficultyResponse.labels[0]) {
                 difficultyRating = difficultyMapping[difficultyResponse.labels[0]];
@@ -266,8 +274,11 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         if (!result) {
             if (!this.fallbackMode) {
                 console.log('Falling back to local zero-shot pipeline.');
+                this.fallbackMode = true;
             }
-            this.fallbackMode = true;
+            if (this.fallbackPipeline == null) {
+                this.fallbackPipeline = this.fallbackPipelinePromise ? await this.fallbackPipelinePromise : await this.getPipeline();
+            }
             result = await this.fallbackPipeline(data.sequence, data.candidate_labels, { hypothesis_template: data.hypothesis_template, multi_label: data.multi_label });
         }
         console.log({sequence: data.sequence, hypothesisTemplate: data.hypothesis_template, labels: result.labels, scores: result.scores});
