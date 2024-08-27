@@ -78,7 +78,12 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             console.error(`Error loading pipeline: ${exception}`);
         }
 
-        this.client = await Client.connect("Ravenok/statosphere-backend", {hf_token: import.meta.env.VITE_HF_API_KEY});
+        try {
+            this.client = await Client.connect("Ravenok/statosphere-backend", {hf_token: import.meta.env.VITE_HF_API_KEY});
+        } catch (error) {
+            console.error(`Error connecting to backend pipeline; will resort to local inference.`);
+            this.fallbackMode = true;
+        }
 
         console.log('Finished loading stage.');
 
