@@ -114,21 +114,21 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         let finalContent: string|undefined = content;
 
         if (finalContent) {
-            let sequence = this.replaceTags(`{{user}} is the narrator of this passage:\n${content}`,
+            let sequence = this.replaceTags(content,
                 {"user": this.player.name, "char": promptForId ? this.characters[promptForId].name : ''});
 
             const statMapping:{[key: string]: string} = {
-                'hitting, lifting, enduring, throwing, wrestling, intimidating': 'Might',
-                'jumping, dodging, balancing, dancing, landing, sneaking': 'Grace',
-                'crafting, lock-picking, pickpocketing, aiming, repairing': 'Skill',
-                'recalling, memorizing, solving, strategizing, debating': 'Brains',
-                'adapting, quipping, spotting, tricking, hiding': 'Wits',
-                'persuading, deceiving, enticing, performing': 'Charm',
-                'resisting, recovering, empathizing, comforting': 'Heart',
-                'gambling, hoping, discovering, guessing': 'Luck',
-                'chatting, resting, waiting, idling': 'None'};
+                'hit, lift, endure, throw, wrestle, intimidate': 'Might',
+                'jump, dodge, balance, dance, land, sneak': 'Grace',
+                'craft, lock-pick, pickpocket, aim, repair': 'Skill',
+                'recall, memorize, solve, strategize, debate': 'Brains',
+                'adapt, quip, spot, trick, hide': 'Wits',
+                'persuade, deceive, entice, perform': 'Charm',
+                'resist, recover, empathize, comfort': 'Heart',
+                'gamble, hope, discover, guess': 'Luck',
+                'chat, rest, wait, idle': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'This passage involves {}, or closely related activities.'
+            const statHypothesis = 'This narrator is attempting to {}, or do something similar.'
             let statResponse = await this.query({sequence: sequence, candidate_labels: Object.keys(statMapping), hypothesis_template: statHypothesis, multi_label: true });
             console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
             if (statResponse && statResponse.labels && statResponse.scores[0] > 0.4 && statMapping[statResponse.labels[0]] != 'None') {
@@ -136,14 +136,14 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             }
 
             const difficultyMapping:{[key: string]: number} = {
-                '1 (simple or straightforward)': 1000,
-                '2 (somewhat involved or fiddly)': 1,
-                '3 (moderately involved or complex)': 0,
-                '4 (highly taxing or challenging)': -1,
-                '5 (utterly arduous or formidable)': -2,
-                '6 (absolutely impossible or insurmountable)': -3};
+                '1 (simple and safe)': 1000,
+                '2 (straightforward or fiddly)': 1,
+                '3 (complex or tricky)': 0,
+                '4 (challenging and risky)': -1,
+                '5 (arduous and dangerous)': -2,
+                '6 (virtually impossible)': -3};
             let difficultyRating:number = 0;
-            const difficultyHypothesis = 'The apparent difficulty of this activity on a scale of 1-6 is {}.';
+            const difficultyHypothesis = 'On a scale of 1-6, the difficulty of the narrator\'s actions is {}.';
             let difficultyResponse = await this.query({sequence: sequence, candidate_labels: Object.keys(difficultyMapping), hypothesis_template: difficultyHypothesis, multi_label: true });
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
             if (difficultyResponse && difficultyResponse.labels[0]) {
