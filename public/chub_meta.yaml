@@ -8,22 +8,22 @@ project_name: "Crunchatize"
 tagline: "Turn any chat into a simple, stat-driven RPG."
 
 creator_notes: "
-Can't enjoy an organic role-playing narrative without the thrill of meta-gaming?<br>
-Worried you'll develop genuine feelings or accidentally exercise thought-provoking introspection if numbers and probabilities aren't artificially injected into your every experience?<br>
-Why endure some meaningless simulacrum of our equally meaningless reality when you can turn everything into a game of chance?<br>
-Crunchatize could be the stage for you!<br>
+Can't enjoy an organic role-playing narrative without the thrill of the meta?<br>
+Wondering why you're enduring some meaningless simulacrum of our equally meaningless reality when you could be gaming?<br>
+Worried you'll develop genuine feelings or exercise life-changing introspection if numbers and probabilities aren't artificially injected into your every experience?<br>
+Crunchatize may be the stage for you!<br>
 <br>
 **What's it do?**<br>
 Adding this stage to a chat will cause your every input to be distilled into a skill check against one of eight attributes. 
 Dice will be rolled and modifiers added to determine whether you succeed or fail.
 <br><br>
 Unlike most chats, where you don't want the bot to speak or act for your character, 
-this stage requires you to forfeit some agency over the details of your actions; 
+this stage asks you to forfeit some agency over the details of your actions; 
 the bot will be specifically instructed to take your skill check result and paraphrase your choices as it narrates, rather than accept your input as canon. 
-As a result, you may find you are better off simply describing the nature or attitude of the action you intend to take and allow the bot to fill in the details.
+As a result, you may find that you are better off simply describing the nature or attitude of the action you intend to take and allowing the bot to fill in the details.
 <br><br>
 The stage is vaguely inspired by \"Powered by the Apocalypse\" rules, where 2d6 are rolled and modifiers added or subtracted to arrive at 
-one of four degrees of success. Failures and criticals grant experience, which slowly leads to a level up--increasing one of the stats you used 
+one of four degrees of success: failure, mixed success, straight success, and critical success. Failures and criticals grant experience, which slowly leads to a level up--increasing one of the stats you used 
 most during that level. And that's about it!
 <br><br>
 There are eight stats, and they are all a bit nebulous and overlapping:<br>
@@ -42,12 +42,14 @@ You can view console output to see the classification results that the stage is 
 These are zero-shot classifications, which are pretty naive and lack significant context; I am continuing to tweak and improve, 
 but it is pretty easy to skew the results through the language you use in your input.
 <br><br>
-I've tagged the stage NSFW, but there isn't really anything in here that isn't SFW. However, my example bot isn't, and I'm sure other bots that attach this stage won't be either.
+I've tagged the stage NSFW, but there isn't anything in the stage that would render a wholesome chat inappropriate. However, my example bot is NSFW, and I'm sure other bots that attach this stage won't be either.
 <br><br>
 **Updates:**<br>
+08/29/2024 - The backend model has changed, and the prompts in the stage have been updated; I think the results have improved, 
+but I'm continuing to toy with the backend as I work on my next stage, which leverages the same endpoints.<br>
 08/27/2024 - Improved stage loading to no longer rely on loading the local model straight away. 
 I am doing some experimentation with the backend, so this stage may have to resort to the local model more frequently. 
-Hopefully, these experiments bear fruit, and I can improve the inferences for this stage, but in the interim, the stage may be a little less stable as it falls back to local inference.
+Hopefully, these experiments bear fruit, and I can improve the inferences for this stage, but in the interim, the stage may be a little less stable as it falls back to local inference.<br>
 08/16/2024 - Made critical successes also grant an XP point, the same as failures do, just so they feel extra good.<br>
 08/15/2024 - Added critical successes; when you roll double sixes, the bot is given instructions to make your success a little over-the-top. Also color-coded some outcome stuff for fun.<br>
 08/14/2024 - Partially swapped the inference calls to a hosted model that is a larger size. 
