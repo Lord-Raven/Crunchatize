@@ -45,6 +45,7 @@ but it is pretty easy to skew the results through the language you use in your i
 I've tagged the stage NSFW, but there isn't anything in the stage that would render a wholesome chat inappropriate. However, my example bot is NSFW, and I'm sure other bots that attach this stage won't be either.
 <br><br>
 **Updates:**<br>
+11/03/2024 - Updating some dependencies; nothing exciting.<br>
 08/29/2024 - The backend model has changed, and the prompts in the stage have been updated; I think the results have improved, 
 but I'm continuing to toy with the backend as I work on my next stage, which leverages the same endpoints.<br>
 08/27/2024 - Improved stage loading to no longer rely on loading the local model straight away. 
