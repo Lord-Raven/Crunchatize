@@ -129,11 +129,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 'chat, rest, wait, idle': 'None'};
             let topStat: Stat|null = null;
             const statHypothesis = 'This narrator is attempting to {}, or do something similar.'
-            let statResponse = await this.query({sequence: sequence, candidate_labels: Object.keys(statMapping), hypothesis_template: statHypothesis, multi_label: true });
-            console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
-            if (statResponse && statResponse.labels && statResponse.scores[0] > 0.4 && statMapping[statResponse.labels[0]] != 'None') {
-                topStat = Stat[statMapping[statResponse.labels[0]] as keyof typeof Stat];
-            }
+            const statPromise = this.query({sequence: sequence, candidate_labels: Object.keys(statMapping), hypothesis_template: statHypothesis, multi_label: true });
 
             const difficultyMapping:{[key: string]: number} = {
                 '1 (simple and safe)': 1000,
@@ -148,6 +144,12 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
             if (difficultyResponse && difficultyResponse.labels[0]) {
                 difficultyRating = difficultyMapping[difficultyResponse.labels[0]];
+            }
+
+            let statResponse = await statPromise;
+            console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
+            if (statResponse && statResponse.labels && statResponse.scores[0] > 0.4 && statMapping[statResponse.labels[0]] != 'None') {
+                topStat = Stat[statMapping[statResponse.labels[0]] as keyof typeof Stat];
             }
 
             if (topStat && difficultyRating < 1000) {
