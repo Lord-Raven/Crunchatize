@@ -1,1 +1,1 @@
-This is the Crunchatize stage. Most actual information is currently in chub_meta.yaml.
+This is Crunchatize, a stage (extension) for [chub.ai](http://chub.ai). Most actual information is currently in chub_meta.yaml.

@@ -42,9 +42,10 @@ You can view console output to see the classification results that the stage is 
 These are zero-shot classifications, which are pretty naive and lack significant context; I am continuing to tweak and improve, 
 but it is pretty easy to skew the results through the language you use in your input.
 <br><br>
-I've tagged the stage NSFW, but there isn't anything in the stage that would render a wholesome chat inappropriate. However, my example bot is NSFW, and I'm sure other bots that attach this stage won't be either.
+I've tagged the stage NSFW, but there isn't anything in the stage that would render a wholesome chat inappropriate. However, my example bot is NSFW, and I'm sure other bots that attach this stage could be, too.
 <br><br>
 **Updates:**<br>
+03/17/2025 - Allowing the stage to attempt to reconnect to the backend when something goes wrong, instead of falling back to the local model long-term. Minor cosmetic changes.<br>
 11/23/2024 - Sped things up a bit by kicking off both assessments instead of waiting for one before starting the other.<br>
 11/03/2024 - Updating some dependencies; nothing exciting.<br>
 08/29/2024 - The backend model has changed, and the prompts in the stage have been updated; I think the results have improved, 
@@ -57,11 +58,6 @@ Hopefully, these experiments bear fruit, and I can improve the inferences for th
 08/14/2024 - Partially swapped the inference calls to a hosted model that is a larger size. 
 There is still a bundled model, which the stage can fall back on, if the hosted model is unresponsive. 
 Hopefully, the larger model yields better results on skill and difficulty classifications.
-<br><br>
-**What's next:**<br>
-Improving inference quality for stat and difficulty determinations is my top priority; this goes hand-in-hand with my other ongoing stage development. 
-I could maybe add health tracking or some form of character creation that builds upon your persona somehow. 
-Most ideas will likely have to wait for future improvements to stages in general, but I am happy to receive feedback so I can keep things in mind!
 "
 
 # 'PUBLIC', 'PRIVATE', or 'UNLISTED'.
@@ -84,7 +80,6 @@ tags:
   - 'Extension'
   - 'Add-on'
   - 'RPG'
-  - 'WIP'
 
 needs_config:
   false

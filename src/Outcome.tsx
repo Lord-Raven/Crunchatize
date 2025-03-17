@@ -24,6 +24,15 @@ export const ResultSpan: {[result in Result]: (input: string) => string} = {
     [Result.None]: (input: string) => input,
 }
 
+const emojiDice: {[key: number]: string} = {
+    1: ResultSpan["Failure"]('\u2680 1'),
+    2: ResultSpan["Mixed Success"]('\u2681 2'),
+    3: ResultSpan["Mixed Success"]('\u2682 3'),
+    4: ResultSpan["Complete Success"]('\u2683 4'),
+    5: ResultSpan["Complete Success"]('\u2684 5'),
+    6: ResultSpan["Critical Success"]('\u2685 6')
+}
+
 export class Outcome {
     result: Result;
     dieResult1: number;
@@ -41,6 +50,7 @@ export class Outcome {
         this.total = this.dieResult1 + this.dieResult2 + this.action.difficultyModifier + this.action.skillModifier;
     }
 
+    // No longer used; using unicode characters.
     render() {
         const style = {
             width: '1em',
@@ -57,20 +67,27 @@ export class Outcome {
     }
 
     getDieEmoji(side: number): string {
-        const emojiDice: {[key: number]: string} = {
-            1: ResultSpan["Failure"]('\u2680'),
-            2: ResultSpan["Mixed Success"]('\u2681'),
-            3: ResultSpan["Mixed Success"]('\u2682'),
-            4: ResultSpan["Complete Success"]('\u2683'),
-            5: ResultSpan["Complete Success"]('\u2684'),
-            6: ResultSpan["Critical Success"]('\u2685')
-        }
+
         return emojiDice[side];
+    }
+
+    getDifficultyColor(modifier: number): string {
+        const modString = `${Math.abs(modifier)}`;
+        switch(modifier) {
+            case 1:
+                return `${modifier >= 0 ? ' + ' : ' - '}${ResultSpan["Critical Success"](modString)}`;
+            case 0:
+                return `${modifier >= 0 ? ' + ' : ' - '}${ResultSpan["Complete Success"](modString)}`;
+            case -1:
+                return `${modifier >= 0 ? ' + ' : ' - '}${ResultSpan["Mixed Success"](modString)}`;
+            default:
+                return `${modifier >= 0 ? ' + ' : ' - '}${ResultSpan["Failure"](modString)}`;
+        }
     }
 
     getDescription(): string {
         if (this.action.stat) {
-            return `###(${this.action.stat}) ${this.action.description}###\n#${this.getDieEmoji(this.dieResult1)}${this.dieResult1} + ${this.getDieEmoji(this.dieResult2)}${this.dieResult2}${this.action.difficultyModifier >= 0 ? ' + ' : ' - '}${Math.abs(this.action.difficultyModifier)}<sup><sub><sup>(difficulty)</sup></sub></sup>${this.action.skillModifier > 0 ? ` + ${this.action.skillModifier}<sup><sub><sup>(skill)</sup></sub></sup>` : ''} = ${this.total} (${ResultSpan[this.result](`${this.result}`)})#`
+            return `###(${this.action.stat}) ${this.action.description}###\n#${this.getDieEmoji(this.dieResult1)} + ${this.getDieEmoji(this.dieResult2)}${this.getDifficultyColor(this.action.difficultyModifier)}<sup><sub><sup>(difficulty)</sup></sub></sup>${this.action.skillModifier > 0 ? ` + ${ResultSpan["Complete Success"](`${this.action.skillModifier}`)}<sup><sub><sup>(skill)</sup></sub></sup>` : ''} = ${ResultSpan[this.result](`${this.total} (${this.result})`)}#`
         } else {
             return `###(No Check) ${this.action.description}###`;
         }

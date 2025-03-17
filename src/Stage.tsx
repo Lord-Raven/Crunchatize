@@ -282,6 +282,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             if (!this.fallbackMode) {
                 console.log('Falling back to local zero-shot pipeline.');
                 this.fallbackMode = true;
+                Client.connect("Ravenok/statosphere-backend", {hf_token: import.meta.env.VITE_HF_API_KEY}).then(client => {this.fallbackMode = false; this.client = client}).catch(err => console.log(err));
             }
             if (this.fallbackPipeline == null) {
                 this.fallbackPipeline = this.fallbackPipelinePromise ? await this.fallbackPipelinePromise : await this.getPipeline();
