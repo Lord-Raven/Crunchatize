@@ -118,17 +118,20 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 {"user": this.player.name, "char": promptForId ? this.characters[promptForId].name : ''});
 
             const statMapping:{[key: string]: string} = {
-                'hit, lift, endure, throw, wrestle, intimidate': 'Might',
-                'jump, dodge, balance, dance, land, sneak': 'Grace',
-                'craft, lock-pick, pickpocket, aim, repair': 'Skill',
+                'hit, wrestle': 'Might',
+                'lift, throw, climb': 'Might',
+                'endure, intimidate': 'Might',
+                'jump, dodge, balance, dance, fall, land, sneak': 'Grace',
+                'aim, shoot': 'Skill',
+                'craft, lock-pick, pickpocket, repair': 'Skill',
                 'recall, memorize, solve, strategize, debate': 'Brains',
                 'adapt, quip, spot, trick, hide': 'Wits',
-                'persuade, deceive, entice, perform': 'Charm',
+                'persuade, lie, entice, perform': 'Charm',
                 'resist, recover, empathize, comfort': 'Heart',
                 'gamble, hope, discover, guess': 'Luck',
                 'chat, rest, wait, idle': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'This narrator is attempting to {}, or do something similar.'
+            const statHypothesis = 'The narrator is attempting to do one of the following: {}, or something similar.'
             const statPromise = this.query({sequence: sequence, candidate_labels: Object.keys(statMapping), hypothesis_template: statHypothesis, multi_label: true });
 
             const difficultyMapping:{[key: string]: number} = {
@@ -147,8 +150,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             }
 
             let statResponse = await statPromise;
-            console.log(`Stat selected: ${(statResponse.scores[0] > 0.4 ? statMapping[statResponse.labels[0]] : 'None')}`);
-            if (statResponse && statResponse.labels && statResponse.scores[0] > 0.4 && statMapping[statResponse.labels[0]] != 'None') {
+            console.log(`Stat selected: ${(statResponse.scores[0] > 0.3 ? statMapping[statResponse.labels[0]] : 'None')}`);
+            if (statResponse && statResponse.labels && statResponse.scores[0] > 0.3 && statMapping[statResponse.labels[0]] != 'None') {
                 topStat = Stat[statMapping[statResponse.labels[0]] as keyof typeof Stat];
             }
 
