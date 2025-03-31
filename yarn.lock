@@ -231,10 +231,10 @@
     "@types/tough-cookie" "^4.0.5"
     tough-cookie "^4.1.4"
 
-"@chub-ai/stages-ts@0.3.8":
-  version "0.3.8"
-  resolved "https://registry.yarnpkg.com/@chub-ai/stages-ts/-/stages-ts-0.3.8.tgz#a7169e1b94db6c7dc601b43a75b1da924a470623"
-  integrity sha512-UmJZKWmWXqK7jCC5aqfUjs11d7J4Z0ve+b8YA+pswr7B4ZG5pQyrTLxU1/GPKK2QqKeeqZok+/ny0npUx5XIRA==
+"@chub-ai/stages-ts@0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@chub-ai/stages-ts/-/stages-ts-0.4.0.tgz#b8e6ef97e0f4ba6398e89a2c944786091d6aebad"
+  integrity sha512-oWh60uLcQ/f9C/JI/8syhMxiAbm+8StKsCWtRe5W3OngXRAYDKfScob+p0pALKV+S2t0ohRCoBE7WE+/cWsNfQ==
   dependencies:
     "@ffmpeg/ffmpeg" "^0.12.10"
     "@types/node" "20.10.0"
@@ -405,10 +405,10 @@
   resolved "https://registry.yarnpkg.com/@ffmpeg/types/-/types-0.12.2.tgz#bc7eef321ae50225c247091f1f23fd3087c6aa1d"
   integrity sha512-NJtxwPoLb60/z1Klv0ueshguWQ/7mNm106qdHkB4HL49LXszjhjCCiL+ldHJGQ9ai2Igx0s4F24ghigy//ERdA==
 
-"@gradio/client@^1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@gradio/client/-/client-1.5.0.tgz#176504d3eff14b723d610131b8c0e0254bc5f046"
-  integrity sha512-ZQ1coiujVZjVfas0zyyFgVQOocUL+pnYJagRNfLTzCsJ0m/DXGngELhGTM/QjIVkJGVDuhUyY5VCM7vD1n4LDQ==
+"@gradio/client@^1.14.0":
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/@gradio/client/-/client-1.14.0.tgz#7eed032294be79085150c9743e949eb8017909ea"
+  integrity sha512-BqM4D6RNCjInJG0OcGrAbik+DX4kRht2XrB7Mkd6bT5rtP3pUStZFRqb+mOuw+wvZvDfm4K0SngB/9X2i+RtTg==
   dependencies:
     "@types/eventsource" "^1.1.15"
     bufferutil "^4.0.7"
