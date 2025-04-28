@@ -267,13 +267,13 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             userState.stats = this.clearStatMap();
             if (messageState != null) {
                 for (let stat in Stat) {
-                    userState.stats[stat as Stat] = messageState[user.anonymizedId][stat] ?? messageState[stat] ?? this.defaultStat;
-                    userState.statUses[stat as Stat] = messageState[user.anonymizedId][`use_${stat}`] ?? messageState[`use_${stat}`] ?? 0;
+                    userState.stats[stat as Stat] = messageState[user.anonymizedId]?.[stat] ?? messageState[stat] ?? this.defaultStat;
+                    userState.statUses[stat as Stat] = messageState[user.anonymizedId]?.[`use_${stat}`] ?? messageState[`use_${stat}`] ?? 0;
                 }
-                userState.lastOutcome = (messageState[user.anonymizedId]['lastOutcome'] ? this.convertOutcome(messageState[user.anonymizedId]['lastOutcome']) : null) ??
-                    (messageState['lastOutcome'] ? this.convertOutcome(messageState['lastOutcome']) : null);
-                userState.lastOutcomePrompt = messageState[user.anonymizedId]['lastOutcomePrompt'] ?? messageState['lastOutcomePrompt'] ?? '';
-                userState.experience = messageState[user.anonymizedId]['experience'] ?? messageState['experience'] ?? 0;
+                let lastOutcome = messageState[user.anonymizedId]?.['lastOutcome'] ?? messageState['lastOutcome'] ?? null;
+                userState.lastOutcome = lastOutcome ? this.convertOutcome(lastOutcome) : null;
+                userState.lastOutcomePrompt = messageState[user.anonymizedId]?.['lastOutcomePrompt'] ?? messageState['lastOutcomePrompt'] ?? '';
+                userState.experience = messageState[user.anonymizedId]?.['experience'] ?? messageState['experience'] ?? 0;
             }
         }
     }
