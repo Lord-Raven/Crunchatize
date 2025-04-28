@@ -244,10 +244,12 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
     async afterResponse(botMessage: Message): Promise<Partial<StageResponse<ChatStateType, MessageStateType>>> {
         const {
+            identity,
+            promptForId,
             anonymizedId
         } = botMessage;
 
-        console.log(`afterResponse:`);
+        console.log(`afterResponse, for ${anonymizedId} (not ${identity} or ${promptForId}?):`);
         console.log(this.getUserState(anonymizedId));
         this.getUserState(anonymizedId).lastOutcomePrompt = '';
 
