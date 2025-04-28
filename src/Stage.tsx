@@ -313,6 +313,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         if (this.getUserState(anonymizedId).lastOutcome) {
             this.getUserState(anonymizedId).lastOutcomePrompt += `{{user}} has chosen the following action: ${this.getUserState(anonymizedId).lastOutcome?.action.description ?? ''}\n`;
             this.getUserState(anonymizedId).lastOutcomePrompt += `${ResultDescription[this.getUserState(anonymizedId).lastOutcome?.result ?? Result.None]}\n`
+            if (Object.values(this.users).length > 1) {
+                this.getUserState(anonymizedId).lastOutcomePrompt += `Use third-person language for {{user}}.\n`;
+            }
         }
     }
 
