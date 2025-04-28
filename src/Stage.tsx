@@ -63,10 +63,10 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         console.log(this.users);
         console.log(this.characters);
 
-        this.setStateFromMessageState(messageState);
         for (let user of Object.values(this.users)) {
             this.userState[user.anonymizedId] = this.initializeUserState();
         }
+        this.setStateFromMessageState(messageState);
 
         this.fallbackMode = false;
         this.fallbackPipeline = null;
