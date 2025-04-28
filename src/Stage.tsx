@@ -58,11 +58,12 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             users,
             messageState,
         } = data;
-        this.setStateFromMessageState(messageState);
         this.users = users;
         this.characters = characters;
         console.log(this.users);
         console.log(this.characters);
+
+        this.setStateFromMessageState(messageState);
         for (let user of Object.values(this.users)) {
             this.userState[user.anonymizedId] = this.initializeUserState();
         }
