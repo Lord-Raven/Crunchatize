@@ -21,24 +21,34 @@ type ChatStateType = any;
   yarn dev --host --mode staging
 */
 
+interface SaveState {
+    experience: number;
+    statUses: {[stat in Stat]: number};
+    stats: {[stat in Stat]: number};
+    lastOutcome: Outcome|null;
+    lastOutcomePrompt: string;
+}
+
 export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateType, ConfigType> {
     
     readonly defaultStat: number = 0;
     readonly levelThresholds: number[] = [2, 5, 8, 12, 16, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
 
     // message-level variables
-    experience: number = 0;
+    userState: {[key: string]: SaveState} = {};
+    /*experience: number = 0;
     statUses: {[stat in Stat]: number} = this.clearStatMap();
     stats: {[stat in Stat]: number} = this.clearStatMap();
     lastOutcome: Outcome|null = null;
-    lastOutcomePrompt: string = '';
+    lastOutcomePrompt: string = '';*/
 
     // other
     client: any;
     fallbackPipelinePromise: Promise<any> | null = null;
     fallbackPipeline: any = null;
     fallbackMode: boolean;
-    player: User;
+    //player: User;
+    users: {[key: string]: User};
     characters: {[key: string]: Character};
 
     constructor(data: InitialData<InitStateType, ChatStateType, MessageStateType, ConfigType>) {
@@ -49,12 +59,31 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             messageState,
         } = data;
         this.setStateFromMessageState(messageState);
-        this.player = users[Object.keys(users)[0]];
+        this.users = users;
         this.characters = characters;
+        console.log(this.users);
+        console.log(this.characters);
+        for (let user of Object.values(this.users)) {
+            this.userState[user.anonymizedId] = this.initializeUserState();
+        }
 
         this.fallbackMode = false;
         this.fallbackPipeline = null;
         env.allowRemoteModels = false;
+    }
+
+    initializeUserState(): SaveState {
+        return {
+            experience: 0,
+            statUses: this.clearStatMap(),
+            stats: this.clearStatMap(),
+            lastOutcome: null,
+            lastOutcomePrompt: ''
+        }
+    }
+
+    getUserState(anonymizedId: string): SaveState {
+        return this.userState[anonymizedId] ?? this.initializeUserState();
     }
 
     clearStatMap() {
@@ -105,6 +134,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
     async beforePrompt(userMessage: Message): Promise<Partial<StageResponse<ChatStateType, MessageStateType>>> {
         const {
+            anonymizedId,
             content,
             promptForId
         } = userMessage;
@@ -115,23 +145,26 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
         if (finalContent) {
             let sequence = this.replaceTags(content,
-                {"user": this.player.name, "char": promptForId ? this.characters[promptForId].name : ''});
+                {"user": anonymizedId ? this.users[anonymizedId].name : '', "char": promptForId ? this.characters[promptForId].name : ''});
 
             const statMapping:{[key: string]: string} = {
                 'hit, wrestle': 'Might',
                 'lift, throw, climb': 'Might',
-                'endure, intimidate': 'Might',
+                'endure, physically intimidate': 'Might',
                 'jump, dodge, balance, dance, fall, land, sneak': 'Grace',
                 'aim, shoot': 'Skill',
                 'craft, lock-pick, pickpocket, repair': 'Skill',
-                'recall, memorize, solve, strategize, debate': 'Brains',
-                'adapt, quip, spot, trick, hide': 'Wits',
+                'ride, steer': 'Skill',
+                'memorize, recall, solve, debate': 'Brains',
+                'strategize, plan, navigate': 'Brains',
+                'quip, trick': 'Wits',
+                'adapt, spot, hide': 'Wits',
                 'persuade, lie, entice, perform': 'Charm',
                 'resist, recover, empathize, comfort': 'Heart',
                 'gamble, hope, discover, guess': 'Luck',
                 'chat, rest, wait, idle': 'None'};
             let topStat: Stat|null = null;
-            const statHypothesis = 'The narrator is attempting to do one of the following: {}, or something similar.'
+            const statHypothesis = 'The narrator is doing one of the following: {}, or something similar.'
             const statPromise = this.query({sequence: sequence, candidate_labels: Object.keys(statMapping), hypothesis_template: statHypothesis, multi_label: true });
 
             const difficultyMapping:{[key: string]: number} = {
@@ -150,40 +183,40 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             }
 
             let statResponse = await statPromise;
-            console.log(`Stat selected: ${(statResponse.scores[0] > 0.3 ? statMapping[statResponse.labels[0]] : 'None')}`);
-            if (statResponse && statResponse.labels && statResponse.scores[0] > 0.3 && statMapping[statResponse.labels[0]] != 'None') {
+            if (statResponse && statResponse.labels && statResponse.scores[0] > 0.1 && statMapping[statResponse.labels[0]] != 'None') {
                 topStat = Stat[statMapping[statResponse.labels[0]] as keyof typeof Stat];
+                console.log(`Stat selected: ${topStat}`);
             }
 
             if (topStat && difficultyRating < 1000) {
-                takenAction = new Action(finalContent, topStat, difficultyRating, this.stats[topStat]);
+                takenAction = new Action(finalContent, topStat, difficultyRating, this.getUserState(anonymizedId).stats[topStat]);
             } else {
                 takenAction = new Action(finalContent, null, 0, 0);
             }
         }
 
         if (takenAction) {
-            this.setLastOutcome(takenAction.determineSuccess());
-            finalContent = this.lastOutcome?.getDescription();
+            this.setLastOutcome(anonymizedId, takenAction.determineSuccess());
+            finalContent = this.getUserState(anonymizedId).lastOutcome?.getDescription();
 
             if (takenAction.stat) {
-                this.statUses[takenAction.stat]++;
+                this.getUserState(anonymizedId).statUses[takenAction.stat]++;
             }
 
-            if (this.lastOutcome && [Result.Failure, Result.CriticalSuccess].includes(this.lastOutcome.result)) {
-                this.experience++;
-                let level = this.getLevel();
-                if (this.experience == this.levelThresholds[level]) {
-                    const maxCount = Math.max(...Object.values(this.statUses));
-                    const maxStats = Object.keys(this.statUses)
-                            .filter((stat) => this.statUses[stat as Stat] === maxCount)
+            if (this.getUserState(anonymizedId).lastOutcome && [Result.Failure, Result.CriticalSuccess].includes(this.getUserState(anonymizedId).lastOutcome?.result ?? Result.None)) {
+                this.getUserState(anonymizedId).experience++;
+                let level = this.getLevel(anonymizedId);
+                if (this.getUserState(anonymizedId).experience == this.levelThresholds[level]) {
+                    const maxCount = Math.max(...Object.values(this.getUserState(anonymizedId).statUses));
+                    const maxStats = Object.keys(this.getUserState(anonymizedId).statUses)
+                            .filter((stat) => this.getUserState(anonymizedId).statUses[stat as Stat] === maxCount)
                             .map((stat) => stat as Stat);
                     let chosenStat = maxStats[Math.floor(Math.random() * maxStats.length)];
-                    this.stats[chosenStat]++;
+                    this.getUserState(anonymizedId).stats[chosenStat]++;
 
                     finalContent += `\n##Welcome to level ${level + 2}!##\n#_${chosenStat}_ up!#`;
 
-                    this.statUses = this.clearStatMap();
+                    this.getUserState(anonymizedId).statUses = this.clearStatMap();
                 } else {
                     finalContent += `\n###You've learned from this experience...###`
                 }
@@ -191,8 +224,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         }
 
         return {
-            stageDirections: `\n[INST]${this.replaceTags(this.lastOutcomePrompt,{
-                "user": this.player.name,
+            stageDirections: `\n[INST]${this.replaceTags(this.getUserState(anonymizedId).lastOutcomePrompt,{
+                "user": this.users[anonymizedId].name,
                 "char": promptForId ? this.characters[promptForId].name : ''
             })}\n[/INST]`,
             messageState: this.buildMessageState(),
@@ -203,12 +236,16 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         };
     }
 
-    getLevel(): number {
-        return Object.values(this.stats).reduce((acc, val) => acc + val, 0)
+    getLevel(anonymizedId: string): number {
+        return Object.values(this.getUserState(anonymizedId).stats).reduce((acc, val) => acc + val, 0)
     }
-    async afterResponse(botMessage: Message): Promise<Partial<StageResponse<ChatStateType, MessageStateType>>> {
 
-        this.lastOutcomePrompt = '';
+    async afterResponse(botMessage: Message): Promise<Partial<StageResponse<ChatStateType, MessageStateType>>> {
+        const {
+            anonymizedId
+        } = botMessage;
+
+        this.getUserState(anonymizedId).lastOutcomePrompt = '';
 
         return {
             stageDirections: null,
@@ -216,22 +253,27 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             modifiedMessage: null,
             error: null,
             systemMessage: `---\n` +
-                `\`{{user}} - Level ${this.getLevel() + 1} (${this.experience}/${this.levelThresholds[this.getLevel()]})\`<br>` +
-                `\`${Object.keys(Stat).map(key => `${key}: ${this.stats[key as Stat]}`).join(' | ')}\``,
+                Object.values(this.users).map(user =>
+                `${user.name} - Level ${this.getLevel(anonymizedId) + 1} (${this.getUserState(anonymizedId).experience}/${this.levelThresholds[this.getLevel(anonymizedId)]})<br>` +
+                `${Object.keys(Stat).map(key => `${key}: ${this.getUserState(anonymizedId).stats[key as Stat]}`).join(' | ')}`).join('\n'),
             chatState: null
         };
     }
 
     setStateFromMessageState(messageState: MessageStateType) {
-        this.stats = this.clearStatMap();
-        if (messageState != null) {
-            for (let stat in Stat) {
-                this.stats[stat as Stat] = messageState[stat] ?? this.defaultStat;
-                this.statUses[stat as Stat] = messageState[`use_${stat}`] ?? 0;
+        for (let user of Object.values(this.users)) {
+            let userState = this.userState[user.anonymizedId];
+            userState.stats = this.clearStatMap();
+            if (messageState != null) {
+                for (let stat in Stat) {
+                    userState.stats[stat as Stat] = messageState[user.anonymizedId][stat] ?? messageState[stat] ?? this.defaultStat;
+                    userState.statUses[stat as Stat] = messageState[user.anonymizedId][`use_${stat}`] ?? messageState[`use_${stat}`] ?? 0;
+                }
+                userState.lastOutcome = (messageState[user.anonymizedId]['lastOutcome'] ? this.convertOutcome(messageState[user.anonymizedId]['lastOutcome']) : null) ??
+                    (messageState['lastOutcome'] ? this.convertOutcome(messageState['lastOutcome']) : null);
+                userState.lastOutcomePrompt = messageState[user.anonymizedId]['lastOutcomePrompt'] ?? messageState['lastOutcomePrompt'] ?? '';
+                userState.experience = messageState[user.anonymizedId]['experience'] ?? messageState['experience'] ?? 0;
             }
-            this.lastOutcome = messageState['lastOutcome'] ? this.convertOutcome(messageState['lastOutcome']) : null;
-            this.lastOutcomePrompt = messageState['lastOutcomePrompt'] ?? '';
-            this.experience = messageState['experience'] ?? 0;
         }
     }
 
@@ -244,24 +286,29 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     }
 
     buildMessageState(): any {
-        let messageState: {[key: string]: any} = {};
-        for (let stat in Stat) {
-            messageState[stat] = this.stats[stat as Stat] ?? this.defaultStat;
-            messageState[`use_${stat}`] = this.statUses[stat as Stat] ?? 0;
+        let messageState: any = {};
+        for (let user of Object.values(this.users)) {
+            let userState: { [key: string]: any } = {};
+            for (let stat in Stat) {
+                userState[stat] = this.getUserState(user.anonymizedId).stats[stat as Stat] ?? this.defaultStat;
+                userState[`use_${stat}`] = this.getUserState(user.anonymizedId).statUses[stat as Stat] ?? 0;
+            }
+            userState['lastOutcome'] = this.getUserState(user.anonymizedId).lastOutcome ?? null;
+            userState['lastOutcomePrompt'] = this.getUserState(user.anonymizedId).lastOutcomePrompt ?? '';
+            userState['experience'] = this.getUserState(user.anonymizedId).experience ?? 0;
+
+            messageState[user.anonymizedId] = userState;
         }
-        messageState['lastOutcome'] = this.lastOutcome ?? null;
-        messageState['lastOutcomePrompt'] = this.lastOutcomePrompt ?? '';
-        messageState['experience'] = this.experience ?? 0;
 
         return messageState;
     }
 
-    setLastOutcome(outcome: Outcome|null) {
-        this.lastOutcome = outcome;
-        this.lastOutcomePrompt = '';
-        if (this.lastOutcome) {
-            this.lastOutcomePrompt += `{{user}} has chosen the following action: ${this.lastOutcome.action.description}\n`;
-            this.lastOutcomePrompt += `${ResultDescription[this.lastOutcome.result]}\n`
+    setLastOutcome(anonymizedId: string, outcome: Outcome|null) {
+        this.getUserState(anonymizedId).lastOutcome = outcome;
+        this.getUserState(anonymizedId).lastOutcomePrompt = '';
+        if (this.getUserState(anonymizedId).lastOutcome) {
+            this.getUserState(anonymizedId).lastOutcomePrompt += `{{user}} has chosen the following action: ${this.getUserState(anonymizedId).lastOutcome?.action.description ?? ''}\n`;
+            this.getUserState(anonymizedId).lastOutcomePrompt += `${ResultDescription[this.getUserState(anonymizedId).lastOutcome?.result ?? Result.None]}\n`
         }
     }
 
