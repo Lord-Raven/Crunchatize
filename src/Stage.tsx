@@ -253,10 +253,11 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             messageState: this.buildMessageState(),
             modifiedMessage: null,
             error: null,
-            systemMessage: `---\n` +
+            systemMessage: '---\n```' +
                 Object.values(this.users).map(user =>
                 `${user.name} - Level ${this.getLevel(anonymizedId) + 1} (${this.getUserState(anonymizedId).experience}/${this.levelThresholds[this.getLevel(anonymizedId)]})<br>` +
-                `${Object.keys(Stat).map(key => `${key}: ${this.getUserState(anonymizedId).stats[key as Stat]}`).join(' | ')}`).join('\n'),
+                `${Object.keys(Stat).map(key => `${key}: ${this.getUserState(anonymizedId).stats[key as Stat]}`).join(' | ')}`).join('\n') +
+                '```',
             chatState: null
         };
     }
