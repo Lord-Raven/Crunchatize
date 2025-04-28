@@ -243,15 +243,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     }
 
     async afterResponse(botMessage: Message): Promise<Partial<StageResponse<ChatStateType, MessageStateType>>> {
-        const {
-            identity,
-            promptForId,
-            anonymizedId
-        } = botMessage;
 
-        console.log(`afterResponse, for ${anonymizedId} (not ${identity} or ${promptForId}?):`);
-        console.log(this.getUserState(anonymizedId));
-        this.getUserState(anonymizedId).lastOutcomePrompt = '';
+        Object.values(this.users).forEach(user => this.getUserState(user.anonymizedId).lastOutcomePrompt = '');
 
         return {
             stageDirections: null,
@@ -260,8 +253,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             error: null,
             systemMessage: '---\n```' +
                 Object.values(this.users).map(user =>
-                `${user.name} - Level ${this.getLevel(anonymizedId) + 1} (${this.getUserState(anonymizedId).experience}/${this.levelThresholds[this.getLevel(anonymizedId)]})\n` +
-                `${Object.keys(Stat).map(key => `${key}: ${this.getUserState(anonymizedId).stats[key as Stat]}`).join(' | ')}`).join('\n') +
+                `${user.name} - Level ${this.getLevel(user.anonymizedId) + 1} (${this.getUserState(user.anonymizedId).experience}/${this.levelThresholds[this.getLevel(user.anonymizedId)]})\n` +
+                `${Object.keys(Stat).map(key => `${key}: ${this.getUserState(user.anonymizedId).stats[key as Stat]}`).join(' | ')}`).join('\n') +
                 '```',
             chatState: null
         };
