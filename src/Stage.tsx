@@ -48,8 +48,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     fallbackPipeline: any = null;
     fallbackMode: boolean;
     //player: User;
-    users: {[key: string]: User};
-    characters: {[key: string]: Character};
+    users: {[key: string]: User} = {};
+    characters: {[key: string]: Character} = {};
 
     constructor(data: InitialData<InitStateType, ChatStateType, MessageStateType, ConfigType>) {
         super(data);
