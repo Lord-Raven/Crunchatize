@@ -255,7 +255,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             error: null,
             systemMessage: '---\n```' +
                 Object.values(this.users).map(user =>
-                `${user.name} - Level ${this.getLevel(anonymizedId) + 1} (${this.getUserState(anonymizedId).experience}/${this.levelThresholds[this.getLevel(anonymizedId)]})<br>` +
+                `${user.name} - Level ${this.getLevel(anonymizedId) + 1} (${this.getUserState(anonymizedId).experience}/${this.levelThresholds[this.getLevel(anonymizedId)]})\n` +
                 `${Object.keys(Stat).map(key => `${key}: ${this.getUserState(anonymizedId).stats[key as Stat]}`).join(' | ')}`).join('\n') +
                 '```',
             chatState: null
@@ -276,6 +276,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 let lastOutcome = messageState[user.anonymizedId]?.['lastOutcome'] ?? messageState['lastOutcome'] ?? null;
                 userState.lastOutcome = lastOutcome ? this.convertOutcome(lastOutcome) : null;
                 userState.lastOutcomePrompt = messageState[user.anonymizedId]?.['lastOutcomePrompt'] ?? messageState['lastOutcomePrompt'] ?? '';
+                console.log(`experience: ${messageState[user.anonymizedId]?.['experience']} vs. ${messageState['experience']}`);
                 userState.experience = messageState[user.anonymizedId]?.['experience'] ?? messageState['experience'] ?? 0;
             }
         }
