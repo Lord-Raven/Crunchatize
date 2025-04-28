@@ -276,9 +276,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                 let lastOutcome = messageState[user.anonymizedId]?.['lastOutcome'] ?? messageState['lastOutcome'] ?? null;
                 userState.lastOutcome = lastOutcome ? this.convertOutcome(lastOutcome) : null;
                 userState.lastOutcomePrompt = messageState[user.anonymizedId]?.['lastOutcomePrompt'] ?? messageState['lastOutcomePrompt'] ?? '';
-                console.log(`experience: ${messageState[user.anonymizedId]?.['experience']} vs. ${messageState['experience']}`);
                 userState.experience = messageState[user.anonymizedId]?.['experience'] ?? messageState['experience'] ?? 0;
             }
+            this.userState[user.anonymizedId] = userState;
         }
     }
 
