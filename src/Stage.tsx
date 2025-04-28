@@ -263,7 +263,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
     setStateFromMessageState(messageState: MessageStateType) {
         for (let user of Object.values(this.users)) {
-            let userState = this.userState[user.anonymizedId];
+            let userState = this.getUserState(user.anonymizedId);
             userState.stats = this.clearStatMap();
             if (messageState != null) {
                 for (let stat in Stat) {
