@@ -247,6 +247,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             anonymizedId
         } = botMessage;
 
+        console.log(`afterResponse:`);
+        console.log(this.getUserState(anonymizedId));
         this.getUserState(anonymizedId).lastOutcomePrompt = '';
 
         return {
@@ -305,7 +307,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
             messageState[user.anonymizedId] = userState;
         }
-
+        console.log('buildMessageState:');
+        console.log(messageState);
         return messageState;
     }
 
@@ -350,13 +353,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     }
 
     render(): ReactElement {
-        return <div style={{
-            width: '100vw',
-            height: '100vh',
-            display: 'grid',
-            alignItems: 'stretch'
-        }}>
-        </div>;
+        return <></>;
     }
 
 }
