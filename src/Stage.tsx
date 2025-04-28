@@ -213,8 +213,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
                             .filter((stat) => this.getUserState(anonymizedId).statUses[stat as Stat] === maxCount)
                             .map((stat) => stat as Stat);
                     let chosenStat = maxStats[Math.floor(Math.random() * maxStats.length)];
+                    console.log(`Before level up: ${this.getUserState(anonymizedId).stats[chosenStat]}`);
                     this.getUserState(anonymizedId).stats[chosenStat]++;
-
+                    console.log(`After level up: ${this.getUserState(anonymizedId).stats[chosenStat]}`);
                     finalContent += `\n##Welcome to level ${level + 2}!##\n#_${chosenStat}_ up!#`;
 
                     this.getUserState(anonymizedId).statUses = this.clearStatMap();
