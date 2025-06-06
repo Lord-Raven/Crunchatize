@@ -36,11 +36,6 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
     // message-level variables
     userState: {[key: string]: SaveState} = {};
-    /*experience: number = 0;
-    statUses: {[stat in Stat]: number} = this.clearStatMap();
-    stats: {[stat in Stat]: number} = this.clearStatMap();
-    lastOutcome: Outcome|null = null;
-    lastOutcomePrompt: string = '';*/
 
     // other
     client: any;
@@ -244,12 +239,15 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
 
     async afterResponse(botMessage: Message): Promise<Partial<StageResponse<ChatStateType, MessageStateType>>> {
 
+        let message = botMessage.content;
+
+
         Object.values(this.users).forEach(user => this.getUserState(user.anonymizedId).lastOutcomePrompt = '');
 
         return {
             stageDirections: null,
             messageState: this.buildMessageState(),
-            modifiedMessage: null,
+            modifiedMessage: botMessage.content.split(/---|\*\*\*|```/)[0].trim(),
             error: null,
             systemMessage: '---\n```' +
                 Object.values(this.users).map(user =>

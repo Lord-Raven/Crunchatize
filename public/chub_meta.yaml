@@ -47,6 +47,7 @@ but it is pretty easy to skew the results through the language you use in your i
 I've tagged the stage NSFW, but there isn't anything in the stage that would render a wholesome chat inappropriate. However, my example bot is NSFW, and I'm sure other bots that attach this stage could be, too.
 <br><br>
 **Updates:**<br>
+06/06/2025 - Trimming 'fake' statblocks out of LLM responses. Looking at a multiplayer bug.<br>
 04/28/2025 - This stage should now support multiplayer chats. Made some small revisions to stat determination, as well.<br>
 03/30/2025 - Updated the HF backend this stage leverages and had to update the Gradio client here. I broke inference for several hours but it's back up and should perform better than before. I might toy with other models, but I'm pretty happy with the performance boost for now.<br>
 03/17/2025 - Allowing the stage to attempt to reconnect to the backend when something goes wrong, instead of falling back to the local model long-term. Minor visual update and made some changes to the stat classifier to hopefully get better results.<br>
