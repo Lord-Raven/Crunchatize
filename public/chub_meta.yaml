@@ -47,6 +47,7 @@ but it is pretty easy to skew the results through the language you use in your i
 I've tagged the stage NSFW, but there isn't anything in the stage that would render a wholesome chat inappropriate. However, my example bot is NSFW, and I'm sure other bots that attach this stage could be, too.
 <br><br>
 **Updates:**<br>
+07/18/2025 - Added a configurable difficulty modifier that applies to all rolls.<br>
 06/06/2025 - Trimming 'fake' statblocks out of LLM responses. Looking at a multiplayer bug.<br>
 04/28/2025 - This stage should now support multiplayer chats. Made some small revisions to stat determination, as well.<br>
 03/30/2025 - Updated the HF backend this stage leverages and had to update the Gradio client here. I broke inference for several hours but it's back up and should perform better than before. I might toy with other models, but I'm pretty happy with the performance boost for now.<br>
@@ -92,10 +93,11 @@ config_schema:
   title: Crunchatize Configuration
   type: object
   properties:
-    debugMode:
-      label: Debug Mode
-      type: boolean
-      default: false
+    difficultyModifier:
+      label: Difficulty Modifier
+      description: Universal modifier added (or subtracted) for all rolls.
+      type: integer
+      default: 0
 
 # The schema of the state that you store.
 # This isn't needed even if you do store state,

@@ -45,6 +45,8 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     //player: User;
     users: {[key: string]: User} = {};
     characters: {[key: string]: Character} = {};
+    globalModifier: number;
+
 
     constructor(data: InitialData<InitStateType, ChatStateType, MessageStateType, ConfigType>) {
         super(data);
@@ -52,11 +54,13 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             characters,
             users,
             messageState,
+            config
         } = data;
         this.users = users;
         this.characters = characters;
         console.log(this.users);
         console.log(this.characters);
+        this.globalModifier = config.difficultyModifier ?? 0;
 
         for (let user of Object.values(this.users)) {
             this.userState[user.anonymizedId] = this.initializeUserState();
@@ -173,9 +177,9 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             let difficultyRating:number = 0;
             const difficultyHypothesis = 'On a scale of 1-6, the difficulty of the narrator\'s actions is {}.';
             let difficultyResponse = await this.query({sequence: sequence, candidate_labels: Object.keys(difficultyMapping), hypothesis_template: difficultyHypothesis, multi_label: true });
-            console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]]}`);
+            console.log(`Difficulty modifier selected: ${difficultyMapping[difficultyResponse.labels[0]] + this.globalModifier}`);
             if (difficultyResponse && difficultyResponse.labels[0]) {
-                difficultyRating = difficultyMapping[difficultyResponse.labels[0]];
+                difficultyRating = difficultyMapping[difficultyResponse.labels[0]] + this.globalModifier;
             }
 
             let statResponse = await statPromise;
