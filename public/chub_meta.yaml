@@ -94,7 +94,7 @@ config_schema:
   type: object
   properties:
     difficultyModifier:
-      label: Difficulty Modifier
+      title: Difficulty Modifier
       description: Universal modifier added (or subtracted) for all rolls.
       type: integer
       default: 0
