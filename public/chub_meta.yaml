@@ -47,7 +47,7 @@ but it is pretty easy to skew the results through the language you use in your i
 I've tagged the stage NSFW, but there isn't anything in the stage that would render a wholesome chat inappropriate. However, my example bot is NSFW, and I'm sure other bots that attach this stage could be, too.
 <br><br>
 **Updates:**<br>
-08/05/2025 - Forced to update by Hugging Face.
+08/05/2025 - Forced to update by Hugging Face.<br>
 07/18/2025 - Added a configurable difficulty modifier that applies to all rolls.<br>
 06/06/2025 - Trimming 'fake' statblocks out of LLM responses. Looking at a multiplayer bug.<br>
 04/28/2025 - This stage should now support multiplayer chats. Made some small revisions to stat determination, as well.<br>
