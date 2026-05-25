@@ -251,7 +251,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         return {
             stageDirections: null,
             messageState: this.buildMessageState(),
-            modifiedMessage: botMessage.content.split(/---|\*\*\*|```/)[0].trim(),
+            modifiedMessage: message.split(/---|\*\*\*|```|system:/i)[0].trim(),
             error: null,
             systemMessage: '---\n```' +
                 Object.values(this.users).map(user =>
