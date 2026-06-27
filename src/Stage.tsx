@@ -4,8 +4,6 @@ import {LoadResponse} from "@chub-ai/stages-ts/dist/types/load";
 import {Action} from "./Action";
 import {Stat} from "./Stat"
 import {Outcome, Result, ResultDescription} from "./Outcome";
-import {env, pipeline} from '@xenova/transformers';
-import {Client} from "@gradio/client";
 
 type MessageStateType = any;
 
@@ -37,11 +35,7 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     // message-level variables
     userState: {[key: string]: SaveState} = {};
 
-    // other
-    client: any;
-    fallbackPipelinePromise: Promise<any> | null = null;
-    fallbackPipeline: any = null;
-    fallbackMode: boolean;
+    // other:
     //player: User;
     users: {[key: string]: User} = {};
     characters: {[key: string]: Character} = {};
@@ -66,10 +60,6 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
             this.userState[user.anonymizedId] = this.initializeUserState();
         }
         this.setStateFromMessageState(messageState);
-
-        this.fallbackMode = false;
-        this.fallbackPipeline = null;
-        env.allowRemoteModels = false;
     }
 
     initializeUserState(): SaveState {
@@ -100,32 +90,12 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
     }
 
     async load(): Promise<Partial<LoadResponse<InitStateType, ChatStateType, MessageStateType>>> {
-
-        try {
-            this.fallbackPipelinePromise = this.getPipeline();
-        } catch (exception: any) {
-            console.error(`Error loading pipeline: ${exception}`);
-        }
-
-        try {
-            this.client = await Client.connect("Ravenok/statosphere-backend");
-        } catch (error) {
-            console.error(`Error connecting to backend pipeline; will resort to local inference.`);
-            this.fallbackMode = true;
-        }
-
-        console.log('Finished loading stage.');
-
         return {
             success: true,
             error: null,
             initState: null,
             chatState: null,
         };
-    }
-
-    async getPipeline() {
-        return pipeline("zero-shot-classification", "Xenova/mobilebert-uncased-mnli");
     }
 
     async setState(state: MessageStateType): Promise<void> {
@@ -327,28 +297,64 @@ export class Stage extends StageBase<InitStateType, ChatStateType, MessageStateT
         });
     }
 
+    async awaitPipeline(pipeline: string, eventId: any): Promise<any> {
+        return new Promise((resolve, reject) => {
+            const url = `https://${pipeline}/${eventId}`;
+            const evtSource = new EventSource(url, {withCredentials: false});
+
+            evtSource.onmessage = (e) => {
+                try {
+                    const data = JSON.parse(e.data);
+                    resolve(data);
+                    evtSource.close();
+                } catch (exception) {
+                    reject(exception);
+                }
+            };
+
+            evtSource.addEventListener("complete", (e) => {
+                try {
+                    const data = JSON.parse(e.data);
+                    resolve(data);
+                } catch (exception) {
+                    reject(exception);
+                } finally {
+                    evtSource.close();
+                }
+            });
+
+            evtSource.onerror = (e) => {
+                evtSource.close();
+                reject(e);
+            };
+        });
+    }
+
     async query(data: any) {
         let result: any = null;
-        if (this.client && !this.fallbackMode) {
+        let retries = 3;
+        const pipeline = "ravenok-statosphere-backend.hf.space/gradio_api/call/predict";
+        while (retries > 0 && (!result || result.labels.length == 0)) {
             try {
-                const response = await this.client.predict("/predict", {data_string: JSON.stringify(data)});
-                result = JSON.parse(`${response.data[0]}`);
-            } catch(e) {
-                console.log(e);
+                const request = await fetch(`https://${pipeline}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({data: [JSON.stringify(data)]}),
+                    credentials: "omit"
+                });
+
+                const { event_id } = await request.json();
+                const response = await this.awaitPipeline(pipeline, event_id);
+                result = JSON.parse(response[0]);
+            } catch (error) {
+                console.log(error);
+                retries--;
             }
         }
-        if (!result) {
-            if (!this.fallbackMode) {
-                console.log('Falling back to local zero-shot pipeline.');
-                this.fallbackMode = true;
-                Client.connect("Ravenok/statosphere-backend").then(client => {this.fallbackMode = false; this.client = client}).catch(err => console.log(err));
-            }
-            if (this.fallbackPipeline == null) {
-                this.fallbackPipeline = this.fallbackPipelinePromise ? await this.fallbackPipelinePromise : await this.getPipeline();
-            }
-            result = await this.fallbackPipeline(data.sequence, data.candidate_labels, { hypothesis_template: data.hypothesis_template, multi_label: data.multi_label });
-        }
-        console.log({sequence: data.sequence, hypothesisTemplate: data.hypothesis_template, labels: result.labels, scores: result.scores});
+
+        console.log(result);
         return result;
     }
 
